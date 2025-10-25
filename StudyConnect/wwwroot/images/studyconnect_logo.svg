@@ -1,0 +1,50 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="#4F46E5" stroke="#3730A3" stroke-width="2"/>
+  
+  <!-- Book Icon -->
+  <g transform="translate(60, 70)">
+    <!-- Book Base -->
+    <rect x="0" y="10" width="50" height="35" rx="3" fill="#FFFFFF" stroke="#E5E7EB" stroke-width="1"/>
+    <!-- Book Pages -->
+    <rect x="5" y="5" width="50" height="35" rx="3" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="1"/>
+    <rect x="10" y="0" width="50" height="35" rx="3" fill="#FFFFFF" stroke="#9CA3AF" stroke-width="1"/>
+    <!-- Book Lines -->
+    <line x1="15" y1="8" x2="45" y2="8" stroke="#6B7280" stroke-width="1"/>
+    <line x1="15" y1="15" x2="50" y2="15" stroke="#6B7280" stroke-width="1"/>
+    <line x1="15" y1="22" x2="45" y2="22" stroke="#6B7280" stroke-width="1"/>
+  </g>
+  
+  <!-- Connection Nodes -->
+  <circle cx="50" cy="120" r="8" fill="#10B981"/>
+  <circle cx="100" cy="140" r="8" fill="#10B981"/>
+  <circle cx="150" cy="120" r="8" fill="#10B981"/>
+  <circle cx="75" cy="160" r="6" fill="#34D399"/>
+  <circle cx="125" cy="160" r="6" fill="#34D399"/>
+  
+  <!-- Connection Lines -->
+  <line x1="50" y1="120" x2="100" y2="140" stroke="#10B981" stroke-width="3" opacity="0.8"/>
+  <line x1="100" y1="140" x2="150" y2="120" stroke="#10B981" stroke-width="3" opacity="0.8"/>
+  <line x1="100" y1="140" x2="75" y2="160" stroke="#34D399" stroke-width="2" opacity="0.8"/>
+  <line x1="100" y1="140" x2="125" y2="160" stroke="#34D399" stroke-width="2" opacity="0.8"/>
+  
+  <!-- Question Mark Icon -->
+  <g transform="translate(130, 60)">
+    <circle cx="15" cy="15" r="12" fill="#FBBF24" stroke="#F59E0B" stroke-width="1"/>
+    <text x="15" y="20" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="14" font-weight="bold">?</text>
+  </g>
+  
+  <!-- People Icons (representing study group) -->
+  <g transform="translate(40, 40)">
+    <!-- Person 1 -->
+    <circle cx="8" cy="8" r="4" fill="#FFFFFF"/>
+    <ellipse cx="8" cy="18" rx="6" ry="4" fill="#FFFFFF"/>
+    
+    <!-- Person 2 -->
+    <circle cx="20" cy="8" r="4" fill="#FFFFFF"/>
+    <ellipse cx="20" cy="18" rx="6" ry="4" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Study Connect Text -->
+  <text x="100" y="190" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="12" font-weight="bold">STUDY CONNECT</text>
+</svg>

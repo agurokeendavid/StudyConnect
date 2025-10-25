@@ -1,0 +1,106 @@
+﻿/* Essential global table styles */
+table > thead > tr > th, table > tfoot > tr > th, table > thead > tr > td, table > tbody > tr > td {
+    text-align: center !important;
+}
+
+/* Error message styling */
+.error {
+    color: red !important;
+}
+
+/* Statistics Section Animations - Essential for display */
+.stats-card {
+    background: white !important;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(50px);
+    opacity: 0;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    display: block !important;
+    visibility: visible !important;
+}
+
+    .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transition: left 0.6s ease;
+    }
+
+    .stats-card:hover::before {
+        left: 0;
+    }
+
+    .stats-card.animate {
+        transform: translateY(0) !important;
+        opacity: 1 !important;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        border-color: #667eea;
+    }
+
+    .stats-card h3 {
+        color: #667eea !important;
+        font-size: 2.5rem !important;
+        margin: 1rem 0;
+        transition: all 0.3s ease;
+        font-weight: bold;
+    }
+
+    .stats-card:hover h3 {
+        transform: scale(1.1);
+        color: #764ba2 !important;
+    }
+
+    .stats-card .display-4 {
+        color: #764ba2 !important;
+        margin-bottom: 1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .stats-card:hover .display-4 {
+        transform: rotate(360deg);
+    }
+
+    .stats-card p {
+        color: #6c757d !important;
+        margin-bottom: 0;
+        font-weight: 500;
+    }
+
+    /* Animation delays for staggered effect */
+    .stats-card:nth-child(1) {
+        transition-delay: 0.1s;
+    }
+
+    .stats-card:nth-child(2) {
+        transition-delay: 0.2s;
+    }
+
+    .stats-card:nth-child(3) {
+        transition-delay: 0.3s;
+    }
+
+    .stats-card:nth-child(4) {
+        transition-delay: 0.4s;
+    }
+
+/* Text gradient */
+.text-gradient {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}

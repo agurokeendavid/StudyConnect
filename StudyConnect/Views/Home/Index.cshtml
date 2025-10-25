@@ -1,0 +1,472 @@
+﻿@{
+    ViewBag.Title = "Connecting Students, Empowering Learning";
+    Layout = "_Layout";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/modules/home/index.css" asp-append-version="true" />
+}
+
+@section HeaderScripts
+{
+    <script src="~/modules/home/header_index.js" asp-append-version="true"></script>
+}
+
+<!-- Enhanced Hero Section -->
+<section class="hero-section d-flex align-items-center" id="home-section">
+    <!-- Animated Background Elements -->
+    <div class="hero-background">
+        <div class="particles" id="particles-js"></div>
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+    </div>
+
+    <div class="container position-relative z-3">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-white hero-content">
+                <div class="hero-text-wrapper">
+                    <h1 class="display-4 fw-bold mb-4 hero-title">
+                        <span class="title-line" data-text="Connect.">Connect.</span>
+                        <span class="title-line" data-text="Learn.">Learn.</span>
+                        <span class="title-line highlight-text" data-text="Succeed.">Succeed.</span>
+                    </h1>
+                    <p class="lead mb-4 hero-description">
+                        Join the ultimate platform for collaborative learning where students create study groups,
+                        share knowledge, and achieve academic excellence together.
+                    </p>
+
+                    <!-- Enhanced Action Buttons -->
+                    <div class="hero-buttons d-flex flex-column flex-sm-row gap-4">
+                        <a href="#" class="btn btn-hero-primary btn-lg">
+                            <span class="btn-content">
+                                <i class="fas fa-rocket me-2"></i>
+                                <span class="btn-text">Get Started Free</span>
+                            </span>
+                            <div class="btn-particles"></div>
+                        </a>
+                        <a href="#about-section" class="btn btn-hero-outline btn-lg">
+                            <span class="btn-content">
+                                <i class="fas fa-play-circle me-2"></i>
+                                <span class="btn-text">Learn More</span>
+                            </span>
+                            <div class="btn-glow"></div>
+                        </a>
+                    </div>
+
+                    <!-- Animated Stats Badge -->
+                    <div class="hero-stats-badge mt-5">
+                        <div class="stats-content">
+                            <div class="stats-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stats-text">
+                                <span class="stats-number" data-count="10000">0</span>
+                                <span class="stats-label">+ students learning together</span>
+                            </div>
+                        </div>
+                        <div class="badge-glow"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 text-center hero-image">
+                <div class="hero-visual">
+                    <!-- 3D Floating Logo -->
+                    <div class="logo-container">
+                        <div class="logo-backdrop"></div>
+                        <div class="logo-rings">
+                            <div class="ring ring-1"></div>
+                            <div class="ring ring-2"></div>
+                            <div class="ring ring-3"></div>
+                        </div>
+                        <img src="~/images/studyconnect_logo.png"
+                             class="hero-logo"
+                             alt="Study Connect">
+                        <div class="logo-pulse"></div>
+                    </div>
+
+                    <!-- Floating Feature Icons -->
+                    <div class="floating-features">
+                        <div class="feature-bubble feature-1">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="feature-bubble feature-2">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="feature-bubble feature-3">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="feature-bubble feature-4">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator">
+        <div class="scroll-arrow">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <span class="scroll-text">Scroll to explore</span>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="section-padding bg-light" id="stats-section">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stats-card">
+                    <div class="display-4 fw-bold text-gradient mb-2">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="fw-bold text-primary">10,000+</h3>
+                    <p class="text-muted">Active Students</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stats-card">
+                    <div class="display-4 fw-bold text-gradient mb-2">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <h3 class="fw-bold text-primary">500+</h3>
+                    <p class="text-muted">Study Groups</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stats-card">
+                    <div class="display-4 fw-bold text-gradient mb-2">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <h3 class="fw-bold text-primary">25,000+</h3>
+                    <p class="text-muted">Questions Answered</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stats-card">
+                    <div class="display-4 fw-bold text-gradient mb-2">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="fw-bold text-primary">95%</h3>
+                    <p class="text-muted">Success Rate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section class="section-padding" id="about-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <h2 class="display-5 fw-bold mb-4">About <span class="text-gradient">@StudyConnect.Constants.GlobalConfiguration.SystemTitle</span></h2>
+                <p class="lead text-muted mb-4">
+                    Study Connect is revolutionizing the way students learn and collaborate. Founded by educators who understand the challenges of modern academic life, we created a platform that brings students together in meaningful ways.
+                </p>
+                <p class="text-muted mb-4">
+                    Our mission is simple: to make learning more collaborative, engaging, and effective. We believe that when students work together, they achieve more than they ever could alone.
+                </p>
+                <div class="row">
+                    <div class="col-sm-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-graduation-cap text-white"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Academic Excellence</h6>
+                                <small class="text-muted">Proven results in improving grades</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-success d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                <i class="fas fa-users text-white"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Community Driven</h6>
+                                <small class="text-muted">Built by students, for students</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="position-relative">
+                    <img src="~/images/studyconnect_logo.png" class="img-fluid" style="max-width: 400px; opacity: 0.8;" alt="About Study Connect">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+                        <div class="text-center">
+                            <div class="bg-white rounded-pill px-4 py-2 shadow">
+                                <h5 class="fw-bold mb-0 text-primary">Empowering Learning</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="section-padding" id="features-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-4">Why Choose <span class="text-gradient">@StudyConnect.Constants.GlobalConfiguration.SystemTitle</span>?</h2>
+            <p class="lead text-muted">Discover the powerful features that make collaborative learning effective and enjoyable</p>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Create Study Groups</h4>
+                    <p class="text-muted">Form study groups with classmates and collaborate on subjects. Share resources, schedule sessions, and learn together effectively.</p>
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="fas fa-check text-success me-2"></i>Group chat and discussions</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Resource sharing</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Study session scheduling</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Ask & Answer Questions</h4>
+                    <p class="text-muted">Post questions and get help from other students. Share your knowledge by answering questions and helping peers succeed.</p>
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="fas fa-check text-success me-2"></i>Subject-based Q&amp;A</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Expert verified answers</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Reputation system</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Collaborative Learning</h4>
+                    <p class="text-muted">Work together on projects and assignments. Share notes, collaborate on documents, and achieve better results as a team.</p>
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="fas fa-check text-success me-2"></i>Document collaboration</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Project management</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Progress tracking</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #fa709a, #fee140);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Track Progress</h4>
+                    <p class="text-muted">Monitor your learning journey with detailed analytics. See your contributions, track achievements, and measure your growth.</p>
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="fas fa-check text-success me-2"></i>Learning analytics</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Achievement badges</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Performance insights</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #a8edea, #fed6e3);">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Mobile Friendly</h4>
+                    <p class="text-muted">Access your study groups and resources anywhere, anytime. Our responsive platform works seamlessly on all devices.</p>
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="fas fa-check text-success me-2"></i>Responsive design</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Offline access</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Push notifications</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: linear-gradient(135deg, #d299c2, #fef9d7);">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3">Safe & Secure</h4>
+                    <p class="text-muted">Your privacy and security are our priority. All communications are encrypted and your data is protected with industry standards.</p>
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="fas fa-check text-success me-2"></i>End-to-end encryption</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Privacy controls</li>
+                        <li><i class="fas fa-check text-success me-2"></i>Secure authentication</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="section-padding bg-light" id="how-it-works">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-4">How It <span class="text-gradient">Works</span></h2>
+            <p class="lead text-muted">Get started in just 3 simple steps</p>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-4 text-center mb-4">
+                <div class="position-relative">
+                    <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold fs-3">1</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="fw-bold mb-3">Sign Up Free</h4>
+                        <p class="text-muted">Create your account in seconds. It's completely free and always will be. Just enter your email and you're ready to start.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 text-center mb-4">
+                <div class="position-relative">
+                    <div class="rounded-circle bg-success d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold fs-3">2</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="fw-bold mb-3">Join or Create Groups</h4>
+                        <p class="text-muted">Find existing study groups for your subjects or create your own. Invite classmates and start collaborating immediately.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 text-center mb-4">
+                <div class="position-relative">
+                    <div class="rounded-circle bg-warning d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <span class="text-white fw-bold fs-3">3</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="fw-bold mb-3">Start Learning</h4>
+                        <p class="text-muted">Ask questions, share resources, collaborate on projects, and achieve your academic goals together with your peers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section class="section-padding" id="contact-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold mb-4">Get In <span class="text-gradient">Touch</span></h2>
+            <p class="lead text-muted">Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-5">
+                        <form id="contact-form">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="contact_name" class="form-label fw-medium">Full Name</label>
+                                    <input type="text" class="form-control form-control-lg" id="contact_name" name="name" required>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <label for="contact_email" class="form-label fw-medium">Email Address</label>
+                                    <input type="email" class="form-control form-control-lg" id="contact_email" name="email" required>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="contact_subject" class="form-label fw-medium">Subject</label>
+                                <select class="form-select form-select-lg" id="contact_subject" name="subject" required>
+                                    <option value="">Choose a subject...</option>
+                                    <option value="general">General Inquiry</option>
+                                    <option value="support">Technical Support</option>
+                                    <option value="partnership">Partnership</option>
+                                    <option value="feedback">Feedback</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="mb-4">
+                                <label for="contact_message" class="form-label fw-medium">Message</label>
+                                <textarea class="form-control form-control-lg" id="contact_message" name="message" rows="5" placeholder="Tell us how we can help you..." required></textarea>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5 py-3">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Message
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-lg-4 text-center mb-4">
+                <div class="contact-info-card">
+                    <div class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-envelope text-white fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Email Us</h5>
+                    <p class="text-muted mb-0">support@studyconnect.com</p>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center mb-4">
+                <div class="contact-info-card">
+                    <div class="rounded-circle bg-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-phone text-white fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Call Us</h5>
+                    <p class="text-muted mb-0">+1 (555) 123-4567</p>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center mb-4">
+                <div class="contact-info-card">
+                    <div class="rounded-circle bg-warning d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-clock text-white fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Support Hours</h5>
+                    <p class="text-muted mb-0">24/7 Online Support</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="section-padding" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container text-center text-white">
+        <h2 class="display-5 fw-bold mb-4">Ready to Transform Your Learning Experience?</h2>
+        <p class="lead mb-5 opacity-90">Join thousands of students who are already achieving their academic goals with Study Connect.</p>
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+            <a href="<?= site_url('auth/register') ?>" class="btn btn-warning btn-lg px-5 py-3 fw-bold">
+                <i class="fas fa-user-plus me-2"></i>Create Free Account
+            </a>
+            <a href="<?= site_url('auth') ?>" class="btn btn-outline-light btn-lg px-5 py-3">
+                <i class="fas fa-sign-in-alt me-2"></i>Login to Existing Account
+            </a>
+        </div>
+        <p class="mt-4 opacity-75">
+            <small><i class="fas fa-lock me-2"></i>100% Free • No Credit Card Required • Start Learning Immediately</small>
+        </p>
+    </div>
+</section>
+
+@section FooterScripts
+{
+    <script src="~/modules/home/footer_index.js" asp-append-version="true"></script>
+}
