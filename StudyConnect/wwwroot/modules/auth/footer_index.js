@@ -95,18 +95,18 @@
             // Validate the form
             var emailValidation = $("#username").dxTextBox("instance").option("isValid");
             var passwordValidation = $("#password").dxTextBox("instance").option("isValid");
-            
+
             if (emailValidation && passwordValidation) {
                 // Get values from DevExtreme controls
                 var email = $("#username").dxTextBox("instance").option("value");
                 var password = $("#password").dxTextBox("instance").option("value");
                 var rememberMe = $("#flexCheckChecked").dxCheckBox("instance").option("value");
-                
+
                 // Update hidden fields
                 $("#email-hidden").val(email);
                 $("#password-hidden").val(password);
                 $("#remember-hidden").val(rememberMe);
-                
+
                 // Trigger form validation and submit
                 var result = validationGroup.validate();
                 if (result.isValid) {
@@ -121,7 +121,7 @@
 
     // Initialize DevExtreme ValidationGroup
     var validationGroup = $("#form").dxValidationGroup({
-        
+
     }).dxValidationGroup("instance");
 
     formEl.on('submit', function (e) {

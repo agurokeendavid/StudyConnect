@@ -1,0 +1,92 @@
+﻿@model StudyConnect.ViewModels.Auth.RegisterViewModel
+
+@{
+    ViewBag.Title = "Register";
+    Layout = "Auth/_Layout";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/modules/auth/register.css" asp-append-version="true" />
+}
+
+<div id="main-wrapper">
+	<div
+		class="position-relative overflow-hidden radial-gradient min-vh-100 w-100 d-flex align-items-center justify-content-center">
+		<div class="d-flex align-items-center justify-content-center w-100">
+			<div class="row justify-content-center w-100">
+				<div class="col-md-8 col-lg-6 col-xxl-3">
+					<div class="card mb-0">
+						<div class="card-body">
+							<a href="#" class="text-nowrap logo-img text-center d-block mb-5 w-100">
+								<img src="~/images/studyconnect_logo.png" height="100" width="100" class="dark-logo" alt="Study Connect Logo"/>
+								<img src="~/images/studyconnect_logo.png" height="100" width="100" class="light-logo" alt="Study Connect Logo"/>
+							</a>
+							<form id="form" role="form" method="POST">
+								<div class="row">
+									<div class="col-sm-12">
+										<div class="mb-3">
+											<label for="last_name" class="form-label">Last Name
+												<code>*</code></label>
+											<input type="text" class="form-control" id="last_name"
+												   name="last_name" placeholder="Last Name" required autofocus>
+										</div>
+									</div>
+
+									<div class="col-sm-6">
+										<div class="mb-3">
+											<label for="first_name" class="form-label">First Name
+												<code>*</code></label>
+											<input type="text" class="form-control" id="first_name"
+												   name="first_name" placeholder="First Name" required>
+										</div>
+									</div>
+
+									<div class="col-sm-6">
+										<div class="mb-3">
+											<label for="middle_name" class="form-label">Middle Name</label>
+											<input type="text" class="form-control" id="middle_name"
+												   name="middle_name" placeholder="Middle Name">
+										</div>
+									</div>
+
+									<div class="col-sm-12">
+										<div class="mb-3">
+											<label for="username" class="form-label">Email Address
+												<code>*</code></label>
+											<input type="email" class="form-control" id="username"
+												   name="username"
+												   aria-describedby="emailHelp" required placeholder="Email Address">
+										</div>
+									</div>
+
+									<div class="col-sm-12">
+										<div class="mb-3">
+											<label for="password" class="form-label">Password <code>*</code></label>
+											<input type="password" class="form-control" id="password" name="password"
+												   required placeholder="Password">
+										</div>
+									</div>
+									<div class="col-sm-12">
+										<button type="submit" class="btn btn-primary w-100 py-8 mb-4 rounded-2">Register Now</button>
+									</div>
+									<div class="col-sm-12">
+										<div class="d-flex align-items-center justify-content-center">
+											<p class="fs-4 mb-0 fw-medium">Already have an account?</p>
+											<a class="text-primary fw-medium ms-2" asp-controller="Auth" asp-action="Index">Click
+												here
+												to login</a>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="dark-transparent sidebartoggler"></div>
+
+@section FooterScripts {
+    <script src="~/modules/auth/footer_register.js" asp-append-version="true"></script>
+}

@@ -18,12 +18,13 @@ namespace StudyConnect.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
         }
-        public IActionResult Index()
+        public ViewResult Index()
         {
             return View();
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(IndexViewModel viewModel)
         {
             try
@@ -54,6 +55,51 @@ namespace StudyConnect.Controllers
                 }
 
                 return Json(ResponseHelper.Failed("Invalid email address/password."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+            }
+            return Json(ResponseHelper.Error("An unexpected error occurred. Please try again later."));
+        }
+
+        public ViewResult Register()
+        {
+            return View();
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel viewModel)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    string errorMessages = string.Join("\n", ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage));
+                    return Json(ResponseHelper.Failed(errorMessages));
+                }
+
+                var user = new ApplicationUser
+                {
+                    UserName = viewModel.Email,
+                    Email = viewModel.Email,
+                    FirstName = viewModel.FirstName,
+                    MiddleName = viewModel.MiddleName,
+                    LastName = viewModel.LastName
+                };
+
+                var result = await _userManager.CreateAsync(user, viewModel.Password);
+                if (result.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
+                }
+
+                string errors = string.Join("\n", result.Errors.Select(e => e.Description));
+                return Json(ResponseHelper.Failed(errors));
             }
             catch (Exception exception)
             {
