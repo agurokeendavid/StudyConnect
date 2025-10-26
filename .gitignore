@@ -416,3 +416,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+appsettings.Production.json
+StudyConnect/wwwroot/js/devextreme-license.js
