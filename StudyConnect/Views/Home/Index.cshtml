@@ -453,10 +453,10 @@
         <h2 class="display-5 fw-bold mb-4">Ready to Transform Your Learning Experience?</h2>
         <p class="lead mb-5 opacity-90">Join thousands of students who are already achieving their academic goals with Study Connect.</p>
         <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-            <a href="<?= site_url('auth/register') ?>" class="btn btn-warning btn-lg px-5 py-3 fw-bold">
+            <a asp-controller="Auth" asp-action="Register" class="btn btn-warning btn-lg px-5 py-3 fw-bold">
                 <i class="fas fa-user-plus me-2"></i>Create Free Account
             </a>
-            <a href="<?= site_url('auth') ?>" class="btn btn-outline-light btn-lg px-5 py-3">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-light btn-lg px-5 py-3">
                 <i class="fas fa-sign-in-alt me-2"></i>Login to Existing Account
             </a>
         </div>

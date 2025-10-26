@@ -25,7 +25,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
-                    <a class="nav-link fw-medium nav-link-custom active" href="<?= site_url() ?>">
+                    <a class="nav-link fw-medium nav-link-custom active" asp-action="Index" asp-controller="Home">
                         <i class="fas fa-home me-2"></i>Home
                     </a>
                 </li>
@@ -53,11 +53,11 @@
 
             <!-- Auth Buttons -->
             <div class="d-flex flex-column flex-lg-row gap-2 auth-buttons">
-                <a class="btn btn-outline-primary btn-auth px-4 py-2" href="#">
+                <a class="btn btn-outline-primary btn-auth px-4 py-2" asp-action="Index" asp-controller="Auth">
                     <i class="fas fa-sign-in-alt me-2"></i>
                     <span>Login</span>
                 </a>
-                <a class="btn btn-primary btn-auth btn-cta px-4 py-2" href="#">
+                <a class="btn btn-primary btn-auth btn-cta px-4 py-2" asp-action="Register" asp-controller="Auth">
                     <i class="fas fa-user-plus me-2"></i>
                     <span>Sign Up Free</span>
                     <span class="btn-shine"></span>

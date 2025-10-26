@@ -11,13 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(
     dbContextOptions => dbContextOptions
-        .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-        // The following three options help with debugging, but should
-         //be changed or removed for production.
-        .LogTo(Console.WriteLine, LogLevel.Information)
-        .EnableSensitiveDataLogging()
-        .EnableDetailedErrors()
-) ;
+  .UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+         // Only enable detailed logging when needed for debugging specific issues
+         .LogTo(Console.WriteLine, LogLevel.Information)
+    .EnableSensitiveDataLogging()
+         .EnableDetailedErrors()
+);
 
 // ---------- Identity ----------
 builder.Services
@@ -44,15 +43,15 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 
 var app = builder.Build();
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-//    await db.Database.MigrateAsync();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
 
-//    var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-//    var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-//    await SeedData.RunAsync(db, userMgr, roleMgr);
-//}
+    var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await SeedData.RunAsync(db, userMgr, roleMgr);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -60,14 +59,13 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+    app.UseHttpsRedirection();
 }
-
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseAuthorization();
-
-app.MapStaticAssets();
+//app.MapStaticAssets()
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
