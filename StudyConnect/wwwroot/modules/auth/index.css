@@ -1,0 +1,97 @@
+﻿/* DevExtreme Login Page Customizations */
+
+/* Style the DevExtreme TextBox to match the overall theme */
+#username .dx-texteditor,
+#password .dx-texteditor {
+    min-height: 45px;
+}
+
+/* Ensure DevExtreme controls have proper spacing */
+.dx-textbox {
+    margin-bottom: 0;
+}
+
+/* Style the validation messages */
+.dx-invalid-message {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Style the DevExtreme Button to match the primary theme */
+#btn-signin .dx-button {
+    border-radius: 0.375rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+#btn-signin .dx-button-primary.dx-button-mode-contained {
+    background-color: var(--bs-primary, #5D87FF);
+    border-color: var(--bs-primary, #5D87FF);
+}
+
+#btn-signin .dx-button-primary.dx-button-mode-contained:hover {
+    background-color: var(--bs-primary-hover, #4570EA);
+    border-color: var(--bs-primary-hover, #4570EA);
+}
+
+/* Style the DevExtreme CheckBox */
+#flexCheckChecked .dx-checkbox {
+    margin-right: 0;
+}
+
+#flexCheckChecked .dx-checkbox-text {
+    color: var(--bs-body-color, #2A3547);
+    font-size: 0.875rem;
+}
+
+/* Adjust validation styles for better integration */
+.dx-invalid .dx-texteditor-input {
+    border-color: #dc3545;
+}
+
+/* Make sure the button has proper cursor */
+#btn-signin .dx-button {
+    cursor: pointer;
+}
+
+/* Ensure proper spacing for remember device checkbox */
+.remember-device-checkbox {
+    display: flex;
+    align-items: center;
+}
+
+/* Password toggle button styling */
+.password-toggle-btn.dx-button {
+    color: #666;
+    padding: 0 8px;
+    min-width: auto;
+}
+
+.password-toggle-btn.dx-button:hover {
+    color: var(--bs-primary, #5D87FF);
+    background-color: transparent;
+}
+
+.password-toggle-btn.dx-button .dx-icon {
+    font-size: 16px;
+}
+
+/* Ensure the password field button container doesn't add extra spacing */
+#password .dx-texteditor-buttons-container {
+    display: flex;
+    align-items: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    #username .dx-texteditor,
+    #password .dx-texteditor {
+        min-height: 42px;
+    }
+    
+    #btn-signin .dx-button {
+        height: 42px !important;
+    }
+}
+

@@ -1,0 +1,16 @@
+﻿<script type="text/javascript" asp-append-version="true">
+    const MessageTypes = {
+        // Keep original numeric constants for backward compatibility
+        Failed: @Html.Raw(StudyConnect.Constants.MessageTypes.Failed),
+        Success: @Html.Raw(StudyConnect.Constants.MessageTypes.Success),
+        Question: @Html.Raw(StudyConnect.Constants.MessageTypes.Question),
+
+        // Add new string constants with different names to avoid conflicts
+        FailedString: "@Html.Raw(StudyConnect.Constants.MessageTypes.FailedString)",
+        SuccessString: "@Html.Raw(StudyConnect.Constants.MessageTypes.SuccessString)",
+        QuestionString: "@Html.Raw(StudyConnect.Constants.MessageTypes.QuestionString)",
+        ErrorString: "@Html.Raw(StudyConnect.Constants.MessageTypes.ErrorString)",
+        WarningString: "@Html.Raw(StudyConnect.Constants.MessageTypes.WarningString)",
+        InfoString: "@Html.Raw(StudyConnect.Constants.MessageTypes.InfoString)"
+    };
+</script>

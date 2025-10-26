@@ -9,15 +9,19 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
     <link rel="stylesheet" href="~/templates/modernize/css/styles.css" />
     <link rel="stylesheet" href="~/templates/modernize/libs/sweetalert2/dist/sweetalert2.min.css" />
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/25.1.6/css/dx.material.blue.light.css" />
     <link rel="stylesheet" href="~/css/overall.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
-    <partial name="_GlobalJs" />
+    <partial name="_HeaderGlobalJs" />
+    <script src="~/js/response-handler.js" asp-append-version="true"></script>
     @await RenderSectionAsync("HeaderScripts", required: false)
 </head>
 <body>
 <partial name="_PreLoader" />
 @RenderBody()
 <script src="~/templates/modernize/libs/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn3.devexpress.com/jslib/25.1.6/js/dx.all.js"></script>
+<script src="~/js/devextreme-license.js" asp-append-version="true"></script>
 <script src="~/templates/modernize/libs/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/templates/modernize/js/app.min.js"></script>
 <script src="~/templates/modernize/js/app.init.js"></script>

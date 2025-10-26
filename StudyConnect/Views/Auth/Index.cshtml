@@ -1,6 +1,12 @@
-﻿@{
-    ViewBag.Title = "title";
+﻿@model StudyConnect.ViewModels.Auth.IndexViewModel
+
+@{
+    ViewBag.Title = "Login";
     Layout = "Auth/_Layout";
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/modules/auth/index.css" asp-append-version="true" />
 }
 
 <div id="main-wrapper">
@@ -17,26 +23,25 @@
 							</a>
 							<form id="form" role="form" method="POST">
 								@Html.AntiForgeryToken()
+								
+								<!-- Hidden inputs for form submission -->
+								<input type="hidden" id="email-hidden" name="Email" value="administrator@studyconnect.ph" />
+								<input type="hidden" id="password-hidden" name="Password" value="123456" />
+								<input type="hidden" id="remember-hidden" name="RememberMe" value="true" />
+								
 								<div class="mb-3">
 									<label for="username" class="form-label">Email Address <code>*</code></label>
-									<input type="email" class="form-control" id="username" name="username"
-									       aria-describedby="emailHelp" placeholder="Email Address" value="administrator@studyconnect.ph" required autofocus>
+									<div id="username"></div>
 								</div>
 								<div class="mb-4">
 									<label for="password" class="form-label">Password <code>*</code></label>
-									<input type="password" class="form-control" id="password" name="password" value="123456" placeholder="Password" required autocomplete="">
+									<div id="password"></div>
 								</div>
 								<div class="d-flex align-items-center justify-content-between mb-4">
-									<div class="form-check">
-										<input class="form-check-input primary" type="checkbox" value=""
-										       id="flexCheckChecked" checked>
-										<label class="form-check-label text-dark" for="flexCheckChecked">
-											Remember this Device
-										</label>
-									</div>
+									<div id="flexCheckChecked"></div>
 									<a asp-action="ForgotPassword" asp-controller="Auth" class="text-primary fw-medium">Forgot Password?</a>
 								</div>
-								<button type="submit" class="btn btn-primary w-100 py-8 mb-4 rounded-2">Sign In</button>
+								<div id="btn-signin" class="mb-4"></div>
 								<div class="col-sm-12 text-center">
 									<a asp-action="Register" asp-controller="Auth">Create an Account</a>
 								</div>
@@ -49,3 +54,7 @@
 	</div>
 </div>
 <div class="dark-transparent sidebartoggler"></div>
+
+@section FooterScripts {
+	<script src="~/modules/auth/footer_index.js" asp-append-version="true"></script>
+}
