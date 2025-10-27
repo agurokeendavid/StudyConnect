@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "Dashboard/_Layout";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/modules/dashboard/index.css" asp-append-version="true" />
+}
+
+@section HeaderScripts {
+    <script src="~/modules/dashboard/header_index.js" asp-append-version="true"></script>
+}
+
+<partial name="Index/_AdminContent" />
+
+@section FooterScripts {
+    <script src="~/modules/dashboard/footer_index.js" asp-append-version="true"></script>
+}

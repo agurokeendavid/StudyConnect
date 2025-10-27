@@ -48,10 +48,9 @@ namespace StudyConnect.Controllers
                 {
                     if (!string.IsNullOrEmpty(viewModel.ReturnUrl) && Url.IsLocalUrl(viewModel.ReturnUrl))
                     {
-                        return Redirect(viewModel.ReturnUrl);
+                        return Json(ResponseHelper.Success("Account successfully logged in.", null, redirectUrl: viewModel.ReturnUrl));
                     }
-                    
-                    return RedirectToAction("Index", "Home");
+                    return Json(ResponseHelper.Success("Account successfully logged in.", null, redirectUrl: Url.Action("Index", "Dashboard")));
                 }
 
                 return Json(ResponseHelper.Failed("Invalid email address/password."));

@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@StudyConnect.Constants.GlobalConfiguration.SystemTitle - @ViewData["Title"]</title>
+    <link rel="shortcut icon" href="~/images/studyconnect_logo.png" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="~/templates/modernize/css/styles.css" />
+    <link rel="stylesheet" href="~/templates/modernize/libs/sweetalert2/dist/sweetalert2.min.css" />
+    <link rel="stylesheet" href="~/templates/modernize/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/25.1.6/css/dx.material.blue.light.css" />
+    <link rel="stylesheet" href="~/css/overall.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/modules/dashboard/overall.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+    <partial name="_HeaderGlobalJs" />
+    <script src="~/js/response-handler.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("HeaderScripts", required: false)
+</head>
+<body>
+<partial name="_PreLoader" />
+<div id="main-wrapper">
+    <partial name="Dashboard/_LeftSidebar"/>
+    <div class="page-wrapper">
+        <partial name="Dashboard/_HeaderBar"/>
+        @RenderBody()
+    </div>
+</div>
+<script src="~/templates/modernize/libs/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn3.devexpress.com/jslib/25.1.6/js/dx.all.js"></script>
+<script src="~/js/devextreme-license.js" asp-append-version="true"></script>
+<script src="~/templates/modernize/libs/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/templates/modernize/js/app.min.js"></script>
+<script src="~/templates/modernize/js/app.init.js"></script>
+<script src="~/templates/modernize/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/templates/modernize/libs/simplebar/dist/simplebar.min.js"></script>
+<script src="~/templates/modernize/js/sidebarmenu.js"></script>
+<script src="~/templates/modernize/js/theme.js"></script>
+<script src="~/templates/modernize/libs/sweetalert2/dist/sweetalert2.min.js"></script>
+<script src="~/templates/modernize/libs/datatables.net/js/jquery.dataTables.min.js"></script>
+<script src="~/js/amagiloader.js" asp-append-version="true"></script>
+<script src="~/js/footer_overall.js" asp-append-version="true"></script>
+@await RenderSectionAsync("FooterScripts", required: false)
+</body>
+</html>

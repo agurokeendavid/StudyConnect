@@ -1,0 +1,121 @@
+﻿/* Dashboard Page Header Styles - Override Modernize template conflicts */
+.page-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    background-color: #5d87ff !important;
+    color: white !important;
+    padding: 1.5rem !important;
+    margin: 0 !important;
+    visibility: visible !important;
+    min-height: 70px !important;
+    position: relative !important;
+    z-index: 100 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.page-header * {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.page-header h4 {
+    display: block !important;
+    color: white !important;
+    font-size: 1.5rem !important;
+    margin: 0 !important;
+    font-weight: 600 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    line-height: 1.2 !important;
+}
+
+.page-header h4 i {
+    display: inline-block !important;
+    margin-right: 0.5rem !important;
+    color: white !important;
+}
+
+.page-header .btn {
+    display: inline-block !important;
+    padding: 0.625rem 1.25rem !important;
+    text-decoration: none !important;
+    border-radius: 0.5rem !important;
+    border: 1px solid transparent !important;
+    font-size: 0.875rem !important;
+    line-height: 1.5 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-weight: 500 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease-in-out !important;
+}
+
+.page-header .btn-light {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    border-color: #ffffff !important;
+}
+
+.page-header .btn-light:hover {
+    background-color: #f8f9fa !important;
+    color: #333333 !important;
+    transform: translateY(-1px) !important;
+}
+
+.page-header .btn-warning {
+    background-color: #ffab00 !important;
+    color: #ffffff !important;
+    border-color: #ffab00 !important;
+}
+
+.page-header .btn-warning:hover {
+    background-color: #ff8f00 !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) !important;
+}
+
+.page-header .btn i {
+    display: inline-block !important;
+    margin-right: 0.5rem !important;
+}
+
+.page-header > div {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+}
+
+/* Ensure buttons container is visible */
+.page-header > div:last-child {
+    flex-shrink: 0 !important;
+}
+
+/* Override any conflicting Modernize styles */
+.container-fluid .page-header,
+.row .page-header,
+.col-12 .page-header {
+    display: flex !important;
+    visibility: visible !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .page-header {
+        flex-wrap: wrap !important;
+        gap: 1rem !important;
+    }
+
+    .page-header h4 {
+        font-size: 1.25rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .page-header .btn {
+        font-size: 0.8rem !important;
+        padding: 0.5rem 1rem !important;
+    }
+}

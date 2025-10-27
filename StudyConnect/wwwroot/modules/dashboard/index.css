@@ -1,0 +1,236 @@
+﻿/* Chart Loading Styles */
+.chart-loading {
+    z-index: 10;
+}
+
+/* Hover Effects */
+.hover-bg-light:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    transition: background-color 0.2s ease;
+}
+
+.border-end:hover {
+    background-color: rgba(93, 135, 255, 0.05) !important;
+    transition: all 0.3s ease;
+}
+
+/* Chart Container */
+#activityChart {
+    position: relative;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.card-body canvas {
+    border-radius: 8px;
+}
+
+/* Dropdown Styles */
+.dropdown-item.active {
+    background-color: #5d87ff !important;
+    color: white !important;
+}
+
+/* Animations */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fw-bold {
+    animation: countUp 0.6s ease-out;
+}
+
+/* Loading Spinner */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Enhanced Hover Effects for Quick Stats */
+.p-3:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
+
+.p-3:hover i {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+/* Statistics Cards Enhancements */
+.card-body {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.icon-shape {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Welcome Card Enhancements */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #5d87ff 0%, #4570ea 100%) !important;
+}
+
+/* Activity Timeline Styles */
+.timeline-item:hover {
+    background-color: rgba(93, 135, 255, 0.05);
+    border-radius: 8px;
+}
+
+.timeline-badge {
+    background-color: #fff;
+}
+
+/* Top Users Styling */
+.avatar {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+}
+
+/* System Status Indicators */
+.bg-success-subtle {
+    background-color: rgba(25, 135, 84, 0.1) !important;
+}
+
+.bg-warning-subtle {
+    background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.bg-info-subtle {
+    background-color: rgba(13, 202, 240, 0.1) !important;
+}
+
+/* Notification Styles */
+.notification-success {
+    background-color: #d1edff;
+    border-color: #5d87ff;
+    color: #5d87ff;
+}
+
+.notification-alert {
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Quick Actions Button Styles */
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+
+.btn-clicked {
+    transform: scale(0.98);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #activityChart {
+        height: 250px !important;
+    }
+
+    .row.mt-3.text-center .col-4 {
+        margin-bottom: 1rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .h2 {
+        font-size: 1.5rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-title {
+        font-size: 0.9rem;
+    }
+
+    .icon-shape {
+        width: 40px;
+        height: 40px;
+    }
+
+    .welcome-bg-img img {
+        max-height: 150px !important;
+    }
+}
+
+/* Dashboard Layout Improvements */
+.container-fluid {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* Enhanced Shadow Effects */
+.shadow {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Progress Bars and Status Indicators */
+.progress {
+    height: 6px;
+    border-radius: 3px;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.5em 0.75em;
+}
+
+/* Custom Scrollbar for Activity List */
+.activity-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.activity-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.activity-scroll::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.activity-scroll::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}

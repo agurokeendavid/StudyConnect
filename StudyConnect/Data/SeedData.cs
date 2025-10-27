@@ -16,7 +16,7 @@ public static class SeedData
                 await roleMgr.CreateAsync(new IdentityRole(r));
 
         // Admin user
-        var adminEmail = "admin@studyconnect.local";
+        var adminEmail = "administrator@studyconnect.ph";
         var admin = await userMgr.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);
         if (admin == null)
         {
@@ -27,9 +27,11 @@ public static class SeedData
                 EmailConfirmed = true,
                 FirstName = "System",
                 LastName = "Admin",
-                Sex = "Other"
+                Sex = "Male",
+                MiddleName = null,
+                
             };
-            await userMgr.CreateAsync(admin, "Admin#12345");
+            await userMgr.CreateAsync(admin, "Qwerty123!");
             await userMgr.AddToRoleAsync(admin, AppRoles.Admin);
         }
 
@@ -47,7 +49,7 @@ public static class SeedData
                 LastName = "Doe",
                 Sex = "Female"
             };
-            await userMgr.CreateAsync(student, "Student#12345");
+            await userMgr.CreateAsync(student, "Qwerty123!");
             await userMgr.AddToRoleAsync(student, AppRoles.Student);
         }
 

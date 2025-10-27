@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewBag.Title = "Connecting Students, Empowering Learning";
     Layout = "_Layout";
 }
@@ -469,4 +469,34 @@
 @section FooterScripts
 {
     <script src="~/modules/home/footer_index.js" asp-append-version="true"></script>
+    
+    @if (TempData["LogoutMessage"] != null)
+    {
+        <script>
+            $(document).ready(function() {
+                Swal.fire({
+                    title: 'Logged Out',
+                    text: '@TempData["LogoutMessage"]',
+                    icon: 'success',
+                    confirmButtonColor: '#28a745',
+                    confirmButtonText: 'OK'
+                });
+            });
+        </script>
+    }
+    
+    @if (TempData["LogoutError"] != null)
+    {
+        <script>
+            $(document).ready(function() {
+                Swal.fire({
+                    title: 'Error',
+                    text: '@TempData["LogoutError"]',
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: 'OK'
+                });
+            });
+        </script>
+    }
 }

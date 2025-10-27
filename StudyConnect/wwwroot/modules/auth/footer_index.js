@@ -29,7 +29,7 @@
     $("#password").dxTextBox({
         placeholder: "Password",
         mode: "password",
-        value: "123456",
+        value: "Qwerty123!",
         stylingMode: "outlined",
         inputAttr: {
             'aria-label': 'Password'
@@ -154,7 +154,7 @@
                                 timer: 2000,
                                 timerProgressBar: true
                             }).then(() => {
-                                location.reload();
+                                location.replace(response.RedirectUrl);
                             });
                         }
                     }
