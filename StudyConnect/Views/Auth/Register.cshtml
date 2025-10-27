@@ -5,7 +5,7 @@
     Layout = "Auth/_Layout";
 }
 @section Styles {
-    <link rel="stylesheet" href="~/modules/auth/register.css" asp-append-version="true" />
+ <link rel="stylesheet" href="~/modules/auth/register.css" asp-append-version="true" />
 }
 
 <div id="main-wrapper">
@@ -20,64 +20,67 @@
 								<img src="~/images/studyconnect_logo.png" height="100" width="100" class="dark-logo" alt="Study Connect Logo"/>
 								<img src="~/images/studyconnect_logo.png" height="100" width="100" class="light-logo" alt="Study Connect Logo"/>
 							</a>
-							<form id="form" role="form" method="POST">
-								<div class="row">
-									<div class="col-sm-12">
-										<div class="mb-3">
-											<label for="last_name" class="form-label">Last Name
-												<code>*</code></label>
-											<input type="text" class="form-control" id="last_name"
-												   name="last_name" placeholder="Last Name" required autofocus>
-										</div>
-									</div>
+    <form id="form" role="form" method="POST">
+           @Html.AntiForgeryToken()
+          
+   <!-- Hidden inputs for form submission -->
+       <input type="hidden" id="lastname-hidden" name="LastName" />
+          <input type="hidden" id="firstname-hidden" name="FirstName" />
+ <input type="hidden" id="middlename-hidden" name="MiddleName" />
+    <input type="hidden" id="email-hidden" name="Email" />
+          <input type="hidden" id="password-hidden" name="Password" />
 
-									<div class="col-sm-6">
-										<div class="mb-3">
-											<label for="first_name" class="form-label">First Name
-												<code>*</code></label>
-											<input type="text" class="form-control" id="first_name"
-												   name="first_name" placeholder="First Name" required>
-										</div>
-									</div>
+         <div class="row">
+           <div class="col-sm-12">
+         <div class="mb-3">
+            <label for="last_name" class="form-label">Last Name
+ <code>*</code></label>
+          <div id="last_name"></div>
+          </div>
+   </div>
 
-									<div class="col-sm-6">
-										<div class="mb-3">
-											<label for="middle_name" class="form-label">Middle Name</label>
-											<input type="text" class="form-control" id="middle_name"
-												   name="middle_name" placeholder="Middle Name">
-										</div>
-									</div>
+          <div class="col-sm-6">
+        <div class="mb-3">
+        <label for="first_name" class="form-label">First Name
+     <code>*</code></label>
+             <div id="first_name"></div>
+      </div>
+          </div>
 
-									<div class="col-sm-12">
-										<div class="mb-3">
-											<label for="username" class="form-label">Email Address
-												<code>*</code></label>
-											<input type="email" class="form-control" id="username"
-												   name="username"
-												   aria-describedby="emailHelp" required placeholder="Email Address">
-										</div>
-									</div>
+             <div class="col-sm-6">
+               <div class="mb-3">
+              <label for="middle_name" class="form-label">Middle Name</label>
+  <div id="middle_name"></div>
+            </div>
+  </div>
 
-									<div class="col-sm-12">
-										<div class="mb-3">
-											<label for="password" class="form-label">Password <code>*</code></label>
-											<input type="password" class="form-control" id="password" name="password"
-												   required placeholder="Password">
-										</div>
-									</div>
-									<div class="col-sm-12">
-										<button type="submit" class="btn btn-primary w-100 py-8 mb-4 rounded-2">Register Now</button>
-									</div>
-									<div class="col-sm-12">
-										<div class="d-flex align-items-center justify-content-center">
-											<p class="fs-4 mb-0 fw-medium">Already have an account?</p>
-											<a class="text-primary fw-medium ms-2" asp-controller="Auth" asp-action="Index">Click
-												here
-												to login</a>
-										</div>
-									</div>
-								</div>
-							</form>
+              <div class="col-sm-12">
+          <div class="mb-3">
+           <label for="username" class="form-label">Email Address
+      <code>*</code></label>
+  <div id="username"></div>
+                  </div>
+          </div>
+
+             <div class="col-sm-12">
+         <div class="mb-3">
+      <label for="password" class="form-label">Password <code>*</code></label>
+         <div id="password"></div>
+          </div>
+         </div>
+   <div class="col-sm-12">
+     <div id="btn-register" class="mb-4"></div>
+        </div>
+   <div class="col-sm-12">
+     <div class="d-flex align-items-center justify-content-center">
+       <p class="fs-4 mb-0 fw-medium">Already have an account?</p>
+    <a class="text-primary fw-medium ms-2" asp-controller="Auth" asp-action="Index">Click
+               here
+           to login</a>
+              </div>
+          </div>
+   </div>
+    </form>
 						</div>
 					</div>
 				</div>

@@ -117,13 +117,19 @@ namespace StudyConnect.Controllers
                     return Json(ResponseHelper.Failed(errorMessages));
                 }
 
+                string generatedGuid = Guid.NewGuid().ToString();
                 var user = new ApplicationUser
                 {
+                    Id = generatedGuid,
                     UserName = viewModel.Email,
                     Email = viewModel.Email,
                     FirstName = viewModel.FirstName,
                     MiddleName = viewModel.MiddleName,
-                    LastName = viewModel.LastName
+                    LastName = viewModel.LastName,
+                    CreatedBy = generatedGuid,
+                    CreatedByName = $"{viewModel.FirstName} {viewModel.LastName}",
+                    ModifiedBy = generatedGuid,
+                    ModifiedByName = $"{viewModel.FirstName} {viewModel.LastName}",
                 };
 
                 var result = await _userManager.CreateAsync(user, viewModel.Password);
@@ -131,7 +137,10 @@ namespace StudyConnect.Controllers
                 {
                     // Assign default role (Student)
                     await _userManager.AddToRoleAsync(user, AppRoles.Student);
-                    
+
+                    // Get existing claims
+                    var existingClaims = await _userManager.GetClaimsAsync(user);
+
                     // Add custom claims
                     var claims = new List<Claim>
                     {
@@ -140,11 +149,30 @@ namespace StudyConnect.Controllers
                         new Claim("Gender", user.Sex ?? "Not Specified"),
                         new Claim("FullName", $"{user.FirstName} {user.LastName}")
                     };
-                    
-                    await _userManager.AddClaimsAsync(user, claims);
-                    
+
+                    // Add user roles as claims
+                    var roles = await _userManager.GetRolesAsync(user);
+                    foreach (var role in roles)
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, role));
+                    }
+
+                    // Filter out role claims and claims that already exist
+                    var claimsToAdd = claims.Where(c =>
+                        !c.Type.Equals(ClaimTypes.Role) &&
+                        !existingClaims.Any(existingClaim => existingClaim.Type == c.Type)
+                    ).ToList();
+
+                    // Add claims to the user's identity if there are any new ones
+                    if (claimsToAdd.Any())
+                    {
+                        await _userManager.AddClaimsAsync(user, claimsToAdd);
+                    }
+
+                    // Sign in again to refresh the claims in the cookie
+                    await _signInManager.SignOutAsync();
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return RedirectToAction("Index", "Home");
+                    return Json(ResponseHelper.Success("Successfully registered.", null, redirectUrl: Url.Action("Index", "Dashboard")));
                 }
 
                 string errors = string.Join("\n", result.Errors.Select(e => e.Description));

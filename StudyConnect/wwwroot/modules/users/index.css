@@ -1,0 +1,97 @@
+﻿body {
+}
+
+/* Custom styling for Users Index page */
+
+#usersDataGrid {
+    margin-top: 1rem;
+}
+
+/* DataGrid action buttons styling */
+#usersDataGrid .dx-command-edit .dx-link {
+    margin-right: 0.25rem;
+}
+
+#usersDataGrid .dx-command-edit .btn-primary {
+    color: #fff;
+    background-color: #5d87ff;
+    border-color: #5d87ff;
+}
+
+#usersDataGrid .dx-command-edit .btn-primary:hover {
+    background-color: #4570ea;
+  border-color: #4570ea;
+}
+
+#usersDataGrid .dx-command-edit .btn-danger {
+    color: #fff;
+    background-color: #fa896b;
+    border-color: #fa896b;
+}
+
+#usersDataGrid .dx-command-edit .btn-danger:hover {
+ background-color: #f76a4a;
+  border-color: #f76a4a;
+}
+
+/* Add User Button */
+#btn-add-user .dx-button-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Badge styling for roles */
+.badge.bg-danger {
+    background-color: #fa896b !important;
+}
+
+.badge.bg-primary {
+    background-color: #5d87ff !important;
+}
+
+/* Status badges */
+.badge.bg-success-subtle {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+}
+
+.badge.bg-warning-subtle {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+}
+
+/* DataGrid row hover effect */
+#usersDataGrid .dx-row:hover {
+    background-color: #f8f9fa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #usersDataGrid .dx-datagrid {
+        font-size: 0.875rem;
+    }
+    
+    #btn-add-user {
+      width: 100%;
+ margin-bottom: 1rem;
+    }
+}
+
+/* Search panel styling */
+#usersDataGrid .dx-datagrid-search-panel {
+    margin: 0.5rem 0;
+}
+
+/* Toolbar styling */
+#usersDataGrid .dx-toolbar {
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Pager styling */
+#usersDataGrid .dx-pager {
+    padding: 0.75rem;
+    border-top: 2px solid #dee2e6;
+}

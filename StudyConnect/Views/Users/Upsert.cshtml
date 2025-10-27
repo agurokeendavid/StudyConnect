@@ -1,0 +1,161 @@
+﻿@model StudyConnect.ViewModels.Users.UpsertViewModel
+@{
+    ViewBag.Title = "Upsert - User";
+    Layout = "Dashboard/_Layout";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/modules/users/upsert.css" asp-append-version="true" />
+}
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <div class="card bg-info-subtle shadow-none position-relative overflow-hidden mb-4">
+            <div class="card-body px-4 py-3">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <h4 class="fw-semibold mb-8">Users</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a class="text-muted text-decoration-none" href="#">Users</a>
+                                </li>
+                                <li class="breadcrumb-item" aria-current="page">Upsert</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-center mb-n5">
+                            <img src="~/templates/modernize/images/breadcrumb/ChatBc.png"
+                                 alt=""
+                                 class="img-fluid mb-n4" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="border-bottom title-part-padding">
+                        <h4 class="card-title mb-0">Users | @(string.IsNullOrWhiteSpace(Model?.Id) ? "Add" : "Edit")</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="form" role="form" method="POST">
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.Id, new { @readonly = true })
+
+                            <!-- Hidden inputs for form submission -->
+                            <input type="hidden" id="lastname-hidden" name="LastName" value="@Model?.LastName" />
+                            <input type="hidden" id="firstname-hidden" name="FirstName" value="@Model?.FirstName" />
+                            <input type="hidden" id="middlename-hidden" name="MiddleName" value="@Model?.MiddleName" />
+                            <input type="hidden" id="dob-hidden" name="Dob" value="@Model?.Dob?.ToString("yyyy-MM-dd")" />
+                            <input type="hidden" id="sex-hidden" name="Sex" value="@Model?.Sex" />
+                            <input type="hidden" id="address-hidden" name="Address" value="@Model?.Address" />
+                            <input type="hidden" id="contactno-hidden" name="ContactNo" value="@Model?.ContactNo" />
+                            <input type="hidden" id="email-hidden" name="EmailAddress" value="@Model?.EmailAddress" />
+                            <input type="hidden" id="password-hidden" name="Password" />
+                            <input type="hidden" id="roleid-hidden" name="RoleId" value="@Model?.RoleId" />
+
+                            @if (string.IsNullOrWhiteSpace(Model?.Id))
+                            {
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="mb-3">
+                                            <label for="username" class="form-label">Email Address <code>*</code></label>
+                                            <div id="username"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">Password <code>*</code></label>
+                                            <div id="password"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="mb-3">
+                                        <label for="last_name" class="form-label">Last Name <code>*</code></label>
+                                        <div id="last_name"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="mb-3">
+                                        <label for="first_name" class="form-label">First Name <code>*</code></label>
+                                        <div id="first_name"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="mb-3">
+                                        <label for="middle_name" class="form-label">Middle Name</label>
+                                        <div id="middle_name"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="mb-3">
+                                        <label for="gender" class="form-label">Gender <code>*</code></label>
+                                        <div id="gender"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="mb-3">
+                                        <label for="dob" class="form-label">Date of Birth <code>*</code></label>
+                                        <div id="dob"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="mb-3">
+                                        <label for="contact_no" class="form-label">Contact No. <code>*</code></label>
+                                        <div id="contact_no"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-12">
+                                    <div class="mb-3">
+                                        <label for="address" class="form-label">Address <code>*</code></label>
+                                        <div id="address"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="mb-3">
+                                        <label for="role_id" class="form-label">Role <code>*</code></label>
+                                        <div id="role_id"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row text-center">
+                                <div class="col-sm-12">
+                                    <div id="btn-save" class="d-inline-block me-2"></div>
+                                    <a asp-controller="Users" asp-action="Index"
+                                       class="btn btn-danger rounded-pill px-4 text-white">Cancel</a>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section FooterScripts {
+    <script>
+          var isEditMode = @Json.Serialize(!string.IsNullOrWhiteSpace(Model?.Id));
+        var userId = @Json.Serialize(Model?.Id);
+    </script>
+    <script src="~/modules/users/footer_upsert.js" asp-append-version="true"></script>
+}

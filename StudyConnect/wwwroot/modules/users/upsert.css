@@ -1,0 +1,21 @@
+﻿/* Custom styling for Users Upsert page */
+
+#btn-save .dx-button-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.password-toggle-btn {
+    cursor: pointer;
+}
+
+/* Ensure DevExtreme controls have proper spacing */
+.dx-textbox, .dx-selectbox, .dx-datebox {
+    width: 100%;
+}
+
+/* Style validation messages */
+.dx-invalid-message {
+    font-size: 0.875rem;
+}
