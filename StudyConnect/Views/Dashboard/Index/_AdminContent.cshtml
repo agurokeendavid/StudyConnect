@@ -102,7 +102,14 @@
 											alt="Profile" width="50" height="50" class="rounded-circle">
 									</div>
 									<div>
-										<h4 class="fw-bold mb-1 text-white">Welcome back, @User.Identity.Name!</h4>
+										@{
+											var firstName = User.Claims.FirstOrDefault(c => c.Type == "FirstName")?.Value ?? "";
+											var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value ?? "";
+											var displayName = !string.IsNullOrEmpty(firstName) 
+												? firstName 
+												: User.Identity?.Name ?? "User";
+										}
+										<h4 class="fw-bold mb-1 text-white">Welcome back, @displayName!</h4>
 										<p class="mb-0 opacity-75">Have a great day at work</p>
 									</div>
 								</div>

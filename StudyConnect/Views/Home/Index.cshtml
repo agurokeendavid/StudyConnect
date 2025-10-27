@@ -470,16 +470,18 @@
 {
     <script src="~/modules/home/footer_index.js" asp-append-version="true"></script>
     
-    @if (TempData["LogoutMessage"] != null)
+    @if (TempData["LogoutSuccess"] != null)
     {
         <script>
             $(document).ready(function() {
                 Swal.fire({
-                    title: 'Logged Out',
-                    text: '@TempData["LogoutMessage"]',
+                    title: 'Logged Out Successfully!',
+                    text: '@TempData["LogoutSuccess"]',
                     icon: 'success',
-                    confirmButtonColor: '#28a745',
-                    confirmButtonText: 'OK'
+                    confirmButtonColor: '#5D87FF',
+                    confirmButtonText: 'OK',
+                    timer: 5000,
+                    timerProgressBar: true
                 });
             });
         </script>
@@ -490,7 +492,7 @@
         <script>
             $(document).ready(function() {
                 Swal.fire({
-                    title: 'Error',
+                    title: 'Logout Error',
                     text: '@TempData["LogoutError"]',
                     icon: 'error',
                     confirmButtonColor: '#dc3545',
