@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using StudyConnect.Helpers;
 using StudyConnect.Models;
 using StudyConnect.ViewModels.Auth;
+using StudyConnect.Services;
 
 namespace StudyConnect.Controllers
 {
@@ -12,12 +13,18 @@ namespace StudyConnect.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IAuditService _auditService;
         
-        public AuthController(ILogger<AuthController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AuthController(
+            ILogger<AuthController> logger, 
+            UserManager<ApplicationUser> userManager, 
+            SignInManager<ApplicationUser> signInManager,
+            IAuditService auditService)
         {
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
+            _auditService = auditService;
         }
         public ViewResult Index()
         {
@@ -41,6 +48,7 @@ namespace StudyConnect.Controllers
                 var user = await _userManager.FindByEmailAsync(viewModel.Email);
                 if (user == null)
                 {
+                    await _auditService.LogLoginAsync(viewModel.Email, false);
                     return Json(ResponseHelper.Failed("Invalid email address/password."));
                 }
 
@@ -82,6 +90,9 @@ namespace StudyConnect.Controllers
                     await _signInManager.SignOutAsync();
                     await _signInManager.SignInAsync(user, viewModel.RememberMe);
                     
+                    // Log successful login
+                    await _auditService.LogLoginAsync(user.Email ?? viewModel.Email, true);
+                    
                     if (!string.IsNullOrEmpty(viewModel.ReturnUrl) && Url.IsLocalUrl(viewModel.ReturnUrl))
                     {
                         return Json(ResponseHelper.Success("Account successfully logged in.", null, redirectUrl: viewModel.ReturnUrl));
@@ -89,6 +100,7 @@ namespace StudyConnect.Controllers
                     return Json(ResponseHelper.Success("Account successfully logged in.", null, redirectUrl: Url.Action("Index", "Dashboard")));
                 }
 
+                await _auditService.LogLoginAsync(viewModel.Email, false);
                 return Json(ResponseHelper.Failed("Invalid email address/password."));
             }
             catch (Exception exception)
@@ -189,7 +201,12 @@ namespace StudyConnect.Controllers
         {
             try
             {
+                var userName = User.Identity?.Name ?? "Unknown";
                 await _signInManager.SignOutAsync();
+    
+                // Log logout
+                await _auditService.LogLogoutAsync(userName);
+    
                 TempData["LogoutSuccess"] = "You have been successfully logged out.";
                 return RedirectToAction("Index", "Home");
             }

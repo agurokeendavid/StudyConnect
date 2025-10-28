@@ -6,6 +6,7 @@ using StudyConnect.ViewModels.Users;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using StudyConnect.Services;
 
 namespace StudyConnect.Controllers
 {
@@ -15,16 +16,23 @@ namespace StudyConnect.Controllers
         private readonly ILogger<UsersController> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IAuditService _auditService;
 
-        public UsersController(ILogger<UsersController> logger, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UsersController(
+            ILogger<UsersController> logger,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            IAuditService auditService)
         {
             _logger = logger;
             _userManager = userManager;
             _roleManager = roleManager;
+            _auditService = auditService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            await _auditService.LogCustomActionAsync("Viewed Users List Page");
             return View();
         }
 
@@ -87,6 +95,15 @@ namespace StudyConnect.Controllers
                     return Json(ResponseHelper.Failed("User not found."));
                 }
 
+                // Store old values for audit
+                var oldValues = new
+                {
+                    user.Id,
+                    user.FirstName,
+                    user.LastName,
+                    user.Email
+                };
+
                 // Get current user ID
                 var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var currentUser = await _userManager.FindByIdAsync(currentUserId ?? "");
@@ -106,6 +123,9 @@ namespace StudyConnect.Controllers
                     return Json(ResponseHelper.Failed(errors));
                 }
 
+                // Log the delete action
+                await _auditService.LogDeleteAsync("User", user.Id, oldValues);
+
                 return Json(ResponseHelper.Success("User deleted successfully."));
             }
             catch (Exception exception)
@@ -122,6 +142,8 @@ namespace StudyConnect.Controllers
             {
                 if (!string.IsNullOrWhiteSpace(id))
                 {
+                    await _auditService.LogCustomActionAsync($"Viewed Edit User Page (ID: {id})");
+
                     var user = await _userManager.FindByIdAsync(id);
 
                     if (user is null)
@@ -147,6 +169,10 @@ namespace StudyConnect.Controllers
                         RoleId = userRole
                     };
                     return View(viewModel);
+                }
+                else
+                {
+                    await _auditService.LogCustomActionAsync("Viewed Create User Page");
                 }
 
                 return View(new UpsertViewModel());
@@ -195,6 +221,18 @@ namespace StudyConnect.Controllers
                         return Json(ResponseHelper.Failed("User not found."));
                     }
 
+                    // Store old values for audit
+                    var oldValues = new
+                    {
+                        user.FirstName,
+                        user.LastName,
+                        user.MiddleName,
+                        user.Dob,
+                        user.Sex,
+                        user.Address,
+                        user.ContactNo
+                    };
+
                     // Update user properties
                     user.LastName = viewModel.LastName;
                     user.FirstName = viewModel.FirstName;
@@ -227,6 +265,22 @@ namespace StudyConnect.Controllers
                         // Add new role
                         await _userManager.AddToRoleAsync(user, viewModel.RoleId);
                     }
+
+                    // Store new values for audit
+                    var newValues = new
+                    {
+                        user.FirstName,
+                        user.LastName,
+                        user.MiddleName,
+                        user.Dob,
+                        user.Sex,
+                        user.Address,
+                        user.ContactNo,
+                        Role = viewModel.RoleId
+                    };
+
+                    // Log the update
+                    await _auditService.LogUpdateAsync("User", user.Id, oldValues, newValues);
 
                     return Json(ResponseHelper.Success("User updated successfully.", null, redirectUrl: Url.Action("Index", "Users")));
                 }
@@ -286,6 +340,17 @@ namespace StudyConnect.Controllers
                     }
 
                     await _userManager.AddClaimsAsync(user, claims);
+
+                    // Log the create action
+                    var newValues = new
+                    {
+                        user.Id,
+                        user.FirstName,
+                        user.LastName,
+                        user.Email,
+                        Role = viewModel.RoleId
+                    };
+                    await _auditService.LogCreateAsync("User", user.Id, newValues);
 
                     return Json(ResponseHelper.Success("User created successfully.", null, redirectUrl: Url.Action("Index", "Users")));
                 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudyConnect.Data;
 
@@ -11,9 +12,11 @@ using StudyConnect.Data;
 namespace StudyConnect.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251027171747_AddStudyGroupCategoryTable")]
+    partial class AddStudyGroupCategoryTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -323,69 +326,6 @@ namespace StudyConnect.Migrations
                     b.ToTable("AuditLogs");
                 });
 
-            modelBuilder.Entity("StudyConnect.Models.StudyGroup", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("CreatedByName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("DeletedBy")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("DeletedByName")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("MaximumNumbers")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ModifiedBy")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("ModifiedByName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Privacy")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("StudyGroups");
-                });
-
             modelBuilder.Entity("StudyConnect.Models.StudyGroupCategory", b =>
                 {
                     b.Property<int>("Id")
@@ -486,22 +426,6 @@ namespace StudyConnect.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("StudyConnect.Models.StudyGroup", b =>
-                {
-                    b.HasOne("StudyConnect.Models.StudyGroupCategory", "Category")
-                        .WithMany("StudyGroups")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("StudyConnect.Models.StudyGroupCategory", b =>
-                {
-                    b.Navigation("StudyGroups");
                 });
 #pragma warning restore 612, 618
         }

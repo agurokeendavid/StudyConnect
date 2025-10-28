@@ -1,1 +1,362 @@
-﻿
+﻿<div class="body-wrapper">
+	<div class="container-fluid">
+		<!-- Statistics Cards Row -->
+		<div class="row mb-4">
+			<div class="col-sm-6 col-xl-3">
+				<div class="card bg-primary-subtle shadow-none border">
+					<div class="card-body">
+						<div class="row">
+							<div class="col">
+								<h5 class="card-title text-primary mb-0">Study Groups</h5>
+								<span class="h2 font-weight-bold mb-0 text-primary" id="totalUsers">0</span>
+							</div>
+							<div class="col-auto">
+								<div class="icon icon-shape bg-primary text-white rounded-circle shadow">
+									<i class="ti ti-users fs-6"></i>
+								</div>
+							</div>
+						</div>
+						<p class="mt-3 mb-0 text-muted text-sm">
+							<span class="text-success me-2" id="newUsersIndicator"><i class="ti ti-arrow-up-right"></i> <span id="newUsersCount">0</span></span>
+							<span class="text-nowrap">Since last month</span>
+						</p>
+					</div>
+				</div>
+			</div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card bg-info-subtle shadow-none border">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-info mb-0">Group Sessions</h5>
+                                <span class="h2 font-weight-bold mb-0 text-info" id="activeUsers">0</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+                                    <i class="ti ti-user-check fs-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-muted text-sm">
+                            <span class="text-success me-2"><i class="ti ti-arrow-up-right"></i> Active</span>
+                            <span class="text-nowrap">Today</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card bg-success-subtle shadow-none border">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-success mb-0">Shared Files</h5>
+                                <span class="h2 font-weight-bold mb-0 text-success">101</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon icon-shape bg-success text-white rounded-circle shadow">
+                                    <i class="ti ti-folder fs-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-muted text-sm">
+                            <span class="text-success me-2"><i class="ti ti-arrow-up-right"></i> 2%</span>
+                            <span class="text-nowrap">Uptime this week</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+			<div class="col-sm-6 col-xl-3">
+				<div class="card bg-warning-subtle shadow-none border">
+					<div class="card-body">
+						<div class="row">
+							<div class="col">
+								<h5 class="card-title text-warning mb-0">Today's Activity</h5>
+								<span class="h2 font-weight-bold mb-0 text-warning" id="todayActivity">0</span>
+							</div>
+							<div class="col-auto">
+								<div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+									<i class="ti ti-calendar fs-6"></i>
+								</div>
+							</div>
+						</div>
+						<p class="mt-3 mb-0 text-muted text-sm">
+							<span class="text-success me-2"><i class="ti ti-activity"></i> Actions</span>
+							<span class="text-nowrap">Since this morning</span>
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<!-- Welcome Card -->
+			<div class="col-lg-8 d-flex align-items-stretch">
+				<div class="card w-100 bg-gradient-primary overflow-hidden shadow">
+					<div class="card-body position-relative text-white">
+						<div class="row">
+							<div class="col-sm-7">
+								<div class="d-flex align-items-center mb-7">
+									<div class="rounded-circle overflow-hidden me-3 border border-2 border-white">
+										<img src="~/templates/modernize/images/profile/user-1.jpg"
+											 alt="Profile" width="50" height="50" class="rounded-circle">
+									</div>
+									<div>
+										@{
+											var firstName = User.Claims.FirstOrDefault(c => c.Type == "FirstName")?.Value ?? "";
+											var lastName = User.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value ?? "";
+											var displayName = !string.IsNullOrEmpty(firstName)
+											? firstName
+											: User.Identity?.Name ?? "User";
+										}
+										<h4 class="fw-bold mb-1 text-white">Welcome back, @displayName!</h4>
+										<p class="mb-0 opacity-75">Have a great day at work</p>
+									</div>
+								</div>
+								<div class="d-flex align-items-center">
+									<div class="me-4">
+										<div class="d-flex align-items-center">
+											<h3 class="mb-1 fw-bold fs-8 text-white" id="pagesVisitedToday">
+												0
+												<i class="ti ti-arrow-up-right fs-5 lh-base ms-1"></i>
+											</h3>
+										</div>
+										<p class="mb-0 opacity-75">Actions Today</p>
+									</div>
+									<div class="vr mx-3" style="height: 40px;"></div>
+									<div>
+										<h5 class="mb-1 fw-semibold text-white">@DateTime.Now.ToString("hh:mm tt")</h5>
+										<p class="mb-0 opacity-75">@DateTime.Now.ToString("MMMM dd, yyyy")</p>
+									</div>
+								</div>
+							</div>
+							<div class="col-sm-5">
+								<div class="welcome-bg-img mb-n7 text-end position-relative">
+									<img src="~/templates/modernize/images/backgrounds/welcome-bg.svg"
+										 alt="Background Profile" class="img-fluid" style="max-height: 200px;">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Quick Actions Card -->
+			<div class="col-lg-4 d-flex align-items-stretch">
+				<div class="card w-100 shadow">
+					<div class="card-body">
+						<div class="d-flex align-items-center justify-content-between mb-4">
+							<h5 class="card-title fw-semibold mb-0">Quick Actions</h5>
+							<div class="dropdown">
+								<button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+									<i class="ti ti-dots-vertical"></i>
+								</button>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" asp-controller="Users" asp-action="Upsert">Add New User</a></li>
+									<li><a class="dropdown-item" asp-controller="AuditLogs" asp-action="Index">View Audit Logs</a></li>
+									<li><hr class="dropdown-divider"></li>
+									<li><a class="dropdown-item" href="#">System Settings</a></li>
+								</ul>
+							</div>
+						</div>
+						<div class="d-grid gap-2">
+							<a asp-controller="Users" asp-action="Upsert" class="btn btn-primary btn-lg">
+								<i class="ti ti-plus me-2"></i>Create Study Group
+							</a>
+							<a asp-controller="Users" asp-action="Index" class="btn btn-outline-primary">
+								<i class="ti ti-users me-2"></i>View Study Group
+							</a>
+							<a asp-controller="AuditLogs" asp-action="Index" class="btn btn-outline-info">
+								<i class="ti ti-file-analytics me-2"></i>View Audit Logs
+							</a>
+							<a href="#" class="btn btn-outline-secondary">
+								<i class="ti ti-settings me-2"></i>Settings
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row mt-4">
+			<!-- User Activity Chart -->
+			<div class="col-md-8">
+				<div class="card shadow">
+					<div class="card-body">
+						<div class="d-flex align-items-center justify-content-between mb-4">
+							<div>
+								<h5 class="card-title fw-semibold mb-1">User Activity Overview</h5>
+								<p class="card-subtitle text-muted mb-0">Daily activity statistics</p>
+							</div>
+							<div class="dropdown">
+								<button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+									Last 7 days
+								</button>
+								<ul class="dropdown-menu">
+									<li><a class="dropdown-item" href="#" onclick="loadActivityChart(7); return false;">Last 7 days</a></li>
+									<li><a class="dropdown-item" href="#" onclick="loadActivityChart(14); return false;">Last 14 days</a></li>
+									<li><a class="dropdown-item" href="#" onclick="loadActivityChart(30); return false;">Last 30 days</a></li>
+								</ul>
+							</div>
+						</div>
+						<div id="activityChart" style="height: 300px;">
+							<canvas id="userActivityChart" width="100%" height="60"></canvas>
+						</div>
+						<div class="row mt-3 text-center">
+							<div class="col-4">
+								<div class="p-3 border-end">
+									<h6 class="text-muted mb-1">New Users</h6>
+									<h4 class="fw-bold text-primary mb-0">+<span id="newUsersTotal">0</span></h4>
+								</div>
+							</div>
+							<div class="col-4">
+								<div class="p-3 border-end">
+									<h6 class="text-muted mb-1">Active Users</h6>
+									<h4 class="fw-bold text-success mb-0" id="activeUsersTotal">0</h4>
+								</div>
+							</div>
+							<div class="col-4">
+								<div class="p-3">
+									<h6 class="text-muted mb-1">Total Actions</h6>
+									<h4 class="fw-bold text-warning mb-0" id="totalActions">0</h4>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Recent Activities -->
+			<div class="col-md-4">
+				<div class="card shadow h-100">
+					<div class="card-body">
+						<div class="d-flex align-items-center justify-content-between mb-4">
+							<h5 class="card-title fw-semibold mb-0">Recent Activities</h5>
+							<a asp-controller="AuditLogs" asp-action="Index" class="btn btn-sm btn-outline-primary">View All</a>
+						</div>
+						<div id="recentActivitiesContainer" style="max-height: 450px; overflow-y: auto;">
+							<!-- Loading state -->
+							<div class="text-center py-4" id="activitiesLoading">
+								<div class="spinner-border text-primary" role="status">
+									<span class="visually-hidden">Loading...</span>
+								</div>
+								<p class="text-muted mt-2">Loading activities...</p>
+							</div>
+
+							<!-- Activities will be loaded here -->
+							<div id="activitiesList"></div>
+
+							<!-- Empty state -->
+							<div id="activitiesEmpty" class="text-center py-4" style="display: none;">
+								<i class="ti ti-activity fs-1 text-muted"></i>
+								<p class="text-muted mt-2">No recent activities</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- System Status Row -->
+		<div class="row mt-4">
+			<div class="col-md-6">
+				<div class="card shadow">
+					<div class="card-body">
+						<h5 class="card-title fw-semibold mb-4">System Status</h5>
+						<div class="row">
+							<div class="col-6 mb-3">
+								<div class="d-flex align-items-center">
+									<div class="flex-shrink-0 me-3">
+										<div class="avatar avatar-sm bg-success-subtle rounded">
+											<i class="ti ti-server text-success"></i>
+										</div>
+									</div>
+									<div>
+										<h6 class="mb-0">Server</h6>
+										<small class="text-success">Online</small>
+									</div>
+								</div>
+							</div>
+							<div class="col-6 mb-3">
+								<div class="d-flex align-items-center">
+									<div class="flex-shrink-0 me-3">
+										<div class="avatar avatar-sm bg-success-subtle rounded">
+											<i class="ti ti-database text-success"></i>
+										</div>
+									</div>
+									<div>
+										<h6 class="mb-0">Database</h6>
+										<small class="text-success">Connected</small>
+									</div>
+								</div>
+							</div>
+							<div class="col-6 mb-3">
+								<div class="d-flex align-items-center">
+									<div class="flex-shrink-0 me-3">
+										<div class="avatar avatar-sm bg-warning-subtle rounded">
+											<i class="ti ti-cpu text-warning"></i>
+										</div>
+									</div>
+									<div>
+										<h6 class="mb-0">CPU Usage</h6>
+										<small class="text-warning">68%</small>
+									</div>
+								</div>
+							</div>
+							<div class="col-6 mb-3">
+								<div class="d-flex align-items-center">
+									<div class="flex-shrink-0 me-3">
+										<div class="avatar avatar-sm bg-info-subtle rounded">
+											<i class="ti ti-hdd text-info"></i>
+										</div>
+									</div>
+									<div>
+										<h6 class="mb-0">Storage</h6>
+										<small class="text-info">45% Used</small>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="card shadow">
+					<div class="card-body">
+						<h5 class="card-title fw-semibold mb-4">Quick Stats</h5>
+						<div class="row text-center">
+							<div class="col-6 mb-4">
+								<div class="p-3">
+									<i class="ti ti-eye fs-1 text-primary mb-2"></i>
+									<h4 class="fw-bold text-dark" id="pageViews">0</h4>
+									<p class="text-muted mb-0">Page Views</p>
+								</div>
+							</div>
+							<div class="col-6 mb-4">
+								<div class="p-3">
+									<i class="ti ti-users fs-1 text-success mb-2"></i>
+									<h4 class="fw-bold text-dark" id="totalUsersBottom">0</h4>
+									<p class="text-muted mb-0">Total Users</p>
+								</div>
+							</div>
+							<div class="col-6">
+								<div class="p-3">
+									<i class="ti ti-activity fs-1 text-warning mb-2"></i>
+									<h4 class="fw-bold text-dark" id="totalActionsBottom">0</h4>
+									<p class="text-muted mb-0">Total Actions</p>
+								</div>
+							</div>
+							<div class="col-6">
+								<div class="p-3">
+									<i class="ti ti-star fs-1 text-info mb-2"></i>
+									<h4 class="fw-bold text-dark">4.8</h4>
+									<p class="text-muted mb-0">Rating</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -12,7 +12,14 @@
     <script src="~/modules/dashboard/header_index.js" asp-append-version="true"></script>
 }
 
+
+@if (User.IsInRole("Admin"))
+{
 <partial name="Index/_AdminContent" />
+} else {
+<partial name="Index/_StudentContent" />
+}
+
 
 @section FooterScripts {
     <script src="~/modules/dashboard/footer_index.js" asp-append-version="true"></script>

@@ -5,7 +5,7 @@
         placeholder: "Email Address",
         mode: "email",
         value: "administrator@studyconnect.ph",
-        stylingMode: "outlined",
+/*        stylingMode: "outlined",*/
         inputAttr: {
             'aria-label': 'Email Address',
             'aria-describedby': 'emailHelp'
@@ -30,7 +30,7 @@
         placeholder: "Password",
         mode: "password",
         value: "Qwerty123!",
-        stylingMode: "outlined",
+        //stylingMode: "outlined",
         inputAttr: {
             'aria-label': 'Password'
         },

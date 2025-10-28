@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using StudyConnect.Constants;
 using StudyConnect.Data;
 using StudyConnect.Models;
 using StudyConnect.Repositories;
 using StudyConnect.Repositories.Contracts;
+using StudyConnect.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 // ---------- DB (MySQL 8 via Pomelo) ----------
@@ -43,6 +43,10 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 
 // ---------- Repositories ----------
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+
+// ---------- Services ----------
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAuditService, AuditService>();
 
 var app = builder.Build();
 

@@ -8,7 +8,7 @@
 						<div class="row">
 							<div class="col">
 								<h5 class="card-title text-primary mb-0">Total Users</h5>
-								<span class="h2 font-weight-bold mb-0 text-primary">0</span>
+								<span class="h2 font-weight-bold mb-0 text-primary" id="totalUsers">0</span>
 							</div>
 							<div class="col-auto">
 								<div class="icon icon-shape bg-primary text-white rounded-circle shadow">
@@ -17,7 +17,7 @@
 							</div>
 						</div>
 						<p class="mt-3 mb-0 text-muted text-sm">
-							<span class="text-success me-2"><i class="ti ti-arrow-up-right"></i> 12%</span>
+							<span class="text-success me-2" id="newUsersIndicator"><i class="ti ti-arrow-up-right"></i> <span id="newUsersCount">0</span></span>
 							<span class="text-nowrap">Since last month</span>
 						</p>
 					</div>
@@ -28,18 +28,18 @@
 					<div class="card-body">
 						<div class="row">
 							<div class="col">
-								<h5 class="card-title text-info mb-0">Active Ads</h5>
-								<span class="h2 font-weight-bold mb-0 text-info">0</span>
+								<h5 class="card-title text-info mb-0">Active Users</h5>
+								<span class="h2 font-weight-bold mb-0 text-info" id="activeUsers">0</span>
 							</div>
 							<div class="col-auto">
 								<div class="icon icon-shape bg-info text-white rounded-circle shadow">
-									<i class="ti ti-ad fs-6"></i>
+									<i class="ti ti-user-check fs-6"></i>
 								</div>
 							</div>
 						</div>
 						<p class="mt-3 mb-0 text-muted text-sm">
-							<span class="text-success me-2"><i class="ti ti-arrow-up-right"></i> 8%</span>
-							<span class="text-nowrap">Since yesterday</span>
+							<span class="text-success me-2"><i class="ti ti-arrow-up-right"></i> Active</span>
+							<span class="text-nowrap">Today</span>
 						</p>
 					</div>
 				</div>
@@ -50,7 +50,7 @@
 						<div class="row">
 							<div class="col">
 								<h5 class="card-title text-warning mb-0">Today's Activity</h5>
-								<span class="h2 font-weight-bold mb-0 text-warning">0</span>
+								<span class="h2 font-weight-bold mb-0 text-warning" id="todayActivity">0</span>
 							</div>
 							<div class="col-auto">
 								<div class="icon icon-shape bg-warning text-white rounded-circle shadow">
@@ -59,7 +59,7 @@
 							</div>
 						</div>
 						<p class="mt-3 mb-0 text-muted text-sm">
-							<span class="text-success me-2"><i class="ti ti-arrow-up-right"></i> 5%</span>
+							<span class="text-success me-2"><i class="ti ti-activity"></i> Actions</span>
 							<span class="text-nowrap">Since this morning</span>
 						</p>
 					</div>
@@ -116,11 +116,11 @@
 								<div class="d-flex align-items-center">
 									<div class="me-4">
 										<div class="d-flex align-items-center">
-											<h3 class="mb-1 fw-bold fs-8 text-white">0
+											<h3 class="mb-1 fw-bold fs-8 text-white" id="pagesVisitedToday">0
 												<i class="ti ti-arrow-up-right fs-5 lh-base ms-1"></i>
 											</h3>
 										</div>
-										<p class="mb-0 opacity-75">Pages Visited Today</p>
+										<p class="mb-0 opacity-75">Actions Today</p>
 									</div>
 									<div class="vr mx-3" style="height: 40px;"></div>
 									<div>
@@ -152,26 +152,25 @@
 									<i class="ti ti-dots-vertical"></i>
 								</button>
 								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" href="#">Add New User</a></li>
-									<li><a class="dropdown-item" href="#">Create New Ad</a></li>
-									<li><a class="dropdown-item" href="#">System Settings</a></li>
+									<li><a class="dropdown-item" asp-controller="Users" asp-action="Upsert">Add New User</a></li>
+									<li><a class="dropdown-item" asp-controller="AuditLogs" asp-action="Index">View Audit Logs</a></li>
 									<li><hr class="dropdown-divider"></li>
-									<li><a class="dropdown-item" href="#">View Reports</a></li>
+									<li><a class="dropdown-item" href="#">System Settings</a></li>
 								</ul>
 							</div>
 						</div>
 						<div class="d-grid gap-2">
-							<a href="#" class="btn btn-primary btn-lg">
+							<a asp-controller="Users" asp-action="Upsert" class="btn btn-primary btn-lg">
 								<i class="ti ti-user-plus me-2"></i>Add New User
 							</a>
-							<a href="#" class="btn btn-outline-info">
-								<i class="ti ti-ad me-2"></i>Create Ad
-							</a>
-							<a href="#" class="btn btn-outline-primary">
+							<a asp-controller="Users" asp-action="Index" class="btn btn-outline-primary">
 								<i class="ti ti-users me-2"></i>Manage Users
 							</a>
+							<a asp-controller="AuditLogs" asp-action="Index" class="btn btn-outline-info">
+								<i class="ti ti-file-analytics me-2"></i>View Audit Logs
+							</a>
 							<a href="#" class="btn btn-outline-secondary">
-								<i class="ti ti-ad-2 me-2"></i>Manage Ads
+								<i class="ti ti-settings me-2"></i>Settings
 							</a>
 						</div>
 					</div>
@@ -187,40 +186,39 @@
 						<div class="d-flex align-items-center justify-content-between mb-4">
 							<div>
 								<h5 class="card-title fw-semibold mb-1">User Activity Overview</h5>
-								<p class="card-subtitle text-muted mb-0">Monthly user engagement statistics</p>
+								<p class="card-subtitle text-muted mb-0">Daily activity statistics</p>
 							</div>
 							<div class="dropdown">
 								<button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
 									Last 7 days
 								</button>
 								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" href="#">Last 7 days</a></li>
-									<li><a class="dropdown-item" href="#">Last 30 days</a></li>
-									<li><a class="dropdown-item" href="#">Last 3 months</a></li>
+									<li><a class="dropdown-item" href="#" onclick="loadActivityChart(7); return false;">Last 7 days</a></li>
+									<li><a class="dropdown-item" href="#" onclick="loadActivityChart(14); return false;">Last 14 days</a></li>
+									<li><a class="dropdown-item" href="#" onclick="loadActivityChart(30); return false;">Last 30 days</a></li>
 								</ul>
 							</div>
 						</div>
 						<div id="activityChart" style="height: 300px;">
-							<!-- Chart will be rendered here -->
 							<canvas id="userActivityChart" width="100%" height="60"></canvas>
 						</div>
 						<div class="row mt-3 text-center">
 							<div class="col-4">
 								<div class="p-3 border-end">
 									<h6 class="text-muted mb-1">New Users</h6>
-									<h4 class="fw-bold text-primary mb-0">+0</h4>
+									<h4 class="fw-bold text-primary mb-0">+<span id="newUsersTotal">0</span></h4>
 								</div>
 							</div>
 							<div class="col-4">
 								<div class="p-3 border-end">
 									<h6 class="text-muted mb-1">Active Users</h6>
-									<h4 class="fw-bold text-success mb-0">0</h4>
+									<h4 class="fw-bold text-success mb-0" id="activeUsersTotal">0</h4>
 								</div>
 							</div>
 							<div class="col-4">
 								<div class="p-3">
-									<h6 class="text-muted mb-1">Bounce Rate</h6>
-									<h4 class="fw-bold text-warning mb-0">0%</h4>
+									<h6 class="text-muted mb-1">Total Actions</h6>
+									<h4 class="fw-bold text-warning mb-0" id="totalActions">0</h4>
 								</div>
 							</div>
 						</div>
@@ -228,41 +226,30 @@
 				</div>
 			</div>
 
-			<!-- Top Users & Recent Activities -->
+			<!-- Recent Activities -->
 			<div class="col-md-4">
-				<div class="row">
-					<!-- Top Users -->
-					<div class="col-12 mb-4">
-						<div class="card shadow h-100">
-							<div class="card-body">
-								<div class="d-flex align-items-center justify-content-between mb-4">
-									<h5 class="card-title fw-semibold mb-0">Top Users</h5>
-									<span class="badge bg-primary-subtle text-primary">This Month</span>
-								</div>
-								<div id="weekly-stats" class="mb-4">
-									<div class="text-center py-4">
-										<i class="ti ti-users fs-1 text-muted"></i>
-										<p class="text-muted mt-2">No user data available</p>
-									</div>
-								</div>
-							</div>
+				<div class="card shadow h-100">
+					<div class="card-body">
+						<div class="d-flex align-items-center justify-content-between mb-4">
+							<h5 class="card-title fw-semibold mb-0">Recent Activities</h5>
+							<a asp-controller="AuditLogs" asp-action="Index" class="btn btn-sm btn-outline-primary">View All</a>
 						</div>
-					</div>
-
-					<!-- Recent Activities -->
-					<div class="col-12">
-						<div class="card shadow h-100">
-							<div class="card-body">
-								<div class="d-flex align-items-center justify-content-between mb-4">
-									<h5 class="card-title fw-semibold mb-0">Recent Activities</h5>
-									<a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+						<div id="recentActivitiesContainer" style="max-height: 450px; overflow-y: auto;">
+							<!-- Loading state -->
+							<div class="text-center py-4" id="activitiesLoading">
+								<div class="spinner-border text-primary" role="status">
+									<span class="visually-hidden">Loading...</span>
 								</div>
-								<div style="max-height: 350px; overflow-y: auto;">
-									<div class="text-center py-4">
-										<i class="ti ti-activity fs-1 text-muted"></i>
-										<p class="text-muted mt-2">No recent activities</p>
-									</div>
-								</div>
+								<p class="text-muted mt-2">Loading activities...</p>
+							</div>
+							
+							<!-- Activities will be loaded here -->
+							<div id="activitiesList"></div>
+							
+							<!-- Empty state -->
+							<div id="activitiesEmpty" class="text-center py-4" style="display: none;">
+								<i class="ti ti-activity fs-1 text-muted"></i>
+								<p class="text-muted mt-2">No recent activities</p>
 							</div>
 						</div>
 					</div>
@@ -342,22 +329,22 @@
 							<div class="col-6 mb-4">
 								<div class="p-3">
 									<i class="ti ti-eye fs-1 text-primary mb-2"></i>
-									<h4 class="fw-bold text-dark">0</h4>
+									<h4 class="fw-bold text-dark" id="pageViews">0</h4>
 									<p class="text-muted mb-0">Page Views</p>
 								</div>
 							</div>
 							<div class="col-6 mb-4">
 								<div class="p-3">
-									<i class="ti ti-download fs-1 text-success mb-2"></i>
-									<h4 class="fw-bold text-dark">0</h4>
-									<p class="text-muted mb-0">Downloads</p>
+									<i class="ti ti-users fs-1 text-success mb-2"></i>
+									<h4 class="fw-bold text-dark" id="totalUsersBottom">0</h4>
+									<p class="text-muted mb-0">Total Users</p>
 								</div>
 							</div>
 							<div class="col-6">
 								<div class="p-3">
-									<i class="ti ti-message fs-1 text-warning mb-2"></i>
-									<h4 class="fw-bold text-dark">0</h4>
-									<p class="text-muted mb-0">Messages</p>
+									<i class="ti ti-activity fs-1 text-warning mb-2"></i>
+									<h4 class="fw-bold text-dark" id="totalActionsBottom">0</h4>
+									<p class="text-muted mb-0">Total Actions</p>
 								</div>
 							</div>
 							<div class="col-6">

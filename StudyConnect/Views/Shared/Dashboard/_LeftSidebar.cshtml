@@ -21,169 +21,160 @@
 					<i class="ti ti-dots nav-small-cap-icon fs-4"></i>
 					<span class="hide-menu">Menu</span>
 				</li>
-				<li class="sidebar-item">
-					<a class="sidebar-link" asp-controller="Dashboard" asp-action="Index"
-					   aria-expanded="false">
-        <span>
-          <i class="ti ti-home"></i>
-        </span>
-						<span class="hide-menu">Home</span>
-					</a>
-				</li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" asp-controller="Dashboard" asp-action="Index"
+                       aria-expanded="false">
+                        <span>
+                            <i class="ti ti-home"></i>
+                        </span>
+                        <span class="hide-menu">Home</span>
+                    </a>
+                </li>
+                
+				@if (User.IsInRole("Admin"))
+                {
+					<li class="sidebar-item">
+						<a class="sidebar-link has-arrow"
+						   href="javascript:void(0)"
+						   aria-expanded="false">
+							<span class="d-flex">
+								<i class="ti ti-users"></i>
+							</span>
+							<span class="hide-menu">User Management</span>
+						</a>
+						<ul aria-expanded="false" class="collapse first-level">
+							<li class="sidebar-item">
+								<a asp-controller="Users" asp-action="Upsert" class="sidebar-link">
+									<div class="round-16 d-flex align-items-center justify-content-center">
+										<i class="ti ti-circle"></i>
+									</div>
+									<span class="hide-menu">Add User</span>
+								</a>
+							</li>
 
-				<li class="sidebar-item">
-					<a
-						class="sidebar-link has-arrow"
-						href="javascript:void(0)"
-						aria-expanded="false"
-					>
-        <span class="d-flex">
-          <i class="ti ti-users"></i>
-        </span>
-						<span class="hide-menu">User Management</span>
-					</a>
-					<ul aria-expanded="false" class="collapse first-level">
-						<li class="sidebar-item">
-							<a asp-controller="Users" asp-action="Upsert" class="sidebar-link">
-								<div
-									class="round-16 d-flex align-items-center justify-content-center"
-								>
-									<i class="ti ti-circle"></i>
-								</div>
-								<span class="hide-menu">Add User</span>
-							</a>
-						</li>
+							<li class="sidebar-item">
+								<a asp-controller="Users" asp-action="Index" class="sidebar-link">
+									<div class="round-16 d-flex align-items-center justify-content-center">
+										<i class="ti ti-circle"></i>
+									</div>
+									<span class="hide-menu">List of Users</span>
+								</a>
+							</li>
+						</ul>
+					</li>
 
-						<li class="sidebar-item">
-							<a asp-controller="Users" asp-action="Index" class="sidebar-link">
-								<div
-									class="round-16 d-flex align-items-center justify-content-center"
-								>
-									<i class="ti ti-circle"></i>
-								</div>
-								<span class="hide-menu">List of Users</span>
-							</a>
-						</li>
-					</ul>
-				</li>
+					<li class="sidebar-item">
+						<a class="sidebar-link has-arrow"
+						   href="javascript:void(0)"
+						   aria-expanded="false">
+							<span class="d-flex">
+								<i class="ti ti-list"></i>
+							</span>
+							<span class="hide-menu">Ads Management</span>
+						</a>
+						<ul aria-expanded="false" class="collapse first-level">
+							<li class="sidebar-item">
+								<a asp-controller="Ads" asp-action="Upsert" class="sidebar-link">
+									<div class="round-16 d-flex align-items-center justify-content-center">
+										<i class="ti ti-circle"></i>
+									</div>
+									<span class="hide-menu">Add Ads</span>
+								</a>
+							</li>
 
-				<li class="sidebar-item">
-					<a
-						class="sidebar-link has-arrow"
-						href="javascript:void(0)"
-						aria-expanded="false"
-					>
-        <span class="d-flex">
-          <i class="ti ti-list"></i>
-        </span>
-						<span class="hide-menu">Ads Management</span>
-					</a>
-					<ul aria-expanded="false" class="collapse first-level">
-						<li class="sidebar-item">
-							<a asp-controller="Ads" asp-action="Upsert" class="sidebar-link">
-								<div
-									class="round-16 d-flex align-items-center justify-content-center"
-								>
-									<i class="ti ti-circle"></i>
-								</div>
-								<span class="hide-menu">Add Ads</span>
-							</a>
-						</li>
+							<li class="sidebar-item">
+								<a asp-controller="Ads" asp-action="Index" class="sidebar-link">
+									<div class="round-16 d-flex align-items-center justify-content-center">
+										<i class="ti ti-circle"></i>
+									</div>
+									<span class="hide-menu">All Ads</span>
+								</a>
+							</li>
+						</ul>
+					</li>
 
-						<li class="sidebar-item">
-							<a asp-controller="Ads" asp-action="Index" class="sidebar-link">
-								<div
-									class="round-16 d-flex align-items-center justify-content-center"
-								>
-									<i class="ti ti-circle"></i>
-								</div>
-								<span class="hide-menu">All Ads</span>
-							</a>
-						</li>
-					</ul>
-				</li>
+					<li class="sidebar-item">
+						<a class="sidebar-link" asp-controller="StudyGroupCategories" asp-action="Index"
+						   aria-expanded="false">
+							<span>
+								<i class="ti ti-list"></i>
+							</span>
+							<span class="hide-menu">Group Categories</span>
+						</a>
+					</li>
 
-				<li class="sidebar-item">
-					<a class="sidebar-link" asp-controller="GroupCategories" asp-action="Index"
-					   aria-expanded="false">
-        <span>
-          <i class="ti ti-list"></i>
-        </span>
-						<span class="hide-menu">Group Categories</span>
-					</a>
-				</li>
+					<li class="sidebar-item">
+						<a class="sidebar-link has-arrow"
+						   href="javascript:void(0)"
+						   aria-expanded="false">
+							<span class="d-flex">
+								<i class="ti ti-users"></i>
+							</span>
+							<span class="hide-menu">Group Management</span>
+						</a>
+						<ul aria-expanded="false" class="collapse first-level">
+							<li class="sidebar-item">
+								<a asp-controller="StudyGroup" asp-action="Create" class="sidebar-link">
+									<div class="round-16 d-flex align-items-center justify-content-center">
+										<i class="ti ti-circle"></i>
+									</div>
+									<span class="hide-menu">Create Study Group</span>
+								</a>
+							</li>
 
-				<li class="sidebar-item">
-					<a
-						class="sidebar-link has-arrow"
-						href="javascript:void(0)"
-						aria-expanded="false"
-					>
-        <span class="d-flex">
-          <i class="ti ti-users"></i>
-        </span>
-						<span class="hide-menu">Group Management</span>
-					</a>
-					<ul aria-expanded="false" class="collapse first-level">
-						<li class="sidebar-item">
-							<a asp-controller="StudyGroup" asp-action="Create" class="sidebar-link">
-								<div
-									class="round-16 d-flex align-items-center justify-content-center"
-								>
-									<i class="ti ti-circle"></i>
-								</div>
-								<span class="hide-menu">Create Study Group</span>
-							</a>
-						</li>
+							<li class="sidebar-item">
+								<a asp-controller="Products" asp-action="Index" class="sidebar-link">
+									<div class="round-16 d-flex align-items-center justify-content-center">
+										<i class="ti ti-circle"></i>
+									</div>
+									<span class="hide-menu">All Groups</span>
+								</a>
+							</li>
+						</ul>
+					</li>
 
-						<li class="sidebar-item">
-							<a asp-controller="Products" asp-action="Index" class="sidebar-link">
-								<div
-									class="round-16 d-flex align-items-center justify-content-center"
-								>
-									<i class="ti ti-circle"></i>
-								</div>
-								<span class="hide-menu">All Groups</span>
-							</a>
-						</li>
-					</ul>
-				</li>
+					<li class="sidebar-item">
+						<a class="sidebar-link has-arrow"
+						   href="javascript:void(0)"
+						   aria-expanded="false">
+							<span class="d-flex">
+								<i class="ti ti-report-analytics"></i>
+							</span>
+							<span class="hide-menu">Reports</span>
+						</a>
+						<ul aria-expanded="false" class="collapse first-level">
+							<li class="sidebar-item">
+								<a href="#" class="sidebar-link">
+									<div class="round-16 d-flex align-items-center justify-content-center">
+										<i class="ti ti-circle"></i>
+									</div>
+									<span class="hide-menu">Activity Logs</span>
+								</a>
+							</li>
 
-				<li class="sidebar-item">
-					<a
-						class="sidebar-link has-arrow"
-						href="javascript:void(0)"
-						aria-expanded="false"
-					>
-        <span class="d-flex">
-          <i class="ti ti-report-analytics"></i>
-        </span>
-						<span class="hide-menu">Reports</span>
-					</a>
-					<ul aria-expanded="false" class="collapse first-level">
-						<li class="sidebar-item">
-							<a href="#" class="sidebar-link">
-								<div
-									class="round-16 d-flex align-items-center justify-content-center"
-								>
-									<i class="ti ti-circle"></i>
-								</div>
-								<span class="hide-menu">Activity Logs</span>
-							</a>
-						</li>
-
-						<li class="sidebar-item">
-							<a asp-controller="Reports" asp-action="SalesReport" class="sidebar-link">
-								<div
-									class="round-16 d-flex align-items-center justify-content-center"
-								>
-									<i class="ti ti-circle"></i>
-								</div>
-								<span class="hide-menu">Sales Report</span>
-							</a>
-						</li>
-					</ul>
-				</li>
+							<li class="sidebar-item">
+								<a asp-controller="Reports" asp-action="SalesReport" class="sidebar-link">
+									<div class="round-16 d-flex align-items-center justify-content-center">
+										<i class="ti ti-circle"></i>
+									</div>
+									<span class="hide-menu">Sales Report</span>
+								</a>
+							</li>
+						</ul>
+					</li>
+                }
+                else
+                {
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="StudyGroups" asp-action="Index"
+                           aria-expanded="false">
+                            <span>
+                                <i class="ti ti-users"></i>
+                            </span>
+                            <span class="hide-menu">My Study Groups</span>
+                        </a>
+                    </li>
+                }
 			</ul>
 		</nav>
 

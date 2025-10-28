@@ -7,5 +7,9 @@ namespace StudyConnect.Data
     public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+     
+        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<StudyGroupCategory> StudyGroupCategories { get; set; }
+        public DbSet<StudyGroup> StudyGroups { get; set; }
     }
 }

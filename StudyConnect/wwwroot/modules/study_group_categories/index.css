@@ -1,0 +1,154 @@
+﻿/* Custom styling for Study Group Categories Index page */
+
+#studyGroupCategoriesDataGrid {
+    margin-top: 1rem;
+}
+
+    /* DataGrid action buttons styling */
+    #studyGroupCategoriesDataGrid .dx-command-edit .dx-link {
+        margin-right: 0.25rem;
+    }
+
+    #studyGroupCategoriesDataGrid .dx-command-edit .btn-primary {
+   color: #fff;
+        background-color: #5d87ff;
+        border-color: #5d87ff;
+    }
+
+        #studyGroupCategoriesDataGrid .dx-command-edit .btn-primary:hover {
+  background-color: #4570ea;
+      border-color: #4570ea;
+    }
+
+    #studyGroupCategoriesDataGrid .dx-command-edit .btn-danger {
+        color: #fff;
+        background-color: #fa896b;
+        border-color: #fa896b;
+    }
+
+        #studyGroupCategoriesDataGrid .dx-command-edit .btn-danger:hover {
+          background-color: #f76a4a;
+            border-color: #f76a4a;
+        }
+
+/* Add User Button */
+#btn-add-study-group-category .dx-button-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Badge styling for roles */
+.badge.bg-danger {
+    background-color: #fa896b !important;
+}
+
+.badge.bg-primary {
+    background-color: #5d87ff !important;
+}
+
+/* Status badges */
+.badge.bg-success-subtle {
+    background-color: #d4edda !important;
+    color: #155724 !important;
+}
+
+.badge.bg-warning-subtle {
+    background-color: #fff3cd !important;
+    color: #856404 !important;
+}
+
+/* DataGrid row hover effect */
+#studyGroupCategoriesDataGrid .dx-row:hover {
+    background-color: #f8f9fa;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+ #studyGroupCategoriesDataGrid .dx-datagrid {
+ font-size: 0.875rem;
+    }
+
+ #btn-add-study-group-category {
+ width: 100%;
+    margin-bottom: 1rem;
+    }
+}
+
+/* Search panel styling */
+#studyGroupCategoriesDataGrid .dx-datagrid-search-panel {
+    margin: 0.5rem 0;
+}
+
+/* Toolbar styling */
+#studyGroupCategoriesDataGrid .dx-toolbar {
+ padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Pager styling */
+#studyGroupCategoriesDataGrid .dx-pager {
+    padding: 0.75rem;
+    border-top: 2px solid #dee2e6;
+}
+
+/* DevExtreme Popup Styling - Ensure visibility */
+.dx-overlay-wrapper {
+    z-index: 9999 !important;
+}
+
+.dx-popup-wrapper {
+    z-index: 10000 !important;
+}
+
+.dx-overlay-content {
+ z-index: 10001 !important;
+}
+
+.dx-popup-content {
+    padding: 20px !important;
+}
+
+.dx-popup-title {
+    background-color: #5d87ff !important;
+    color: white !important;
+  padding: 15px 20px !important;
+  font-weight: 600 !important;
+}
+
+/* Form styling inside popup */
+.dx-form {
+    margin-top: 10px;
+}
+
+.dx-field-item-label-text {
+    font-weight: 500;
+  color: #333;
+}
+
+/* Button styling in popup */
+.dx-button {
+    min-width: 100px;
+}
+
+.dx-button.dx-button-success {
+    background-color: #13deb9 !important;
+    border-color: #13deb9 !important;
+}
+
+.dx-button.dx-button-success:hover {
+    background-color: #0fc9a7 !important;
+    border-color: #0fc9a7 !important;
+}
+
+.dx-button.dx-button-normal {
+    background-color: #f8f9fa !important;
+    border-color: #dee2e6 !important;
+    color: #495057 !important;
+}
+
+.dx-button.dx-button-normal:hover {
+  background-color: #e9ecef !important;
+    border-color: #dee2e6 !important;
+}

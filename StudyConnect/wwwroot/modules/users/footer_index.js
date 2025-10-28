@@ -36,6 +36,7 @@
         allowColumnReordering: true,
         allowColumnResizing: true,
         columnResizingMode: "widget",
+        width: '100%',
         paging: {
             pageSize: 10
         },
@@ -51,7 +52,7 @@
         },
         searchPanel: {
             visible: true,
-            width: 240,
+            width: '100%',
             placeholder: "Search users..."
         },
         headerFilter: {
@@ -133,7 +134,6 @@
                     {
                         hint: "Edit",
                         icon: "ti ti-edit",
-                        cssClass: "btn btn-sm btn-primary",
                         onClick: function (e) {
                             window.location.href = "/Users/Upsert?id=" + e.row.data.id;
                         }
@@ -141,7 +141,7 @@
                     {
                         hint: "Delete",
                         icon: "ti ti-trash",
-                        cssClass: "btn btn-sm btn-danger",
+                        cssClass: "text-icon-red",
                         onClick: function (e) {
                             deleteUser(e.row.data.id, e.row.data.fullName);
                         }

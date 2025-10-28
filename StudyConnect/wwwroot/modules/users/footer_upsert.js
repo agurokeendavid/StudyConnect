@@ -5,7 +5,6 @@
     $("#last_name").dxTextBox({
         placeholder: "Last Name",
         value: $("#lastname-hidden").val(),
-      stylingMode: "outlined",
         inputAttr: {
 'aria-label': 'Last Name'
  },
@@ -24,7 +23,6 @@
     $("#first_name").dxTextBox({
         placeholder: "First Name",
         value: $("#firstname-hidden").val(),
-        stylingMode: "outlined",
     inputAttr: {
             'aria-label': 'First Name'
       },
@@ -43,7 +41,6 @@ onValueChanged: function(e) {
     $("#middle_name").dxTextBox({
   placeholder: "Middle Name",
       value: $("#middlename-hidden").val(),
-        stylingMode: "outlined",
         inputAttr: {
     'aria-label': 'Middle Name'
         },
@@ -63,7 +60,6 @@ onValueChanged: function(e) {
   valueExpr: "id",
         value: $("#sex-hidden").val(),
     placeholder: "Select Gender",
-        stylingMode: "outlined",
         searchEnabled: true,
         validationMessageMode: "always",
         onValueChanged: function(e) {
@@ -82,7 +78,6 @@ onValueChanged: function(e) {
         value: $("#dob-hidden").val() ? new Date($("#dob-hidden").val()) : null,
    type: "date",
      displayFormat: "dd/MM/yyyy",
-        stylingMode: "outlined",
         max: new Date(),
         validationMessageMode: "always",
 onValueChanged: function(e) {
@@ -107,7 +102,6 @@ onValueChanged: function(e) {
     $("#contact_no").dxTextBox({
      placeholder: "Contact No.",
  value: $("#contactno-hidden").val(),
-        stylingMode: "outlined",
         mask: "+63 (000) 000-0000",
  maskRules: { "0": /[0-9]/ },
         inputAttr: {
@@ -128,7 +122,6 @@ onValueChanged: function(e) {
     $("#address").dxTextBox({
         placeholder: "Address",
         value: $("#address-hidden").val(),
-        stylingMode: "outlined",
         inputAttr: {
         'aria-label': 'Address'
         },
@@ -153,7 +146,6 @@ onValueChanged: function(e) {
         valueExpr: "id",
   value: $("#roleid-hidden").val(),
         placeholder: "Select Role",
-    stylingMode: "outlined",
         searchEnabled: true,
 validationMessageMode: "always",
         onValueChanged: function(e) {
@@ -173,7 +165,6 @@ type: "required",
      placeholder: "Email Address",
             mode: "email",
             value: $("#email-hidden").val(),
-            stylingMode: "outlined",
      inputAttr: {
       'aria-label': 'Email Address'
  },
@@ -195,7 +186,6 @@ onValueChanged: function(e) {
         $("#password").dxTextBox({
  placeholder: "Password",
     mode: "password",
-   stylingMode: "outlined",
        inputAttr: {
   'aria-label': 'Password'
             },

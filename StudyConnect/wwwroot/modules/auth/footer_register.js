@@ -4,7 +4,7 @@ $(function () {
     // Initialize DevExtreme TextBox for Last Name
     $("#last_name").dxTextBox({
         placeholder: "Last Name",
-        stylingMode: "outlined",
+        //stylingMode: "outlined",
 inputAttr: {
             'aria-label': 'Last Name'
         },
@@ -22,7 +22,7 @@ inputAttr: {
     // Initialize DevExtreme TextBox for First Name
     $("#first_name").dxTextBox({
         placeholder: "First Name",
-        stylingMode: "outlined",
+        //stylingMode: "outlined",
         inputAttr: {
        'aria-label': 'First Name'
         },
@@ -40,7 +40,7 @@ message: "First Name is required"
     // Initialize DevExtreme TextBox for Middle Name (optional)
     $("#middle_name").dxTextBox({
         placeholder: "Middle Name",
-        stylingMode: "outlined",
+        //stylingMode: "outlined",
         inputAttr: {
     'aria-label': 'Middle Name'
         },
@@ -53,7 +53,7 @@ message: "First Name is required"
     $("#username").dxTextBox({
 placeholder: "Email Address",
         mode: "email",
-        stylingMode: "outlined",
+        //stylingMode: "outlined",
         inputAttr: {
    'aria-label': 'Email Address',
             'aria-describedby': 'emailHelp'
@@ -76,7 +76,7 @@ validationRules: [{
     $("#password").dxTextBox({
         placeholder: "Password",
         mode: "password",
-        stylingMode: "outlined",
+        //stylingMode: "outlined",
         inputAttr: {
             'aria-label': 'Password'
         },
