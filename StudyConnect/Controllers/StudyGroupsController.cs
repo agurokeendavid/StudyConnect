@@ -8,6 +8,8 @@ using StudyConnect.Services;
 using StudyConnect.ViewModels.StudyGroups;
 using System.Security.Claims;
 using StudyConnect.Requests;
+using Microsoft.AspNetCore.SignalR;
+using StudyConnect.Hubs;
 
 namespace StudyConnect.Controllers
 {
@@ -17,15 +19,18 @@ namespace StudyConnect.Controllers
         private readonly ILogger<StudyGroupsController> _logger;
         private readonly AppDbContext _context;
         private readonly IAuditService _auditService;
+        private readonly IHubContext<StudyGroupHub> _hubContext;
 
         public StudyGroupsController(
             ILogger<StudyGroupsController> logger,
-            AppDbContext context,
-            IAuditService auditService)
+        AppDbContext context,
+  IAuditService auditService,
+     IHubContext<StudyGroupHub> hubContext)
         {
             _logger = logger;
             _context = context;
             _auditService = auditService;
+            _hubContext = hubContext;
         }
 
         [HttpGet]
@@ -1420,6 +1425,212 @@ namespace StudyConnect.Controllers
                 });
 
                 return Json(ResponseHelper.Success("Resource deleted successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred."));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostMessage([FromBody] PostMessageRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                if (string.IsNullOrWhiteSpace(request.Message))
+                {
+                    return Json(ResponseHelper.Failed("Message cannot be empty."));
+                }
+
+                // Check if study group exists
+                var studyGroup = await _context.StudyGroups
+                .Where(sg => sg.DeletedAt == null)
+                    .FirstOrDefaultAsync(sg => sg.Id == request.StudyGroupId);
+
+                if (studyGroup == null)
+                {
+                    return Json(ResponseHelper.Failed("Study group not found."));
+                }
+
+                // Check if user is an approved member, owner, or admin
+                var member = await _context.StudyGroupMembers
+                  .Where(m => m.StudyGroupId == request.StudyGroupId &&
+            m.UserId == currentUserId &&
+                 m.DeletedAt == null)
+                .FirstOrDefaultAsync();
+
+                if (member == null || !member.IsApproved)
+                {
+                    return Json(ResponseHelper.Failed("You must be an approved member to post messages."));
+                }
+
+                // Check if user is Owner, Admin, or regular approved member
+                var canPost = member.Role == "Owner" || member.Role == "Admin" || (member.Role == "Member" && member.IsApproved);
+
+                if (!canPost)
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to post messages."));
+                }
+
+                // Create new message
+                var message = new StudyGroupMessage
+                {
+                    StudyGroupId = request.StudyGroupId,
+                    UserId = currentUserId ?? "",
+                    Message = request.Message,
+                    PostedAt = DateTime.Now,
+                    CreatedBy = currentUserId ?? "",
+                    CreatedByName = currentUserName,
+                    CreatedAt = DateTime.Now,
+                    ModifiedBy = currentUserId ?? "",
+                    ModifiedByName = currentUserName,
+                    ModifiedAt = DateTime.Now
+                };
+
+                _context.StudyGroupMessages.Add(message);
+                await _context.SaveChangesAsync();
+
+                // Get user info for real-time broadcast
+                var user = await _context.Users.FindAsync(currentUserId);
+                var userName = user != null ? $"{user.FirstName} {user.LastName}".Trim() : currentUserName;
+
+                // Prepare message data for broadcast
+                var messageData = new
+                {
+                    id = message.Id,
+                    message = message.Message,
+                    userId = message.UserId,
+                    userName = userName,
+                    postedAt = message.PostedAt.ToString("MMMM dd, yyyy hh:mm tt"),
+                    isCurrentUser = true // Will be updated by clients
+                };
+
+                // Broadcast to all clients in the study group via SignalR
+                await _hubContext.Clients.Group($"StudyGroup_{request.StudyGroupId}")
+                     .SendAsync("ReceiveMessage", messageData);
+
+                // Log the action
+                await _auditService.LogCreateAsync("StudyGroupMessage", message.Id.ToString(), new
+                {
+                    message.Id,
+                    message.StudyGroupId,
+                    MessagePreview = message.Message.Substring(0, Math.Min(50, message.Message.Length))
+                });
+
+                return Json(ResponseHelper.Success("Message posted successfully.", messageData));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while posting the message."));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMessages(int studyGroupId, int skip = 0, int take = 50)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Check if user is an approved member
+                var isMember = await _context.StudyGroupMembers
+        .AnyAsync(m => m.StudyGroupId == studyGroupId &&
+  m.UserId == currentUserId &&
+       m.IsApproved &&
+    m.DeletedAt == null);
+
+                if (!isMember)
+                {
+                    return Json(new { data = new List<object>() });
+                }
+
+                var messages = await _context.StudyGroupMessages
+            .Where(m => m.StudyGroupId == studyGroupId && m.DeletedAt == null)
+             .Include(m => m.User)
+                   .OrderByDescending(m => m.PostedAt)
+           .Skip(skip)
+                .Take(take)
+                  .Select(m => new
+                  {
+                      id = m.Id,
+                      message = m.Message,
+                      userId = m.UserId,
+                      userName = $"{m.User.FirstName} {m.User.LastName}".Trim(),
+                      postedAt = m.PostedAt.ToString("MMMM dd, yyyy hh:mm tt"),
+                      isCurrentUser = m.UserId == currentUserId
+                  })
+           .ToListAsync();
+
+                // Reverse to show oldest first
+                messages.Reverse();
+
+                return Json(new { data = messages });
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(new { data = new List<object>() });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteMessage([FromBody] int messageId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var message = await _context.StudyGroupMessages
+          .Where(m => m.DeletedAt == null)
+       .FirstOrDefaultAsync(m => m.Id == messageId);
+
+                if (message == null)
+                {
+                    return Json(ResponseHelper.Failed("Message not found."));
+                }
+
+                // Check if user is the message owner, or an owner/admin of the group
+                var member = await _context.StudyGroupMembers
+           .Where(m => m.StudyGroupId == message.StudyGroupId &&
+                    m.UserId == currentUserId &&
+                  m.DeletedAt == null)
+           .FirstOrDefaultAsync();
+
+                bool canDelete = message.UserId == currentUserId ||
+                       (member != null && (member.Role == "Owner" || member.Role == "Admin"));
+
+                if (!canDelete)
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to delete this message."));
+                }
+
+                // Soft delete
+                message.DeletedBy = currentUserId;
+                message.DeletedByName = currentUserName;
+                message.DeletedAt = DateTime.Now;
+
+                _context.StudyGroupMessages.Update(message);
+                await _context.SaveChangesAsync();
+
+                // Notify all clients in the group
+                await _hubContext.Clients.Group($"StudyGroup_{message.StudyGroupId}")
+                            .SendAsync("MessageDeleted", messageId);
+
+                // Log the action
+                await _auditService.LogDeleteAsync("StudyGroupMessage", message.Id.ToString(), new
+                {
+                    message.Id,
+                    message.StudyGroupId,
+                    MessagePreview = message.Message.Substring(0, Math.Min(50, message.Message.Length))
+                });
+
+                return Json(ResponseHelper.Success("Message deleted successfully."));
             }
             catch (Exception exception)
             {

@@ -5,6 +5,7 @@ using StudyConnect.Models;
 using StudyConnect.Repositories;
 using StudyConnect.Repositories.Contracts;
 using StudyConnect.Services;
+using StudyConnect.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 // ---------- DB (MySQL 8 via Pomelo) ----------
@@ -40,6 +41,9 @@ builder.Services.AddControllersWithViews().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
+
+// ---------- SignalR ----------
+builder.Services.AddSignalR();
 
 // ---------- Repositories ----------
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -81,5 +85,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+// Map SignalR Hub
+app.MapHub<StudyGroupHub>("/studyGroupHub");
 
 app.Run();

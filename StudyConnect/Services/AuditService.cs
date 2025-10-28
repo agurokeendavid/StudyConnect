@@ -48,7 +48,7 @@ public class AuditService : IAuditService
                 NewValues = newValues != null ? JsonSerializer.Serialize(newValues) : null,
                 IpAddress = httpContext.Connection.RemoteIpAddress?.ToString(),
                 UserAgent = httpContext.Request.Headers["User-Agent"].ToString(),
-                Timestamp = DateTime.UtcNow,
+                Timestamp = DateTime.Now,
                 AdditionalInfo = additionalInfo
             };
 

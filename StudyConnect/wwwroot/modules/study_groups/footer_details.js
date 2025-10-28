@@ -1,4 +1,9 @@
 ﻿$(function () {
+    // Initialize SignalR connection
+    if (isMember) {
+        initializeSignalR();
+    }
+
     // Initialize tabs
     initializeTabs();
 
@@ -22,6 +27,55 @@
     $('#btnSaveMeetLink').on('click', saveMeetingLink);
     $('#btnJoinMeet').on('click', joinMeeting);
 });
+
+// Initialize SignalR Connection
+function initializeSignalR() {
+    connection = new signalR.HubConnectionBuilder()
+        .withUrl("/studyGroupHub")
+        .withAutomaticReconnect()
+        .build();
+
+    // Handle incoming messages
+    connection.on("ReceiveMessage", function (messageData) {
+        appendMessageToUI(messageData);
+    });
+
+    // Handle message deletion
+    connection.on("MessageDeleted", function (messageId) {
+        $(`#message-${messageId}`).fadeOut(300, function() {
+            $(this).remove();
+            checkForumEmpty();
+        });
+    });
+
+    // Start the connection
+    connection.start()
+        .then(function () {
+            console.log("SignalR Connected");
+            // Join the study group
+            return connection.invoke("JoinStudyGroup", studyGroupId);
+        })
+        .then(function () {
+            console.log("Joined study group: " + studyGroupId);
+        })
+        .catch(function (err) {
+            console.error("SignalR Connection Error: ", err);
+        });
+
+    // Handle reconnection
+    connection.onreconnected(function () {
+        console.log("SignalR Reconnected");
+        connection.invoke("JoinStudyGroup", studyGroupId)
+            .catch(function (err) {
+                console.error("Error rejoining group: ", err);
+            });
+    });
+
+    // Handle disconnection
+    connection.onclose(function () {
+        console.log("SignalR Disconnected");
+    });
+}
 
 // Initialize Tabs
 function initializeTabs() {
@@ -296,10 +350,96 @@ function deleteResource(resourceId) {
 
 // Load Forum Messages
 function loadForumMessages() {
-    // TODO: Implement API endpoint for forum messages
-    // For now, show empty state
-    $('#forumEmpty').show();
-    $('#forumMessages').hide();
+    $.ajax({
+  url: '/StudyGroups/GetMessages',
+  type: 'GET',
+        data: { studyGroupId: studyGroupId },
+  success: function (response) {
+     if (response.data && response.data.length > 0) {
+                renderMessages(response.data);
+           $('#forumEmpty').hide();
+     $('#forumMessages').show();
+            } else {
+      $('#forumEmpty').show();
+ $('#forumMessages').empty();
+       }
+        },
+        error: function () {
+        console.error('Error loading messages');
+  $('#forumEmpty').show();
+   }
+    });
+}
+
+function renderMessages(messages) {
+    var container = $('#forumMessages');
+    container.empty();
+
+    messages.forEach(function (msg) {
+        appendMessageToUI(msg);
+    });
+
+    // Scroll to bottom
+    scrollToBottomOfMessages();
+}
+
+function appendMessageToUI(messageData) {
+    var container = $('#forumMessages');
+    
+    // Hide empty state
+    $('#forumEmpty').hide();
+    container.show();
+    
+    // Check if message already exists (prevent duplicates)
+    if ($(`#message-${messageData.id}`).length > 0) {
+        return;
+    }
+
+    var initials = getInitials(messageData.userName);
+  var isCurrentUserMessage = messageData.userId === currentUserId;
+    
+    var messageHtml = `
+  <div class="card mb-3" id="message-${messageData.id}">
+            <div class="card-body">
+   <div class="d-flex align-items-start">
+          <div class="message-avatar me-3">${initials}</div>
+  <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                   <div>
+              <h6 class="mb-0 fw-semibold">${escapeHtml(messageData.userName)}</h6>
+           <small class="text-muted">${messageData.postedAt}</small>
+     </div>
+    ${isCurrentUserMessage || isOwner ? `
+           <button class="btn btn-sm btn-outline-danger" onclick="deleteMessage(${messageData.id})">
+         <i class="ti ti-trash"></i>
+   </button>
+    ` : ''}
+     </div>
+            <p class="mb-0">${escapeHtml(messageData.message)}</p>
+          </div>
+        </div>
+     </div>
+        </div>
+    `;
+    
+    container.append(messageHtml);
+    
+    // Scroll to bottom when new message arrives
+    scrollToBottomOfMessages();
+}
+
+function scrollToBottomOfMessages() {
+    var container = $('#forumMessages');
+    if (container.length) {
+        container.animate({ scrollTop: container.prop('scrollHeight') }, 300);
+    }
+}
+
+function checkForumEmpty() {
+    if ($('#forumMessages .card').length === 0) {
+        $('#forumEmpty').show();
+        $('#forumMessages').hide();
+    }
 }
 
 // Post Forum Message
@@ -311,28 +451,69 @@ function postForumMessage() {
         return;
     }
 
+    if (message.length > 5000) {
+        Swal.fire('Error', 'Message is too long. Maximum 5000 characters.', 'error');
+        return;
+    }
+
     AmagiLoader.show();
 
     $.ajax({
-        url: '/StudyGroups/PostMessage',
+    url: '/StudyGroups/PostMessage',
         type: 'POST',
-        data: {
-            studyGroupId: studyGroupId,
-            message: message
-        },
+        contentType: 'application/json',
+        data: JSON.stringify({
+     studyGroupId: studyGroupId,
+message: message
+  }),
         success: function (response) {
-            AmagiLoader.hide();
-            if (response.IsSuccess) {
-                $('#forumMessage').val('');
-                loadForumMessages();
-                Swal.fire('Success', 'Message posted successfully', 'success');
+  AmagiLoader.hide();
+            if (response.MessageType === 'Success') {
+   $('#forumMessage').val('');
+  // Message will be added via SignalR
             } else {
-                Swal.fire('Error', response.Message || 'Failed to post message', 'error');
-            }
-        },
+            Swal.fire('Error', response.Message || 'Failed to post message', 'error');
+       }
+  },
         error: function () {
             AmagiLoader.hide();
             Swal.fire('Error', 'An error occurred while posting', 'error');
+     }
+  });
+}
+
+function deleteMessage(messageId) {
+    Swal.fire({
+     title: 'Delete Message?',
+        text: 'This action cannot be undone.',
+     icon: 'warning',
+      showCancelButton: true,
+ confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+    if (result.isConfirmed) {
+         AmagiLoader.show();
+
+            $.ajax({
+    url: '/StudyGroups/DeleteMessage',
+  type: 'POST',
+     contentType: 'application/json',
+      data: JSON.stringify(messageId),
+                success: function (response) {
+      AmagiLoader.hide();
+ if (response.MessageType === 'Success') {
+          // Message will be removed via SignalR
+         Swal.fire('Deleted!', 'Message has been deleted.', 'success');
+              } else {
+   Swal.fire('Error', response.Message || 'Failed to delete message', 'error');
+   }
+       },
+ error: function () {
+    AmagiLoader.hide();
+      Swal.fire('Error', 'An error occurred while deleting', 'error');
+   }
+        });
         }
     });
 }
@@ -502,7 +683,7 @@ function approveRequest(memberId) {
                 data: { memberId: memberId },
                 success: function (response) {
                     AmagiLoader.hide();
-                    if (response.IsSuccess) {
+                    if (response.MessageType === "Success") {
                         Swal.fire('Approved!', 'Member request has been approved.', 'success');
                         loadMembershipRequests();
                         loadMembers();
@@ -539,7 +720,7 @@ function rejectRequest(memberId) {
                 data: { memberId: memberId },
                 success: function (response) {
                     AmagiLoader.hide();
-                    if (response.IsSuccess) {
+                    if (response.MessageType === "Success") {
                         Swal.fire('Rejected!', 'Member request has been rejected.', 'success');
                         loadMembershipRequests();
                     } else {

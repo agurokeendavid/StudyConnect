@@ -310,9 +310,10 @@
 </div>
 
 @section FooterScripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     <script>
-        var studyGroupId = @ViewBag.StudyGroupId;
-        var isOwner = @(ViewBag.IsOwner ? "true" : "false");
+      var studyGroupId = @ViewBag.StudyGroupId;
+   var isOwner = @(ViewBag.IsOwner ? "true" : "false");
         var isMember = @(ViewBag.IsMember ? "true" : "false");
         var currentUserId = '@User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)';
     </script>
