@@ -1,4 +1,6 @@
-﻿@{
+﻿@using System.Security.Claims
+
+@{
     ViewBag.Title = "Details - Study Group";
     Layout = "Dashboard/_Layout";
 }
@@ -312,6 +314,7 @@
         var studyGroupId = @ViewBag.StudyGroupId;
         var isOwner = @(ViewBag.IsOwner ? "true" : "false");
         var isMember = @(ViewBag.IsMember ? "true" : "false");
+        var currentUserId = '@User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)';
     </script>
     <script src="~/modules/study_groups/footer_details.js" asp-append-version="true"></script>
 }

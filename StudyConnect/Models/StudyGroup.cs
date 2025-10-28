@@ -26,5 +26,8 @@ namespace StudyConnect.Models
 
         // Navigation property for members
         public ICollection<StudyGroupMember> Members { get; set; } = new List<StudyGroupMember>();
+        
+        // Navigation property for resources
+        public ICollection<StudyGroupResource> Resources { get; set; } = new List<StudyGroupResource>();
     }
 }

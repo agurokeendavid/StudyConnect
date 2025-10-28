@@ -1,13 +1,13 @@
 ﻿$(function () {
     // Initialize tabs
-  initializeTabs();
-    
+    initializeTabs();
+
     // Load initial data
     loadMembers();
     loadResources();
     loadForumMessages();
     loadMeetingLink();
-    
+
     if (isOwner) {
         loadMembershipRequests();
     }
@@ -27,108 +27,188 @@
 function initializeTabs() {
     var triggerTabList = [].slice.call(document.querySelectorAll('#studyGroupTabs button'))
     triggerTabList.forEach(function (triggerEl) {
-   var tabTrigger = new bootstrap.Tab(triggerEl)
+        var tabTrigger = new bootstrap.Tab(triggerEl)
         triggerEl.addEventListener('click', function (event) {
-     event.preventDefault()
-     tabTrigger.show()
-     })
+            event.preventDefault()
+            tabTrigger.show()
+        })
     })
 }
 
 // Load Members with DevExtreme DataGrid
 function loadMembers() {
     $("#membersGrid").dxDataGrid({
-      dataSource: {
-   store: {
-         type: 'array',
- key: 'id',
+        width: '100%',
+        dataSource: {
+            store: {
+                type: 'array',
+                key: 'id',
                 data: []
-    },
-            load: function() {
-       return $.ajax({
-       url: '/StudyGroups/GetMembers',
-     type: 'GET',
-            data: { studyGroupId: studyGroupId },
-            dataType: 'json'
-  }).then(function(response) {
-             return response.data || [];
-           });
-          }
+            },
+            load: function () {
+                return $.ajax({
+                    url: '/StudyGroups/GetMembers',
+                    type: 'GET',
+                    data: { studyGroupId: studyGroupId },
+                    dataType: 'json'
+                }).then(function (response) {
+                    return response.data || [];
+                });
+            }
         },
         columns: [
             {
                 caption: 'Member',
-                cellTemplate: function(container, options) {
-     var initials = getInitials(options.data.userName);
-     $('<div>').addClass('d-flex align-items-center').append(
-          $('<div>').addClass('message-avatar me-2').text(initials),
-    $('<div>').append(
-     $('<div>').addClass('fw-semibold').text(options.data.userName),
-         $('<small>').addClass('text-muted').text(options.data.email)
- )
-        ).appendTo(container);
-  }
-       },
-     {
-           dataField: 'role',
-             caption: 'Role',
-         width: 120,
-            cellTemplate: function(container, options) {
-         var badgeClass = 'bg-primary';
-             if (options.value === 'Owner') badgeClass = 'bg-danger';
-      else if (options.value === 'Admin') badgeClass = 'bg-warning';
-             $('<span>').addClass('badge ' + badgeClass).text(options.value).appendTo(container);
- }
-          },
-       {
-  dataField: 'joinedAt',
+                cellTemplate: function (container, options) {
+                    var initials = getInitials(options.data.userName);
+                    $('<div>').addClass('d-flex align-items-center').append(
+                        $('<div>').addClass('message-avatar me-2').text(initials),
+                        $('<div>').append(
+                            $('<div>').addClass('fw-semibold').text(options.data.userName),
+                            $('<small>').addClass('text-muted').text(options.data.email)
+                        )
+                    ).appendTo(container);
+                }
+            },
+            {
+                dataField: 'role',
+                caption: 'Role',
+                cellTemplate: function (container, options) {
+                    var badgeClass = 'bg-primary';
+                    if (options.value === 'Owner') badgeClass = 'bg-danger';
+                    else if (options.value === 'Admin') badgeClass = 'bg-warning';
+                    $('<span>').addClass('badge ' + badgeClass).text(options.value).appendTo(container);
+                }
+            },
+            {
+                dataField: 'joinedAt',
                 caption: 'Joined',
-             width: 150,
-       dataType: 'string'
-     },
-         {
-         dataField: 'isApproved',
-       caption: 'Status',
-           width: 100,
-                cellTemplate: function(container, options) {
-          var badgeClass = options.value ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning';
-      var text = options.value ? 'Approved' : 'Pending';
-     $('<span>').addClass('badge ' + badgeClass).text(text).appendTo(container);
-   }
+                dataType: 'string'
+            },
+            {
+                dataField: 'isApproved',
+                caption: 'Status',
+                cellTemplate: function (container, options) {
+                    var badgeClass = options.value ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning';
+                    var text = options.value ? 'Approved' : 'Pending';
+                    $('<span>').addClass('badge ' + badgeClass).text(text).appendTo(container);
+                }
             }
         ],
         showBorders: true,
         showRowLines: true,
-    showColumnLines: false,
+        showColumnLines: false,
         rowAlternationEnabled: true,
         hoverStateEnabled: true,
-paging: {
-     pageSize: 10
-},
-        pager: {
-   showPageSizeSelector: true,
-     allowedPageSizes: [5, 10, 20],
-            showInfo: true
-  },
- searchPanel: {
-       visible: true,
-    placeholder: 'Search members...'
+        paging: {
+            pageSize: 10
         },
- headerFilter: {
+        pager: {
+            showPageSizeSelector: true,
+            allowedPageSizes: [5, 10, 20],
+            showInfo: true
+        },
+        searchPanel: {
+            visible: true,
+            width: '100%',
+            placeholder: 'Search members...'
+        },
+        headerFilter: {
             visible: true
-      },
-     filterRow: {
-     visible: false
+        },
+        filterRow: {
+            visible: false
         }
     });
 }
 
 // Load Resources
 function loadResources() {
-    // TODO: Implement API endpoint for resources
-    // For now, show empty state
-    $('#resourcesEmpty').show();
-    $('#resourcesList').hide();
+    $.ajax({
+        url: '/StudyGroups/GetResources',
+        type: 'GET',
+        data: { studyGroupId: studyGroupId },
+        success: function (response) {
+            if (response.data && response.data.length > 0) {
+                renderResources(response.data);
+                $('#resourcesEmpty').hide();
+                $('#resourcesList').show();
+            } else {
+                $('#resourcesEmpty').show();
+                $('#resourcesList').hide();
+            }
+        },
+        error: function () {
+            console.error('Error loading resources');
+        }
+    });
+}
+
+function renderResources(resources) {
+    var container = $('#resourcesList');
+    container.empty();
+
+    resources.forEach(function (resource) {
+        var card = createResourceCard(resource);
+        container.append(card);
+    });
+}
+
+function createResourceCard(resource) {
+    var iconClass = getFileIcon(resource.fileName);
+    var fileSize = formatFileSize(resource.fileSize);
+
+    // Only show delete button if user is owner, admin, or uploader
+    var deleteButton = '';
+    if (isOwner || resource.uploadedByUserId === currentUserId) {
+        deleteButton = `
+     <button class="btn btn-sm btn-outline-danger" onclick="deleteResource(${resource.id})">
+              <i class="ti ti-trash"></i>
+        </button>
+        `;
+    }
+
+    var card = `
+   <div class="col-md-4 mb-3">
+            <div class="card h-100 resource-card">
+      <div class="card-body">
+   <div class="d-flex align-items-start mb-3">
+       <div class="resource-icon me-3">
+   <i class="ti ${iconClass}"></i>
+      </div>
+  <div class="flex-grow-1">
+          <h6 class="card-title mb-1">${escapeHtml(resource.title)}</h6>
+     <small class="text-muted">${resource.fileName}</small>
+            </div>
+     </div>
+     
+           ${resource.description ? `<p class="card-text text-muted small mb-3">${escapeHtml(resource.description)}</p>` : ''}
+             
+       <div class="resource-meta mb-3">
+      <div class="d-flex justify-content-between text-muted small">
+     <span><i class="ti ti-file-size me-1"></i>${fileSize}</span>
+             <span><i class="ti ti-download me-1"></i>${resource.downloadCount}</span>
+      </div>
+   <div class="text-muted small mt-1">
+    <i class="ti ti-user me-1"></i>${escapeHtml(resource.uploadedByName)}
+      </div>
+        <div class="text-muted small">
+            <i class="ti ti-clock me-1"></i>${resource.createdAt}
+               </div>
+   </div>
+  
+      <div class="d-flex gap-2">
+<button class="btn btn-sm btn-primary flex-grow-1" onclick="${isMember ? `downloadResource(${resource.id});` : `void(0);`}">
+    <i class="ti ti-download me-1"></i>Download
+</button>
+       ${deleteButton}
+           </div>
+            </div>
+         </div>
+        </div>
+    `;
+
+    return card;
 }
 
 // Upload Resource
@@ -136,10 +216,10 @@ function uploadResource() {
     var title = $('#resourceTitle').val();
     var description = $('#resourceDescription').val();
     var fileInput = $('#resourceFile')[0];
-    
+
     if (!title || !fileInput.files[0]) {
         Swal.fire('Error', 'Please fill in all required fields', 'error');
-      return;
+        return;
     }
 
     var formData = new FormData();
@@ -152,24 +232,64 @@ function uploadResource() {
 
     $.ajax({
         url: '/StudyGroups/UploadResource',
-    type: 'POST',
+        type: 'POST',
         data: formData,
         processData: false,
-   contentType: false,
-        success: function(response) {
+        contentType: false,
+        success: function (response) {
             AmagiLoader.hide();
-   if (response.IsSuccess) {
-   Swal.fire('Success', 'Resource uploaded successfully', 'success');
-     $('#uploadResourceModal').modal('hide');
-      $('#uploadResourceForm')[0].reset();
+            if (response.MessageType === 'Success') {
+                Swal.fire('Success', 'Resource uploaded successfully', 'success');
+                $('#uploadResourceModal').modal('hide');
+                $('#uploadResourceForm')[0].reset();
                 loadResources();
-        } else {
-           Swal.fire('Error', response.Message || 'Failed to upload resource', 'error');
-       }
+            } else {
+                Swal.fire('Error', response.Message || 'Failed to upload resource', 'error');
+            }
         },
-    error: function() {
+        error: function () {
             AmagiLoader.hide();
-      Swal.fire('Error', 'An error occurred while uploading', 'error');
+            Swal.fire('Error', 'An error occurred while uploading', 'error');
+        }
+    });
+}
+
+function downloadResource(resourceId) {
+    window.location.href = `/StudyGroups/DownloadResource?resourceId=${resourceId}`;
+}
+
+function deleteResource(resourceId) {
+    Swal.fire({
+        title: 'Delete Resource?',
+        text: 'This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            AmagiLoader.show();
+
+            $.ajax({
+                url: '/StudyGroups/DeleteResource',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(resourceId),
+                success: function (response) {
+                    AmagiLoader.hide();
+                    if (response.MessageType) {
+                        Swal.fire('Deleted!', 'Resource has been deleted.', 'success');
+                        loadResources();
+                    } else {
+                        Swal.fire('Error', response.Message || 'Failed to delete resource', 'error');
+                    }
+                },
+                error: function () {
+                    AmagiLoader.hide();
+                    Swal.fire('Error', 'An error occurred while deleting', 'error');
+                }
+            });
         }
     });
 }
@@ -185,7 +305,7 @@ function loadForumMessages() {
 // Post Forum Message
 function postForumMessage() {
     var message = $('#forumMessage').val().trim();
-    
+
     if (!message) {
         Swal.fire('Error', 'Please enter a message', 'error');
         return;
@@ -194,40 +314,40 @@ function postForumMessage() {
     AmagiLoader.show();
 
     $.ajax({
-     url: '/StudyGroups/PostMessage',
+        url: '/StudyGroups/PostMessage',
         type: 'POST',
         data: {
             studyGroupId: studyGroupId,
-    message: message
- },
-      success: function(response) {
+            message: message
+        },
+        success: function (response) {
             AmagiLoader.hide();
-  if (response.IsSuccess) {
+            if (response.IsSuccess) {
                 $('#forumMessage').val('');
- loadForumMessages();
-            Swal.fire('Success', 'Message posted successfully', 'success');
-    } else {
-      Swal.fire('Error', response.Message || 'Failed to post message', 'error');
+                loadForumMessages();
+                Swal.fire('Success', 'Message posted successfully', 'success');
+            } else {
+                Swal.fire('Error', response.Message || 'Failed to post message', 'error');
             }
         },
-        error: function() {
-AmagiLoader.hide();
-  Swal.fire('Error', 'An error occurred while posting', 'error');
-    }
+        error: function () {
+            AmagiLoader.hide();
+            Swal.fire('Error', 'An error occurred while posting', 'error');
+        }
     });
 }
 
 // Load Meeting Link
 function loadMeetingLink() {
     $.ajax({
-      url: '/StudyGroups/GetMeetingLink',
+        url: '/StudyGroups/GetMeetingLink',
         type: 'GET',
         data: { studyGroupId: studyGroupId },
-        success: function(response) {
-    if (response.IsSuccess && response.Data) {
-    $('#meetLink').val(response.Data);
-     $('#btnJoinMeet').prop('disabled', false);
-       }
+        success: function (response) {
+            if (response.IsSuccess && response.Data) {
+                $('#meetLink').val(response.Data);
+                $('#btnJoinMeet').prop('disabled', false);
+            }
         }
     });
 }
@@ -235,40 +355,40 @@ function loadMeetingLink() {
 // Save Meeting Link
 function saveMeetingLink() {
     var meetLink = $('#meetLink').val().trim();
- 
+
     if (!meetLink) {
         Swal.fire('Error', 'Please enter a Google Meet link', 'error');
-    return;
+        return;
     }
 
     // Validate Google Meet URL
     if (!meetLink.includes('meet.google.com')) {
         Swal.fire('Error', 'Please enter a valid Google Meet link', 'error');
- return;
+        return;
     }
 
     AmagiLoader.show();
 
     $.ajax({
- url: '/StudyGroups/SaveMeetingLink',
+        url: '/StudyGroups/SaveMeetingLink',
         type: 'POST',
- data: {
-     studyGroupId: studyGroupId,
-     meetingLink: meetLink
- },
-        success: function(response) {
-   AmagiLoader.hide();
-    if (response.IsSuccess) {
-      $('#btnJoinMeet').prop('disabled', false);
- Swal.fire('Success', 'Meeting link saved successfully', 'success');
+        data: {
+            studyGroupId: studyGroupId,
+            meetingLink: meetLink
+        },
+        success: function (response) {
+            AmagiLoader.hide();
+            if (response.IsSuccess) {
+                $('#btnJoinMeet').prop('disabled', false);
+                Swal.fire('Success', 'Meeting link saved successfully', 'success');
             } else {
                 Swal.fire('Error', response.Message || 'Failed to save meeting link', 'error');
             }
-      },
-        error: function() {
-AmagiLoader.hide();
+        },
+        error: function () {
+            AmagiLoader.hide();
             Swal.fire('Error', 'An error occurred while saving', 'error');
-   }
+        }
     });
 }
 
@@ -283,81 +403,81 @@ function joinMeeting() {
 // Load Membership Requests (Owner Only)
 function loadMembershipRequests() {
     $("#requestsGrid").dxDataGrid({
-   dataSource: {
+        dataSource: {
             store: {
-       type: 'array',
-        key: 'id',
-           data: []
+                type: 'array',
+                key: 'id',
+                data: []
             },
-   load: function() {
-           return $.ajax({
-   url: '/StudyGroups/GetMembershipRequests',
-            type: 'GET',
-          data: { studyGroupId: studyGroupId },
-   dataType: 'json'
-      }).then(function(response) {
-     var pendingRequests = (response.data || []).filter(function(item) {
-          return !item.isApproved;
-   });
-            
-    // Update badge count
-        if (pendingRequests.length > 0) {
-  $('#requestCount').text(pendingRequests.length).show();
-     $('#requestsEmpty').hide();
-     } else {
-           $('#requestCount').hide();
-             $('#requestsEmpty').show();
-     }
-          
-              return pendingRequests;
-          });
-      }
+            load: function () {
+                return $.ajax({
+                    url: '/StudyGroups/GetMembershipRequests',
+                    type: 'GET',
+                    data: { studyGroupId: studyGroupId },
+                    dataType: 'json'
+                }).then(function (response) {
+                    var pendingRequests = (response.data || []).filter(function (item) {
+                        return !item.isApproved;
+                    });
+
+                    // Update badge count
+                    if (pendingRequests.length > 0) {
+                        $('#requestCount').text(pendingRequests.length).show();
+                        $('#requestsEmpty').hide();
+                    } else {
+                        $('#requestCount').hide();
+                        $('#requestsEmpty').show();
+                    }
+
+                    return pendingRequests;
+                });
+            }
         },
         columns: [
-  {
-        caption: 'User',
-           cellTemplate: function(container, options) {
-       var initials = getInitials(options.data.userName);
-               $('<div>').addClass('d-flex align-items-center').append(
-   $('<div>').addClass('message-avatar me-2').text(initials),
-            $('<div>').append(
-       $('<div>').addClass('fw-semibold').text(options.data.userName),
- $('<small>').addClass('text-muted').text(options.data.email)
-   )
-             ).appendTo(container);
- }
-     },
-  {
-       dataField: 'joinedAt',
-          caption: 'Requested On',
-  width: 150,
+            {
+                caption: 'User',
+                cellTemplate: function (container, options) {
+                    var initials = getInitials(options.data.userName);
+                    $('<div>').addClass('d-flex align-items-center').append(
+                        $('<div>').addClass('message-avatar me-2').text(initials),
+                        $('<div>').append(
+                            $('<div>').addClass('fw-semibold').text(options.data.userName),
+                            $('<small>').addClass('text-muted').text(options.data.email)
+                        )
+                    ).appendTo(container);
+                }
+            },
+            {
+                dataField: 'joinedAt',
+                caption: 'Requested On',
+                width: 150,
                 dataType: 'string'
- },
-       {
-    caption: 'Actions',
-   width: 200,
-     cellTemplate: function(container, options) {
-$('<div>').addClass('d-flex gap-2').append(
-             $('<button>').addClass('btn btn-sm btn-success')
-          .html('<i class="ti ti-check me-1"></i>Approve')
-     .on('click', function() {
-     approveRequest(options.data.id);
-      }),
-               $('<button>').addClass('btn btn-sm btn-danger')
-           .html('<i class="ti ti-x me-1"></i>Reject')
-        .on('click', function() {
-     rejectRequest(options.data.id);
-            })
-        ).appendTo(container);
-          }
+            },
+            {
+                caption: 'Actions',
+                width: 200,
+                cellTemplate: function (container, options) {
+                    $('<div>').addClass('d-flex gap-2').append(
+                        $('<button>').addClass('btn btn-sm btn-success')
+                            .html('<i class="ti ti-check me-1"></i>Approve')
+                            .on('click', function () {
+                                approveRequest(options.data.id);
+                            }),
+                        $('<button>').addClass('btn btn-sm btn-danger')
+                            .html('<i class="ti ti-x me-1"></i>Reject')
+                            .on('click', function () {
+                                rejectRequest(options.data.id);
+                            })
+                    ).appendTo(container);
+                }
             }
         ],
         showBorders: true,
-   showRowLines: true,
+        showRowLines: true,
         rowAlternationEnabled: true,
         hoverStateEnabled: true,
         paging: {
-   pageSize: 10
+            pageSize: 10
         }
     });
 }
@@ -369,69 +489,69 @@ function approveRequest(memberId) {
         text: 'This user will become a member of the study group.',
         icon: 'question',
         showCancelButton: true,
-   confirmButtonColor: '#28a745',
+        confirmButtonColor: '#28a745',
         cancelButtonColor: '#6c757d',
         confirmButtonText: 'Yes, approve'
     }).then((result) => {
- if (result.isConfirmed) {
-         AmagiLoader.show();
-   
+        if (result.isConfirmed) {
+            AmagiLoader.show();
+
             $.ajax({
-           url: '/StudyGroups/ApproveRequest',
-         type: 'POST',
-        data: { memberId: memberId },
-     success: function(response) {
-     AmagiLoader.hide();
-           if (response.IsSuccess) {
-              Swal.fire('Approved!', 'Member request has been approved.', 'success');
-  loadMembershipRequests();
-    loadMembers();
-      } else {
-            Swal.fire('Error', response.Message || 'Failed to approve request', 'error');
-         }
-          },
-   error: function() {
-     AmagiLoader.hide();
-       Swal.fire('Error', 'An error occurred', 'error');
-  }
-      });
+                url: '/StudyGroups/ApproveRequest',
+                type: 'POST',
+                data: { memberId: memberId },
+                success: function (response) {
+                    AmagiLoader.hide();
+                    if (response.IsSuccess) {
+                        Swal.fire('Approved!', 'Member request has been approved.', 'success');
+                        loadMembershipRequests();
+                        loadMembers();
+                    } else {
+                        Swal.fire('Error', response.Message || 'Failed to approve request', 'error');
+                    }
+                },
+                error: function () {
+                    AmagiLoader.hide();
+                    Swal.fire('Error', 'An error occurred', 'error');
+                }
+            });
         }
     });
 }
 
 // Reject Membership Request
 function rejectRequest(memberId) {
- Swal.fire({
+    Swal.fire({
         title: 'Reject Request?',
         text: 'This action cannot be undone.',
-   icon: 'warning',
-   showCancelButton: true,
+        icon: 'warning',
+        showCancelButton: true,
         confirmButtonColor: '#dc3545',
-      cancelButtonColor: '#6c757d',
-     confirmButtonText: 'Yes, reject'
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, reject'
     }).then((result) => {
-     if (result.isConfirmed) {
-      AmagiLoader.show();
-    
-        $.ajax({
-      url: '/StudyGroups/RejectRequest',
-  type: 'POST',
-   data: { memberId: memberId },
-             success: function(response) {
-  AmagiLoader.hide();
-     if (response.IsSuccess) {
-      Swal.fire('Rejected!', 'Member request has been rejected.', 'success');
-    loadMembershipRequests();
-  } else {
-            Swal.fire('Error', response.Message || 'Failed to reject request', 'error');
-         }
-             },
-        error: function() {
-       AmagiLoader.hide();
-    Swal.fire('Error', 'An error occurred', 'error');
+        if (result.isConfirmed) {
+            AmagiLoader.show();
+
+            $.ajax({
+                url: '/StudyGroups/RejectRequest',
+                type: 'POST',
+                data: { memberId: memberId },
+                success: function (response) {
+                    AmagiLoader.hide();
+                    if (response.IsSuccess) {
+                        Swal.fire('Rejected!', 'Member request has been rejected.', 'success');
+                        loadMembershipRequests();
+                    } else {
+                        Swal.fire('Error', response.Message || 'Failed to reject request', 'error');
+                    }
+                },
+                error: function () {
+                    AmagiLoader.hide();
+                    Swal.fire('Error', 'An error occurred', 'error');
+                }
+            });
         }
-  });
-     }
     });
 }
 
@@ -448,17 +568,17 @@ function getInitials(name) {
 function getFileIcon(fileName) {
     var ext = fileName.split('.').pop().toLowerCase();
     var iconMap = {
-        'pdf': 'ti-file-type-pdf',
-        'doc': 'ti-file-type-doc',
-        'docx': 'ti-file-type-doc',
-  'xls': 'ti-file-type-xls',
-      'xlsx': 'ti-file-type-xls',
-        'ppt': 'ti-file-type-ppt',
-        'pptx': 'ti-file-type-ppt',
+        'pdf': 'ti-file',
+        'doc': 'ti-file',
+        'docx': 'ti-file',
+        'xls': 'ti-file',
+        'xlsx': 'ti-file',
+        'ppt': 'ti-file',
+        'pptx': 'ti-file',
         'jpg': 'ti-photo',
         'jpeg': 'ti-photo',
         'png': 'ti-photo',
- 'gif': 'ti-photo'
+        'gif': 'ti-photo'
     };
     return iconMap[ext] || 'ti-file';
 }
@@ -469,4 +589,16 @@ function formatFileSize(bytes) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
 }

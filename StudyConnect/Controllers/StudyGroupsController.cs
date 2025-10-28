@@ -62,7 +62,7 @@ namespace StudyConnect.Controllers
                 }
 
                 // Check if current user is a member
-                var currentMember = studyGroup.Members.FirstOrDefault(m => m.UserId == currentUserId);
+                var currentMember = studyGroup.Members.FirstOrDefault(m => m.UserId == currentUserId && m.IsApproved);
                 var isOwner = currentMember?.Role == "Owner";
                 var isMember = currentMember != null;
 
@@ -192,7 +192,7 @@ namespace StudyConnect.Controllers
                     studyGroup.CategoryId = viewModel.CategoryId;
                     studyGroup.ModifiedBy = currentUserId ?? "";
                     studyGroup.ModifiedByName = currentUserName;
-                    studyGroup.ModifiedAt = DateTime.UtcNow;
+                    studyGroup.ModifiedAt = DateTime.Now;
 
                     _context.StudyGroups.Update(studyGroup);
                     await _context.SaveChangesAsync();
@@ -224,10 +224,10 @@ namespace StudyConnect.Controllers
                         CategoryId = viewModel.CategoryId,
                         CreatedBy = currentUserId ?? "",
                         CreatedByName = currentUserName,
-                        CreatedAt = DateTime.UtcNow,
+                        CreatedAt = DateTime.Now,
                         ModifiedBy = currentUserId ?? "",
                         ModifiedByName = currentUserName,
-                        ModifiedAt = DateTime.UtcNow
+                        ModifiedAt = DateTime.Now
                     };
 
                     _context.StudyGroups.Add(studyGroup);
@@ -240,13 +240,13 @@ namespace StudyConnect.Controllers
                         UserId = currentUserId ?? "",
                         Role = "Owner",
                         IsApproved = true,
-                        JoinedAt = DateTime.UtcNow,
+                        JoinedAt = DateTime.Now,
                         CreatedBy = currentUserId ?? "",
                         CreatedByName = currentUserName,
-                        CreatedAt = DateTime.UtcNow,
+                        CreatedAt = DateTime.Now,
                         ModifiedBy = currentUserId ?? "",
                         ModifiedByName = currentUserName,
-                        ModifiedAt = DateTime.UtcNow
+                        ModifiedAt = DateTime.Now
                     };
 
                     _context.StudyGroupMembers.Add(ownerMember);
@@ -265,7 +265,7 @@ namespace StudyConnect.Controllers
                     };
                     await _auditService.LogCreateAsync("StudyGroup", studyGroup.Id.ToString(), newValues);
 
-                    return Json(ResponseHelper.Success("Study group created successfully.", null, redirectUrl: Url.Action("Details", "StudyGroups", new { id = studyGroup.Id})));
+                    return Json(ResponseHelper.Success("Study group created successfully.", null, redirectUrl: Url.Action("Details", "StudyGroups", new { id = studyGroup.Id })));
                 }
             }
             catch (Exception exception)
@@ -383,13 +383,13 @@ namespace StudyConnect.Controllers
                     UserId = targetUserId ?? "",
                     Role = "Member",
                     IsApproved = studyGroup.Privacy == "Public", // Auto-approve for public groups
-                    JoinedAt = studyGroup.Privacy == "Public" ? DateTime.UtcNow : (DateTime?)null,
+                    JoinedAt = studyGroup.Privacy == "Public" ? DateTime.Now : (DateTime?)null,
                     CreatedBy = currentUserId ?? "",
                     CreatedByName = currentUserName,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.Now,
                     ModifiedBy = currentUserId ?? "",
                     ModifiedByName = currentUserName,
-                    ModifiedAt = DateTime.UtcNow
+                    ModifiedAt = DateTime.Now
                 };
 
                 _context.StudyGroupMembers.Add(newMember);
@@ -444,7 +444,7 @@ namespace StudyConnect.Controllers
                 // Soft delete
                 member.DeletedBy = currentUserId;
                 member.DeletedByName = currentUserName;
-                member.DeletedAt = DateTime.UtcNow;
+                member.DeletedAt = DateTime.Now;
 
                 _context.StudyGroupMembers.Update(member);
                 await _context.SaveChangesAsync();
@@ -495,7 +495,7 @@ namespace StudyConnect.Controllers
                 member.Role = request.NewRole;
                 member.ModifiedBy = currentUserId ?? "";
                 member.ModifiedByName = currentUserName;
-                member.ModifiedAt = DateTime.UtcNow;
+                member.ModifiedAt = DateTime.Now;
 
                 _context.StudyGroupMembers.Update(member);
                 await _context.SaveChangesAsync();
@@ -689,10 +689,10 @@ namespace StudyConnect.Controllers
                 }
 
                 member.IsApproved = true;
-                member.JoinedAt = DateTime.UtcNow;
+                member.JoinedAt = DateTime.Now;
                 member.ModifiedBy = currentUserId ?? "";
                 member.ModifiedByName = currentUserName;
-                member.ModifiedAt = DateTime.UtcNow;
+                member.ModifiedAt = DateTime.Now;
 
                 _context.StudyGroupMembers.Update(member);
                 await _context.SaveChangesAsync();
@@ -737,7 +737,7 @@ namespace StudyConnect.Controllers
                 // Soft delete
                 member.DeletedBy = currentUserId;
                 member.DeletedByName = currentUserName;
-                member.DeletedAt = DateTime.UtcNow;
+                member.DeletedAt = DateTime.Now;
 
                 _context.StudyGroupMembers.Update(member);
                 await _context.SaveChangesAsync();
@@ -785,7 +785,7 @@ namespace StudyConnect.Controllers
 
                 studyGroup.ModifiedBy = currentUserId ?? "";
                 studyGroup.ModifiedByName = currentUserName;
-                studyGroup.ModifiedAt = DateTime.UtcNow;
+                studyGroup.ModifiedAt = DateTime.Now;
 
                 _context.StudyGroups.Update(studyGroup);
                 await _context.SaveChangesAsync();
@@ -913,7 +913,7 @@ namespace StudyConnect.Controllers
                 studyGroup.IsRejected = false;
                 studyGroup.ModifiedBy = currentUserId ?? "";
                 studyGroup.ModifiedByName = currentUserName;
-                studyGroup.ModifiedAt = DateTime.UtcNow;
+                studyGroup.ModifiedAt = DateTime.Now;
 
                 _context.StudyGroups.Update(studyGroup);
                 await _context.SaveChangesAsync();
@@ -960,7 +960,7 @@ namespace StudyConnect.Controllers
                 studyGroup.IsRejected = true;
                 studyGroup.ModifiedBy = currentUserId ?? "";
                 studyGroup.ModifiedByName = currentUserName;
-                studyGroup.ModifiedAt = DateTime.UtcNow;
+                studyGroup.ModifiedAt = DateTime.Now;
 
                 _context.StudyGroups.Update(studyGroup);
                 await _context.SaveChangesAsync();
@@ -1022,6 +1022,409 @@ namespace StudyConnect.Controllers
             {
                 _logger.LogError(exception, exception.Message);
                 return Json(ResponseHelper.Error("An unexpected error occurred. Please try again later."));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UploadResource([FromForm] UploadResourceRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                // Validate the request
+                if (request.File == null || request.File.Length == 0)
+                {
+                    return Json(ResponseHelper.Failed("Please select a file to upload."));
+                }
+
+                // Check if study group exists
+                var studyGroup = await _context.StudyGroups
+          .Where(sg => sg.DeletedAt == null)
+        .FirstOrDefaultAsync(sg => sg.Id == request.StudyGroupId);
+
+                if (studyGroup == null)
+                {
+                    return Json(ResponseHelper.Failed("Study group not found."));
+                }
+
+                // Check if user is a member
+                var isMember = await _context.StudyGroupMembers
+              .AnyAsync(m => m.StudyGroupId == request.StudyGroupId &&
+         m.UserId == currentUserId &&
+                m.IsApproved &&
+         m.DeletedAt == null);
+
+                if (!isMember)
+                {
+                    return Json(ResponseHelper.Failed("You must be a member to upload resources."));
+                }
+
+                // Validate file size (max 50MB)
+                if (request.File.Length > 50 * 1024 * 1024)
+                {
+                    return Json(ResponseHelper.Failed("File size must not exceed 50MB."));
+                }
+
+                // Validate file type
+                var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png", ".gif" };
+                var fileExtension = Path.GetExtension(request.File.FileName).ToLower();
+
+                if (!allowedExtensions.Contains(fileExtension))
+                {
+                    return Json(ResponseHelper.Failed("Invalid file type. Supported formats: PDF, Word, PowerPoint, Excel, Images."));
+                }
+
+                // Create uploads directory if it doesn't exist
+                var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "study-groups", request.StudyGroupId.ToString());
+                if (!Directory.Exists(uploadsPath))
+                {
+                    Directory.CreateDirectory(uploadsPath);
+                }
+
+                // Generate unique filename
+                var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
+                var filePath = Path.Combine(uploadsPath, uniqueFileName);
+
+                // Save file to disk
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await request.File.CopyToAsync(stream);
+                }
+
+                // Create database record
+                var resource = new StudyGroupResource
+                {
+                    StudyGroupId = request.StudyGroupId,
+                    Title = request.Title,
+                    Description = request.Description,
+                    FileName = request.File.FileName,
+                    FilePath = $"/uploads/study-groups/{request.StudyGroupId}/{uniqueFileName}",
+                    FileType = request.File.ContentType,
+                    FileExtension = fileExtension,
+                    FileSize = request.File.Length,
+                    UploadedByUserId = currentUserId ?? "",
+                    CreatedBy = currentUserId ?? "",
+                    CreatedByName = currentUserName,
+                    CreatedAt = DateTime.Now,
+                    ModifiedBy = currentUserId ?? "",
+                    ModifiedByName = currentUserName,
+                    ModifiedAt = DateTime.Now
+                };
+
+                _context.StudyGroupResources.Add(resource);
+                await _context.SaveChangesAsync();
+
+                // Log the action
+                await _auditService.LogCreateAsync("StudyGroupResource", resource.Id.ToString(), new
+                {
+                    resource.Id,
+                    resource.StudyGroupId,
+                    resource.Title,
+                    resource.FileName
+                });
+
+                return Json(ResponseHelper.Success("Resource uploaded successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while uploading the file."));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetResources(int studyGroupId)
+        {
+            try
+            {
+                var resources = await _context.StudyGroupResources
+                    .Where(r => r.StudyGroupId == studyGroupId && r.DeletedAt == null)
+                     .Include(r => r.UploadedByUser)
+               .OrderByDescending(r => r.CreatedAt)
+                    .Select(r => new
+                    {
+                        id = r.Id,
+                        title = r.Title,
+                        description = r.Description,
+                        fileName = r.FileName,
+                        filePath = r.FilePath,
+                        fileType = r.FileType,
+                        fileExtension = r.FileExtension,
+                        fileSize = r.FileSize,
+                        uploadedByName = $"{r.UploadedByUser.FirstName} {r.UploadedByUser.LastName}".Trim(),
+                        uploadedByUserId = r.UploadedByUserId,
+                        downloadCount = r.DownloadCount,
+                        createdAt = r.CreatedAt.ToString("MMMM dd, yyyy hh:mm tt")
+                    })
+                        .ToListAsync();
+
+                return Json(new { data = resources });
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(new { data = new List<object>() });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteResource([FromBody] int resourceId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var resource = await _context.StudyGroupResources
+         .Where(r => r.DeletedAt == null)
+               .FirstOrDefaultAsync(r => r.Id == resourceId);
+
+                if (resource == null)
+                {
+                    return Json(ResponseHelper.Failed("Resource not found."));
+                }
+
+                // Check if user is owner, admin, or the uploader
+                var member = await _context.StudyGroupMembers
+                    .Where(m => m.StudyGroupId == resource.StudyGroupId &&
+             m.UserId == currentUserId &&
+                  m.DeletedAt == null)
+                  .FirstOrDefaultAsync();
+
+                bool canDelete = member != null && (member.Role == "Owner" || member.Role == "Admin")
+                     || resource.UploadedByUserId == currentUserId;
+
+                if (!canDelete)
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to delete this resource."));
+                }
+
+                // Soft delete
+                resource.DeletedBy = currentUserId;
+                resource.DeletedByName = currentUserName;
+                resource.DeletedAt = DateTime.Now;
+
+                _context.StudyGroupResources.Update(resource);
+                await _context.SaveChangesAsync();
+
+                // Log the action
+                await _auditService.LogDeleteAsync("StudyGroupResource", resource.Id.ToString(), new
+                {
+                    resource.Id,
+                    resource.StudyGroupId,
+                    resource.Title,
+                    resource.FileName
+                });
+
+                return Json(ResponseHelper.Success("Resource deleted successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred."));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadResource(int resourceId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var resource = await _context.StudyGroupResources
+          .Where(r => r.DeletedAt == null)
+       .FirstOrDefaultAsync(r => r.Id == resourceId);
+
+                if (resource == null)
+                {
+                    return NotFound();
+                }
+
+                // Check if user is a member
+                var isMember = await _context.StudyGroupMembers
+               .AnyAsync(m => m.StudyGroupId == resource.StudyGroupId &&
+            m.UserId == currentUserId &&
+               m.IsApproved &&
+        m.DeletedAt == null);
+
+                if (!isMember)
+                {
+                    return Json(ResponseHelper.Failed("You must be a member to download resources."));
+                }
+
+                // Increment download count
+                resource.DownloadCount++;
+                _context.StudyGroupResources.Update(resource);
+                await _context.SaveChangesAsync();
+
+                // Get file path
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", resource.FilePath.TrimStart('/'));
+
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return Json(ResponseHelper.Failed("File not found on server."));
+                }
+
+                var memory = new MemoryStream();
+                using (var stream = new FileStream(filePath, FileMode.Open))
+                {
+                    await stream.CopyToAsync(memory);
+                }
+                memory.Position = 0;
+
+                return File(memory, resource.FileType, resource.FileName);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An error occurred while downloading the file."));
+            }
+        }
+
+        [Authorize(Roles = "Student")]
+        [HttpGet]
+        public ViewResult MyResources()
+        {
+            return View();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public ViewResult AllResources()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMyResources()
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var resources = await _context.StudyGroupResources
+         .Where(r => r.UploadedByUserId == currentUserId && r.DeletedAt == null)
+     .Include(r => r.StudyGroup)
+      .ThenInclude(sg => sg.Category)
+ .Include(r => r.UploadedByUser)
+       .OrderByDescending(r => r.CreatedAt)
+ .Select(r => new
+ {
+     id = r.Id,
+     title = r.Title,
+     description = r.Description,
+     fileName = r.FileName,
+     filePath = r.FilePath,
+     fileType = r.FileType,
+     fileExtension = r.FileExtension,
+     fileSize = r.FileSize,
+     studyGroupId = r.StudyGroupId,
+     studyGroupName = r.StudyGroup.Name,
+     categoryName = r.StudyGroup.Category.Name,
+     uploadedByName = $"{r.UploadedByUser.FirstName} {r.UploadedByUser.LastName}".Trim(),
+     uploadedByUserId = r.UploadedByUserId,
+     downloadCount = r.DownloadCount,
+     createdAt = r.CreatedAt.ToString("MMMM dd, yyyy hh:mm tt")
+ })
+     .ToListAsync();
+
+                return Json(new { data = resources });
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(new { data = new List<object>() });
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<IActionResult> GetAllResources()
+        {
+            try
+            {
+                var resources = await _context.StudyGroupResources
+              .Where(r => r.DeletedAt == null)
+                .Include(r => r.StudyGroup)
+            .ThenInclude(sg => sg.Category)
+         .Include(r => r.UploadedByUser)
+                   .OrderByDescending(r => r.CreatedAt)
+             .Select(r => new
+             {
+                 id = r.Id,
+                 title = r.Title,
+                 description = r.Description,
+                 fileName = r.FileName,
+                 filePath = r.FilePath,
+                 fileType = r.FileType,
+                 fileExtension = r.FileExtension,
+                 fileSize = r.FileSize,
+                 studyGroupId = r.StudyGroupId,
+                 studyGroupName = r.StudyGroup.Name,
+                 categoryName = r.StudyGroup.Category.Name,
+                 privacy = r.StudyGroup.Privacy,
+                 uploadedByName = $"{r.UploadedByUser.FirstName} {r.UploadedByUser.LastName}".Trim(),
+                 uploadedByUserId = r.UploadedByUserId,
+                 uploadedByEmail = r.UploadedByUser.Email,
+                 downloadCount = r.DownloadCount,
+                 createdAt = r.CreatedAt.ToString("MMMM dd, yyyy hh:mm tt")
+             })
+           .ToListAsync();
+
+                return Json(new { data = resources });
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(new { data = new List<object>() });
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> AdminDeleteResource([FromBody] int resourceId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var resource = await _context.StudyGroupResources
+                .Where(r => r.DeletedAt == null)
+         .FirstOrDefaultAsync(r => r.Id == resourceId);
+
+                if (resource == null)
+                {
+                    return Json(ResponseHelper.Failed("Resource not found."));
+                }
+
+                // Soft delete
+                resource.DeletedBy = currentUserId;
+                resource.DeletedByName = currentUserName;
+                resource.DeletedAt = DateTime.Now;
+
+                _context.StudyGroupResources.Update(resource);
+                await _context.SaveChangesAsync();
+
+                // Log the action
+                await _auditService.LogDeleteAsync("StudyGroupResource", resource.Id.ToString(), new
+                {
+                    resource.Id,
+                    resource.StudyGroupId,
+                    resource.Title,
+                    resource.FileName,
+                    DeletedByAdmin = true
+                });
+
+                return Json(ResponseHelper.Success("Resource deleted successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred."));
             }
         }
     }

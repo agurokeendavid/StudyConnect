@@ -64,7 +64,7 @@ public class DashboardController : Controller
     {
         try
         {
-            var now = DateTime.UtcNow;
+            var now = DateTime.Now;
             var today = now.Date;
             var yesterday = today.AddDays(-1);
             var lastMonth = now.AddMonths(-1);
@@ -97,7 +97,7 @@ public class DashboardController : Controller
                 todayActivity,
                 newUsersThisMonth,
                 activeUsersToday,
-                timestamp = DateTime.UtcNow
+                timestamp = DateTime.Now
             };
 
             return Json(new { success = true, data = stats });
@@ -114,7 +114,7 @@ public class DashboardController : Controller
     {
         try
         {
-            var startDate = DateTime.UtcNow.Date.AddDays(-days);
+            var startDate = DateTime.Now.Date.AddDays(-days);
             
             var activityData = await _context.AuditLogs
                 .Where(a => a.Timestamp >= startDate)
@@ -146,7 +146,7 @@ public class DashboardController : Controller
 
     private static string GetTimeAgo(DateTime timestamp)
     {
-        var timeSpan = DateTime.UtcNow - timestamp;
+        var timeSpan = DateTime.Now - timestamp;
 
         if (timeSpan.TotalMinutes < 1)
             return "Just now";

@@ -111,10 +111,10 @@ namespace StudyConnect.Controllers
                     Description = model.Description,
                     CreatedBy = currentUserId ?? "",
                     CreatedByName = currentUserName,
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.Now,
                     ModifiedBy = currentUserId ?? "",
                     ModifiedByName = currentUserName,
-                    ModifiedAt = DateTime.UtcNow
+                    ModifiedAt = DateTime.Now
                 };
 
                 _context.StudyGroupCategories.Add(category);
@@ -168,7 +168,7 @@ namespace StudyConnect.Controllers
                 category.Description = model.Description;
                 category.ModifiedBy = currentUserId ?? "";
                 category.ModifiedByName = currentUserName;
-                category.ModifiedAt = DateTime.UtcNow;
+                category.ModifiedAt = DateTime.Now;
 
                 await _context.SaveChangesAsync();
 
@@ -212,7 +212,7 @@ namespace StudyConnect.Controllers
 
                 category.DeletedBy = currentUserId;
                 category.DeletedByName = currentUserName;
-                category.DeletedAt = DateTime.UtcNow;
+                category.DeletedAt = DateTime.Now;
 
                 await _context.SaveChangesAsync();
 

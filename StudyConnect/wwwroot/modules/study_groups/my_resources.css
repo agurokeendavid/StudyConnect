@@ -1,0 +1,132 @@
+﻿/* My Resources Page Styles */
+
+.resource-icon-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* DataGrid Custom Styles */
+#myResourcesGrid {
+    margin-top: 20px;
+}
+
+#myResourcesGrid .dx-datagrid {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#myResourcesGrid .dx-datagrid-headers {
+    background-color: #f8f9fa;
+ font-weight: 600;
+    color: #2c3e50;
+}
+
+#myResourcesGrid .dx-row:hover {
+    background-color: #f5f7fa;
+}
+
+#myResourcesGrid .dx-datagrid-rowsview .dx-row {
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* File Icon Styling */
+.resource-icon-grid i {
+    transition: transform 0.2s ease;
+}
+
+.resource-icon-grid:hover i {
+    transform: scale(1.1);
+}
+
+/* Button Styles */
+#myResourcesGrid .btn-sm {
+    padding: 4px 8px;
+    font-size: 0.875rem;
+}
+
+#myResourcesGrid .btn-primary {
+    background-color: #5D87FF;
+    border-color: #5D87FF;
+}
+
+#myResourcesGrid .btn-primary:hover {
+    background-color: #4a70d9;
+    border-color: #4a70d9;
+}
+
+#myResourcesGrid .btn-outline-info {
+    color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+#myResourcesGrid .btn-outline-info:hover {
+    background-color: #17a2b8;
+    color: white;
+}
+
+/* Badge Styles */
+.badge.bg-light-subtle {
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+    border: 1px solid #dee2e6;
+}
+
+/* Pager Styles */
+#myResourcesGrid .dx-pager {
+    padding: 15px 10px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* No Data Text */
+#myResourcesGrid .dx-datagrid-nodata {
+    padding: 60px 20px;
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+/* Loading Panel */
+#myResourcesGrid .dx-loadpanel-content {
+ background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+    padding: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #myResourcesGrid .dx-datagrid-headers {
+        font-size: 0.875rem;
+    }
+    
+    #myResourcesGrid .btn-sm {
+        padding: 2px 6px;
+        font-size: 0.75rem;
+    }
+}
+
+/* Hover Effect on Rows */
+#myResourcesGrid .dx-data-row:hover {
+    background-color: #f5f7fa;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* Column Header Hover */
+#myResourcesGrid .dx-header-row .dx-datagrid-action {
+    font-weight: 600;
+}
+
+/* Export Button Styling */
+#myResourcesGrid .dx-datagrid-export-button {
+    color: #5D87FF;
+}
+
+/* Scrollbar Styling */
+#myResourcesGrid .dx-scrollable-scroll {
+    background-color: #dee2e6;
+}
+
+#myResourcesGrid .dx-scrollable-scroll:hover {
+    background-color: #adb5bd;
+}

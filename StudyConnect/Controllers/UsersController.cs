@@ -114,7 +114,7 @@ namespace StudyConnect.Controllers
                 // Soft delete
                 user.DeletedBy = currentUserId;
                 user.DeletedByName = currentUserName;
-                user.DeletedAt = DateTime.UtcNow;
+                user.DeletedAt = DateTime.Now;
 
                 var result = await _userManager.UpdateAsync(user);
                 if (!result.Succeeded)
@@ -243,7 +243,7 @@ namespace StudyConnect.Controllers
                     user.ContactNo = viewModel.ContactNo;
                     user.ModifiedBy = currentUserId ?? "";
                     user.ModifiedByName = currentUserName;
-                    user.ModifiedAt = DateTime.UtcNow;
+                    user.ModifiedAt = DateTime.Now;
 
                     var updateResult = await _userManager.UpdateAsync(user);
                     if (!updateResult.Succeeded)
@@ -310,10 +310,10 @@ namespace StudyConnect.Controllers
                         EmailConfirmed = true,
                         CreatedBy = currentUserId ?? generatedGuid,
                         CreatedByName = currentUserName,
-                        CreatedAt = DateTime.UtcNow,
+                        CreatedAt = DateTime.Now,
                         ModifiedBy = currentUserId ?? generatedGuid,
                         ModifiedByName = currentUserName,
-                        ModifiedAt = DateTime.UtcNow
+                        ModifiedAt = DateTime.Now
                     };
 
                     var result = await _userManager.CreateAsync(user, viewModel.Password);

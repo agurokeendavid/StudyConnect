@@ -1,0 +1,260 @@
+﻿/* All Resources Page Styles */
+
+.resource-icon-grid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* User Avatar */
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+/* DataGrid Custom Styles */
+#allResourcesGrid {
+    margin-top: 20px;
+}
+
+#allResourcesGrid .dx-datagrid {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#allResourcesGrid .dx-datagrid-headers {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+#allResourcesGrid .dx-row:hover {
+    background-color: #f5f7fa;
+}
+
+#allResourcesGrid .dx-datagrid-rowsview .dx-row {
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* File Icon Styling */
+.resource-icon-grid i {
+    transition: transform 0.2s ease;
+}
+
+.resource-icon-grid:hover i {
+    transform: scale(1.1);
+}
+
+/* Button Styles */
+#allResourcesGrid .btn-sm {
+    padding: 4px 8px;
+    font-size: 0.875rem;
+    min-width: 32px;
+}
+
+#allResourcesGrid .btn-primary {
+    background-color: #5D87FF;
+    border-color: #5D87FF;
+}
+
+#allResourcesGrid .btn-primary:hover {
+    background-color: #4a70d9;
+    border-color: #4a70d9;
+}
+
+#allResourcesGrid .btn-outline-info {
+    color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+#allResourcesGrid .btn-outline-info:hover {
+    background-color: #17a2b8;
+    color: white;
+}
+
+#allResourcesGrid .btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+#allResourcesGrid .btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Badge Styles */
+.badge.bg-light-subtle {
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+    border: 1px solid #dee2e6;
+}
+
+.badge.bg-success-subtle {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+}
+
+.badge.bg-warning-subtle {
+    background-color: #fff3cd !important;
+    color: #664d03 !important;
+}
+
+/* Grid Header Info */
+.grid-header-info {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.grid-header-info i {
+    color: #5D87FF;
+    font-size: 1.1rem;
+}
+
+/* Pager Styles */
+#allResourcesGrid .dx-pager {
+    padding: 15px 10px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Group Panel */
+#allResourcesGrid .dx-datagrid-group-panel {
+    background-color: #e9ecef;
+    border-bottom: 1px solid #dee2e6;
+    padding: 10px;
+}
+
+#allResourcesGrid .dx-datagrid-group-panel-message {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* No Data Text */
+#allResourcesGrid .dx-datagrid-nodata {
+    padding: 60px 20px;
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+/* Loading Panel */
+#allResourcesGrid .dx-loadpanel-content {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+/* Hover Effect on Rows */
+#allResourcesGrid .dx-data-row:hover {
+    background-color: #f5f7fa;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* Column Header Hover */
+#allResourcesGrid .dx-header-row .dx-datagrid-action {
+    font-weight: 600;
+}
+
+/* Export Button Styling */
+#allResourcesGrid .dx-datagrid-export-button {
+    color: #5D87FF;
+}
+
+/* Scrollbar Styling */
+#allResourcesGrid .dx-scrollable-scroll {
+    background-color: #dee2e6;
+}
+
+#allResourcesGrid .dx-scrollable-scroll:hover {
+    background-color: #adb5bd;
+}
+
+/* Grouped Row Styling */
+#allResourcesGrid .dx-group-row {
+ background-color: #e9ecef;
+    font-weight: 600;
+}
+
+#allResourcesGrid .dx-group-row:hover {
+    background-color: #dee2e6;
+}
+
+/* Header Filter Icon */
+#allResourcesGrid .dx-header-filter {
+    color: #6c757d;
+}
+
+#allResourcesGrid .dx-header-filter:hover {
+    color: #5D87FF;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #allResourcesGrid .dx-datagrid-headers {
+      font-size: 0.875rem;
+ }
+    
+    #allResourcesGrid .btn-sm {
+        padding: 2px 6px;
+  font-size: 0.75rem;
+    }
+    
+    .user-avatar {
+   width: 32px;
+        height: 32px;
+  font-size: 0.75rem;
+    }
+    
+    .grid-header-info {
+        font-size: 0.8rem;
+        padding: 3px 8px;
+    }
+}
+
+/* Action Buttons Container */
+#allResourcesGrid .btn-group {
+    gap: 4px;
+}
+
+/* Privacy Badge Animation */
+.badge {
+    transition: all 0.2s ease;
+}
+
+.badge:hover {
+    transform: scale(1.05);
+}
+
+/* Total Count Badge */
+#totalResourcesCount {
+    color: #5D87FF;
+    font-size: 1rem;
+}
+
+/* Row Selection Effect */
+#allResourcesGrid .dx-selection.dx-row:not(.dx-row-focused) > td {
+    background-color: #e7f1ff;
+}
+
+/* Focus State */
+#allResourcesGrid .dx-row-focused {
+    background-color: #d0e7ff;
+}
+
+#allResourcesGrid .dx-row-focused:hover {
+    background-color: #c0deff;
+}
