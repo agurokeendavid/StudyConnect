@@ -1,4 +1,4 @@
-﻿﻿<aside class="left-sidebar with-vertical">
+﻿<aside class="left-sidebar with-vertical">
 	<div><!-- ---------------------------------- -->
 
 		<!-- Start Vertical Layout Sidebar -->
@@ -13,7 +13,6 @@
 				<i class="ti ti-x"></i>
 			</a>
 		</div>
-
 
 		<nav class="sidebar-nav scroll-sidebar" data-simplebar>
 			<ul id="sidebarnav">
@@ -166,12 +165,22 @@
                 else
                 {
                     <li class="sidebar-item">
-                        <a class="sidebar-link" asp-controller="StudyGroups" asp-action="Index"
+                        <a class="sidebar-link" asp-controller="StudyGroups" asp-action="MyStudyGroups"
                            aria-expanded="false">
                             <span>
-                                <i class="ti ti-users"></i>
+                                <i class="ti ti-books"></i>
                             </span>
                             <span class="hide-menu">My Study Groups</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="StudyGroups" asp-action="AvailableStudyGroups"
+                           aria-expanded="false">
+                            <span>
+                                <i class="ti ti-books"></i>
+                            </span>
+                            <span class="hide-menu">Available Study Groups</span>
                         </a>
                     </li>
                 }

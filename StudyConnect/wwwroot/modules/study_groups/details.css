@@ -1,0 +1,245 @@
+﻿/* Study Group Details Page Styles */
+
+/* Tab Navigation */
+#studyGroupTabs .nav-link {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    color: #5A6A85;
+}
+
+#studyGroupTabs .nav-link:hover {
+    background-color: #f5f7fa;
+    color: #5D87FF;
+}
+
+#studyGroupTabs .nav-link.active {
+    background-color: #5D87FF;
+    color: white;
+}
+
+#studyGroupTabs .nav-link i {
+    font-size: 1.1rem;
+}
+
+/* Resource Cards */
+.resource-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    height: 100%;
+}
+
+.resource-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.resource-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.resource-icon.pdf { color: #dc3545; }
+.resource-icon.word { color: #2b579a; }
+.resource-icon.excel { color: #217346; }
+.resource-icon.powerpoint { color: #d24726; }
+.resource-icon.image { color: #5D87FF; }
+.resource-icon.default { color: #6c757d; }
+
+.resource-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.resource-meta {
+    font-size: 0.85rem;
+ color: #6c757d;
+}
+
+/* Forum Messages */
+.forum-message {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+  padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.2s ease;
+}
+
+.forum-message:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.message-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+}
+
+.message-author {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 2px;
+}
+
+.message-time {
+    font-size: 0.85rem;
+    color: #95a5a6;
+}
+
+.message-content {
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+/* Google Meet Section */
+.google-meet-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 15px;
+}
+
+/* Membership Requests */
+.request-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  transition: all 0.2s ease;
+}
+
+.request-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.request-info {
+    display: flex;
+    align-items: center;
+}
+
+.request-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+  align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+ font-size: 1.2rem;
+}
+
+.request-details h6 {
+ margin-bottom: 2px;
+    font-weight: 600;
+}
+
+.request-details small {
+    color: #6c757d;
+}
+
+.request-actions {
+    display: flex;
+  gap: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #studyGroupTabs {
+     flex-direction: column;
+    }
+    
+    #studyGroupTabs .nav-link {
+        text-align: left;
+        margin-bottom: 5px;
+    }
+    
+    .request-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .request-actions {
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .request-actions button {
+  flex: 1;
+    }
+}
+
+/* Loading States */
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.loading-spinner .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state i {
+    font-size: 64px;
+    color: #cbd5e0;
+    margin-bottom: 20px;
+}
+
+.empty-state h5 {
+    color: #4a5568;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #718096;
+}
+
+/* Badge Customization */
+.badge {
+    padding: 6px 12px;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+/* Card Enhancements */
+.card {
+    border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+    padding: 1.5rem;
+}

@@ -1,0 +1,71 @@
+@{
+    ViewBag.Title = "Study Groups";
+    Layout = "Dashboard/_Layout";
+}
+
+@section Styles
+{
+    @* <link rel="stylesheet" href="~/modules/study_group_categories/index.css" asp-append-version="true" /> *@
+}
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <div class="card bg-info-subtle shadow-none position-relative overflow-hidden mb-4">
+            <div class="card-body px-4 py-3">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <h4 class="fw-semibold mb-8">Study Groups</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a class="text-muted text-decoration-none" href="#">Study Groups</a>
+                                </li>
+                                <li class="breadcrumb-item" aria-current="page">List</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-center mb-n5">
+                            <img src="~/templates/modernize/images/breadcrumb/ChatBc.png"
+                                 alt=""
+                                 class="img-fluid mb-n4" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-2">
+                    <h5 class="mb-0">Study Groups</h5>
+                </div>
+                <p class="card-subtitle mb-3">
+                    List of all study groups
+                </p>
+                <div class="mb-3">
+                    <a asp-controller="StudyGroups" asp-action="Upsert" class="btn btn-primary">
+                        <i class="ti ti-plus me-1"></i> Add Study Group
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table id="studygroups-table" class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Privacy</th>
+                                <th>Max Members</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section FooterScripts {
+    <script src="~/modules/study_group_categories/footer_index.js" asp-append-version="true"></script>
+}

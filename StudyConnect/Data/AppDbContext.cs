@@ -11,5 +11,6 @@ namespace StudyConnect.Data
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<StudyGroupCategory> StudyGroupCategories { get; set; }
         public DbSet<StudyGroup> StudyGroups { get; set; }
+        public DbSet<StudyGroupMember> StudyGroupMembers { get; set; }
     }
 }
