@@ -92,45 +92,25 @@
 						</ul>
 					</li>
 
-					<li class="sidebar-item">
-						<a class="sidebar-link" asp-controller="StudyGroupCategories" asp-action="Index"
-						   aria-expanded="false">
-							<span>
-								<i class="ti ti-list"></i>
-							</span>
-							<span class="hide-menu">Group Categories</span>
-						</a>
-					</li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="StudyGroupCategories" asp-action="Index"
+                           aria-expanded="false">
+                            <span>
+                                <i class="ti ti-list"></i>
+                            </span>
+                            <span class="hide-menu">Group Categories</span>
+                        </a>
+                    </li>
 
-					<li class="sidebar-item">
-						<a class="sidebar-link has-arrow"
-						   href="javascript:void(0)"
-						   aria-expanded="false">
-							<span class="d-flex">
-								<i class="ti ti-users"></i>
-							</span>
-							<span class="hide-menu">Group Management</span>
-						</a>
-						<ul aria-expanded="false" class="collapse first-level">
-							<li class="sidebar-item">
-								<a asp-controller="StudyGroup" asp-action="Create" class="sidebar-link">
-									<div class="round-16 d-flex align-items-center justify-content-center">
-										<i class="ti ti-circle"></i>
-									</div>
-									<span class="hide-menu">Create Study Group</span>
-								</a>
-							</li>
-
-							<li class="sidebar-item">
-								<a asp-controller="Products" asp-action="Index" class="sidebar-link">
-									<div class="round-16 d-flex align-items-center justify-content-center">
-										<i class="ti ti-circle"></i>
-									</div>
-									<span class="hide-menu">All Groups</span>
-								</a>
-							</li>
-						</ul>
-					</li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="StudyGroups" asp-action="Index"
+                           aria-expanded="false">
+                            <span>
+                                <i class="ti ti-books"></i>
+                            </span>
+                            <span class="hide-menu">Group Management</span>
+                        </a>
+                    </li>
 
 					<li class="sidebar-item">
 						<a class="sidebar-link has-arrow"
@@ -181,6 +161,46 @@
                                 <i class="ti ti-books"></i>
                             </span>
                             <span class="hide-menu">Available Study Groups</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="Calenday" asp-action="Index"
+                           aria-expanded="false">
+                            <span>
+                                <i class="ti ti-calendar"></i>
+                            </span>
+                            <span class="hide-menu">My Calendar</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="Calenday" asp-action="Index"
+                           aria-expanded="false">
+                            <span>
+                                <i class="ti ti-files"></i>
+                            </span>
+                            <span class="hide-menu">My Files</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="ActivityLogs" asp-action="Index"
+                           aria-expanded="false">
+                            <span>
+                                <i class="ti ti-history"></i>
+                            </span>
+                            <span class="hide-menu">My Activity Logs</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="ActivityLogs" asp-action="Index"
+                           aria-expanded="false">
+                            <span>
+                                <i class="ti ti-edit"></i>
+                            </span>
+                            <span class="hide-menu">Submit a Feedback</span>
                         </a>
                     </li>
                 }

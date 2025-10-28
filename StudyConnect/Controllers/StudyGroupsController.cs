@@ -29,9 +29,10 @@ namespace StudyConnect.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
-            await _auditService.LogCustomActionAsync("Viewed Study Groups List Page");
+            await _auditService.LogCustomActionAsync("Viewed Study Groups Management Page");
             return View();
         }
 
@@ -209,7 +210,7 @@ namespace StudyConnect.Controllers
                     // Log the update
                     await _auditService.LogUpdateAsync("StudyGroup", studyGroup.Id.ToString(), oldValues, newValues);
 
-                    return Json(ResponseHelper.Success("Study group updated successfully.", null, redirectUrl: Url.Action("Index", "StudyGroups")));
+                    return Json(ResponseHelper.Success("Study group updated successfully.", null, redirectUrl: Url.Action("Details", "StudyGroups", new { id = studyGroup.Id })));
                 }
                 else
                 {
@@ -264,7 +265,7 @@ namespace StudyConnect.Controllers
                     };
                     await _auditService.LogCreateAsync("StudyGroup", studyGroup.Id.ToString(), newValues);
 
-                    return Json(ResponseHelper.Success("Study group created successfully.", null, redirectUrl: Url.Action("Index", "StudyGroups")));
+                    return Json(ResponseHelper.Success("Study group created successfully.", null, redirectUrl: Url.Action("Details", "StudyGroups", new { id = studyGroup.Id})));
                 }
             }
             catch (Exception exception)
@@ -339,6 +340,9 @@ namespace StudyConnect.Controllers
                 var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
 
+                // If userId is not provided, use current user
+                var targetUserId = string.IsNullOrEmpty(request.UserId) ? currentUserId : request.UserId;
+
                 // Check if study group exists
                 var studyGroup = await _context.StudyGroups
                     .Where(sg => sg.DeletedAt == null)
@@ -352,7 +356,7 @@ namespace StudyConnect.Controllers
                 // Check if user is already a member
                 var existingMember = await _context.StudyGroupMembers
                     .Where(m => m.DeletedAt == null)
-                    .FirstOrDefaultAsync(m => m.StudyGroupId == request.StudyGroupId && m.UserId == request.UserId);
+                    .FirstOrDefaultAsync(m => m.StudyGroupId == request.StudyGroupId && m.UserId == targetUserId);
 
                 if (existingMember != null)
                 {
@@ -363,7 +367,7 @@ namespace StudyConnect.Controllers
                 if (studyGroup.MaximumNumbers.HasValue)
                 {
                     var currentMemberCount = await _context.StudyGroupMembers
-                        .Where(m => m.StudyGroupId == request.StudyGroupId && m.DeletedAt == null)
+                        .Where(m => m.StudyGroupId == request.StudyGroupId && m.DeletedAt == null && m.IsApproved)
                         .CountAsync();
 
                     if (currentMemberCount >= studyGroup.MaximumNumbers.Value)
@@ -376,10 +380,10 @@ namespace StudyConnect.Controllers
                 var newMember = new StudyGroupMember
                 {
                     StudyGroupId = request.StudyGroupId,
-                    UserId = request.UserId,
+                    UserId = targetUserId ?? "",
                     Role = "Member",
                     IsApproved = studyGroup.Privacy == "Public", // Auto-approve for public groups
-                    JoinedAt = DateTime.UtcNow,
+                    JoinedAt = studyGroup.Privacy == "Public" ? DateTime.UtcNow : (DateTime?)null,
                     CreatedBy = currentUserId ?? "",
                     CreatedByName = currentUserName,
                     CreatedAt = DateTime.UtcNow,
@@ -400,7 +404,11 @@ namespace StudyConnect.Controllers
                     newMember.Role
                 });
 
-                return Json(ResponseHelper.Success("Member added successfully."));
+                var message = studyGroup.Privacy == "Public"
+                    ? "Successfully joined the study group."
+                    : "Join request sent. Waiting for approval from the group owner.";
+
+                return Json(ResponseHelper.Success(message));
             }
             catch (Exception exception)
             {
@@ -529,9 +537,11 @@ namespace StudyConnect.Controllers
                         categoryName = m.StudyGroup.Category.Name,
                         categoryId = m.StudyGroup.CategoryId,
                         role = m.Role,
+                        isApproved = m.StudyGroup.IsApproved,
+                        isRejected = m.StudyGroup.IsRejected,
                         memberCount = _context.StudyGroupMembers
                             .Count(sgm => sgm.StudyGroupId == m.StudyGroup.Id && sgm.DeletedAt == null),
-                        createdAt = m.StudyGroup.CreatedAt // Return DateTime, format in client
+                        createdAt = m.StudyGroup.CreatedAt // Return DateTime, format in client,
                     })
                     .ToListAsync();
 
@@ -546,8 +556,71 @@ namespace StudyConnect.Controllers
                     g.categoryName,
                     g.categoryId,
                     g.role,
+                    g.isApproved,
+                    g.isRejected,
                     g.memberCount,
                     createdAt = g.createdAt.ToString("MMMM dd, yyyy") // Format here instead
+                }).ToList();
+
+                return Json(new { data = formattedGroups });
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(new { data = new List<object>() });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAvailableStudyGroups()
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Get IDs of groups the user is already a member of
+                var userGroupIds = await _context.StudyGroupMembers
+                    .Where(m => m.UserId == currentUserId && m.DeletedAt == null)
+                    .Select(m => m.StudyGroupId)
+                    .ToListAsync();
+
+                // Get all study groups that the user is not a member of
+                var availableGroups = await _context.StudyGroups
+                    .Where(sg => sg.DeletedAt == null && sg.IsApproved && !userGroupIds.Contains(sg.Id))
+                    .Include(sg => sg.Category)
+                    .OrderByDescending(sg => sg.CreatedAt)
+                    .Select(sg => new
+                    {
+                        id = sg.Id,
+                        name = sg.Name,
+                        description = sg.Description,
+                        privacy = sg.Privacy,
+                        maximumNumbers = sg.MaximumNumbers,
+                        categoryName = sg.Category.Name,
+                        categoryId = sg.CategoryId,
+                        isApproved = sg.IsApproved,
+                        isRejected = sg.IsRejected,
+                        memberCount = _context.StudyGroupMembers
+                            .Count(sgm => sgm.StudyGroupId == sg.Id && sgm.DeletedAt == null && sgm.IsApproved),
+                        createdAt = sg.CreatedAt
+                    })
+                    .ToListAsync();
+
+                // Format the dates after retrieving from database
+                var formattedGroups = availableGroups.Select(g => new
+                {
+                    g.id,
+                    g.name,
+                    g.description,
+                    g.privacy,
+                    g.maximumNumbers,
+                    g.categoryName,
+                    g.categoryId,
+                    g.isApproved,
+                    g.isRejected,
+                    g.memberCount,
+                    isFull = g.maximumNumbers.HasValue && g.memberCount >= g.maximumNumbers.Value,
+                    createdAt = g.createdAt.ToString("MMMM dd, yyyy")
                 }).ToList();
 
                 return Json(new { data = formattedGroups });
@@ -745,6 +818,205 @@ namespace StudyConnect.Controllers
                 // TODO: Return actual meeting link from database
                 // return Json(ResponseHelper.Success("", studyGroup.MeetingLink));
                 return Json(ResponseHelper.Success("", ""));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred. Please try again later."));
+            }
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllStudyGroupsForAdmin()
+        {
+            try
+            {
+                var studyGroups = await _context.StudyGroups
+                    .Where(sg => sg.DeletedAt == null)
+                    .Include(sg => sg.Category)
+                    .Include(sg => sg.Members.Where(m => m.DeletedAt == null && m.Role == "Owner"))
+                        .ThenInclude(m => m.User)
+                    .OrderByDescending(sg => sg.CreatedAt)
+                    .Select(sg => new
+                    {
+                        id = sg.Id,
+                        name = sg.Name,
+                        description = sg.Description,
+                        privacy = sg.Privacy,
+                        maximumNumbers = sg.MaximumNumbers,
+                        categoryName = sg.Category.Name,
+                        categoryId = sg.CategoryId,
+                        isApproved = sg.IsApproved,
+                        isRejected = sg.IsRejected, // Add this field if you implement rejection
+                        memberCount = _context.StudyGroupMembers
+                            .Count(sgm => sgm.StudyGroupId == sg.Id && sgm.DeletedAt == null && sgm.IsApproved),
+                        ownerName = sg.Members.FirstOrDefault() != null
+   ? $"{sg.Members.FirstOrDefault().User.FirstName} {sg.Members.FirstOrDefault().User.LastName}".Trim()
+           : "Unknown",
+                        createdAt = sg.CreatedAt
+                    })
+                    .ToListAsync();
+
+                // Format the dates after retrieving from database
+                var formattedGroups = studyGroups.Select(g => new
+                {
+                    g.id,
+                    g.name,
+                    g.description,
+                    g.privacy,
+                    g.maximumNumbers,
+                    g.categoryName,
+                    g.categoryId,
+                    g.isApproved,
+                    g.isRejected,
+                    g.memberCount,
+                    g.ownerName,
+                    isFull = g.maximumNumbers.HasValue && g.memberCount >= g.maximumNumbers.Value,
+                    createdAt = g.createdAt.ToString("MMMM dd, yyyy")
+                }).ToList();
+
+                return Json(new { data = formattedGroups });
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(new { data = new List<object>() });
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ApproveStudyGroup([FromBody] int groupId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var studyGroup = await _context.StudyGroups
+                    .Where(sg => sg.DeletedAt == null)
+ .FirstOrDefaultAsync(sg => sg.Id == groupId);
+
+                if (studyGroup == null)
+                {
+                    return Json(ResponseHelper.Failed("Study group not found."));
+                }
+
+                if (studyGroup.IsApproved)
+                {
+                    return Json(ResponseHelper.Failed("Study group is already approved."));
+                }
+
+                var oldStatus = studyGroup.IsApproved;
+                studyGroup.IsApproved = true;
+                studyGroup.IsRejected = false;
+                studyGroup.ModifiedBy = currentUserId ?? "";
+                studyGroup.ModifiedByName = currentUserName;
+                studyGroup.ModifiedAt = DateTime.UtcNow;
+
+                _context.StudyGroups.Update(studyGroup);
+                await _context.SaveChangesAsync();
+
+                // Log the action
+                await _auditService.LogUpdateAsync("StudyGroup", studyGroup.Id.ToString(),
+                    new { IsApproved = oldStatus },
+                    new { IsApproved = studyGroup.IsApproved });
+
+                return Json(ResponseHelper.Success("Study group approved successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred. Please try again later."));
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DisapproveStudyGroup([FromBody] int groupId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var studyGroup = await _context.StudyGroups
+                    .Where(sg => sg.DeletedAt == null)
+                    .FirstOrDefaultAsync(sg => sg.Id == groupId);
+
+                if (studyGroup == null)
+                {
+                    return Json(ResponseHelper.Failed("Study group not found."));
+                }
+
+                if (!studyGroup.IsApproved)
+                {
+                    return Json(ResponseHelper.Failed("Study group is already not approved."));
+                }
+
+                var oldStatus = studyGroup.IsApproved;
+                studyGroup.IsApproved = false;
+                studyGroup.IsRejected = true;
+                studyGroup.ModifiedBy = currentUserId ?? "";
+                studyGroup.ModifiedByName = currentUserName;
+                studyGroup.ModifiedAt = DateTime.UtcNow;
+
+                _context.StudyGroups.Update(studyGroup);
+                await _context.SaveChangesAsync();
+
+                // Log the action
+                await _auditService.LogUpdateAsync("StudyGroup", studyGroup.Id.ToString(),
+                    new { IsApproved = oldStatus },
+                    new { IsApproved = studyGroup.IsApproved });
+
+                return Json(ResponseHelper.Success("Study group disapproved successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred. Please try again later."));
+            }
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> RejectStudyGroup([FromBody] RejectStudyGroupRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var studyGroup = await _context.StudyGroups
+                    .Where(sg => sg.DeletedAt == null)
+                    .FirstOrDefaultAsync(sg => sg.Id == request.GroupId);
+
+                if (studyGroup == null)
+                {
+                    return Json(ResponseHelper.Failed("Study group not found."));
+                }
+
+                // Soft delete the study group
+                studyGroup.IsApproved = false;
+                studyGroup.IsRejected = true;
+                studyGroup.ModifiedAt = DateTime.Now;
+                studyGroup.ModifiedBy = currentUserId ?? "";
+                studyGroup.ModifiedByName = currentUserName;
+
+                _context.StudyGroups.Update(studyGroup);
+                await _context.SaveChangesAsync();
+
+                // Log the action with reason
+                var logDetails = new
+                {
+                    studyGroup.Id,
+                    studyGroup.Name,
+                    Reason = request.Reason ?? "No reason provided"
+                };
+                await _auditService.LogDeleteAsync("StudyGroup", studyGroup.Id.ToString(), logDetails);
+
+                return Json(ResponseHelper.Success("Study group rejected successfully."));
             }
             catch (Exception exception)
             {

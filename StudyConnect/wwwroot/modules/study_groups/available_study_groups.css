@@ -1,2 +1,164 @@
 ﻿body {
 }
+
+/* Study Group Card Styles */
+.study-group-card {
+ transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.study-group-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    border-color: #5D87FF;
+}
+
+.hover-shadow {
+    transition: box-shadow 0.3s ease;
+}
+
+/* Group Icon/Thumbnail Styles */
+.group-icon-wrapper {
+ width: 100px;
+    height: 100px;
+    border-radius: 50%;
+ display: inline-flex;
+    align-items: center;
+  justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.group-icon-wrapper i {
+    font-size: 3rem;
+  color: white;
+}
+
+/* Group Description Styles */
+.group-description {
+    display: -webkit-box;
+-webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 60px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Badge Styles */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    font-size: 0.75rem;
+}
+
+/* Button Styles */
+.study-group-card .btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+    border-radius: 6px;
+}
+
+/* Empty State Styles */
+#emptyState i {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Loading Indicator Styles */
+#loadingIndicator .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* DevExtreme Search Box Custom Styles */
+.dx-texteditor {
+    border-radius: 8px;
+}
+
+.dx-texteditor.dx-state-focused {
+    border-color: #5D87FF;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .group-icon-wrapper {
+        width: 80px;
+        height: 80px;
+    }
+
+    .group-icon-wrapper i {
+   font-size: 2.5rem;
+    }
+
+    .study-group-card .btn-sm {
+      font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+    }
+}
+
+/* Card Title Truncate */
+.card-title {
+ font-size: 1.1rem;
+    font-weight: 600;
+    color: #2a3547;
+}
+
+/* Category Badge */
+.card-text.text-muted.small {
+    font-size: 0.85rem;
+}
+
+/* Footer Text */
+.text-muted.small {
+    font-size: 0.8rem;
+}
+
+/* Search Box Container */
+#searchBox {
+    margin-bottom: 1rem;
+}
+
+.dx-textbox {
+    min-height: 45px;
+}
+
+/* Card Hover Effect for Icon */
+.study-group-card:hover .group-icon-wrapper {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+/* Privacy and Role Badges Animation */
+.badge {
+    transition: all 0.3s ease;
+}
+
+.study-group-card:hover .badge {
+    transform: scale(1.05);
+}
+
+/* Smooth Transitions for All Interactive Elements */
+.study-group-card * {
+    transition: all 0.3s ease;
+}
+
+/* Approval Status Badge */
+.approval-status-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}

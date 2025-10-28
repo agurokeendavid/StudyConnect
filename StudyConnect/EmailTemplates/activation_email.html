@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate Your Study Connect Account</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .email-wrapper {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .welcome-message {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .message-text {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #4a5568;
+            margin-bottom: 30px;
+        }
+
+        .activation-button {
+            display: block;
+            width: fit-content;
+            margin: 30px auto;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+            .activation-button:hover {
+                transform: translateY(-2px);
+            }
+
+        .features-section {
+            background-color: #f8fafc;
+            padding: 30px;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+
+        .features-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .features-list {
+            list-style: none;
+            padding: 0;
+        }
+
+            .features-list li {
+                padding: 8px 0;
+                color: #4a5568;
+                position: relative;
+                padding-left: 25px;
+            }
+
+                .features-list li:before {
+                    content: "✓";
+                    position: absolute;
+                    left: 0;
+                    color: #10b981;
+                    font-weight: bold;
+                }
+
+        .footer {
+            background-color: #2d3748;
+            color: #cbd5e0;
+            padding: 30px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .footer-links {
+            margin: 20px 0;
+        }
+
+            .footer-links a {
+                color: #81c784;
+                text-decoration: none;
+                margin: 0 15px;
+            }
+
+        .social-icons {
+            margin: 20px 0;
+        }
+
+        .activation-code {
+            background-color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 2px;
+            margin: 20px 0;
+            color: #2d3748;
+        }
+
+        .warning-text {
+            background-color: #fef5e7;
+            border-left: 4px solid #f6ad55;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #744210;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="email-wrapper">
+            <!-- Header Section -->
+            <div class="header">
+                <div class="logo">SC</div>
+                <h1 style="margin: 0; font-size: 28px;">Welcome to Study Connect!</h1>
+                <p style="margin: 10px 0 0; opacity: 0.9;">Your Gateway to Collaborative Learning</p>
+            </div>
+
+            <!-- Main Content -->
+            <div class="content">
+                <div class="welcome-message">
+                    Hello {{FULL_NAME}}! 👋
+                </div>
+
+                <div class="message-text">
+                    Thank you for joining <strong>Study Connect</strong>! We're excited to have you as part of our learning community where students collaborate, share knowledge, and grow together.
+                </div>
+
+                <div class="message-text">
+                    To get started and access all the amazing features, please activate your account by clicking the button below:
+                </div>
+
+                <!-- Activation Button -->
+                <a href="{{ACTIVATION_LINK}}" class="activation-button">
+                    🚀 Activate My Account
+                </a>
+
+                <!-- Alternative Activation Code -->
+                <div class="message-text" style="text-align: center; margin-top: 30px;">
+                    <small>Can't click the button? Copy and paste this activation code:</small>
+                </div>
+                <div class="activation-code">
+                    {{ACTIVATION_CODE}}
+                </div>
+
+                <!-- Features Section -->
+                <div class="features-section">
+                    <div class="features-title">🌟 What you can do with Study Connect:</div>
+                    <ul class="features-list">
+                        <li><strong>Create Study Groups:</strong> Form groups with classmates and study together</li>
+                        <li><strong>Ask Questions:</strong> Post questions and get help from other students</li>
+                        <li><strong>Share Knowledge:</strong> Answer questions and help your peers succeed</li>
+                        <li><strong>Collaborate:</strong> Work together on projects and assignments</li>
+                        <li><strong>Track Progress:</strong> Monitor your learning journey and achievements</li>
+                    </ul>
+                </div>
+
+                <!-- Warning Section -->
+                <div class="warning-text">
+                    <strong>⚠️ Important:</strong> This activation link will expire in 24 hours for security purposes. If you didn't create this account, please ignore this email.
+                </div>
+
+                <div class="message-text">
+                    If you have any questions or need assistance, don't hesitate to reach out to our support team. We're here to help you succeed!
+                </div>
+
+                <div class="message-text" style="text-align: center; margin-top: 30px;">
+                    <strong>Happy Learning!</strong><br>
+                    The Study Connect Team 📚✨
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <div>
+                    <strong>Study Connect</strong> - Connecting Students, Empowering Learning
+                </div>
+
+                <div class="footer-links">
+                    <a href="{{WEBSITE_URL}}">Visit Website</a>
+                    <a href="{{WEBSITE_URL}}/support">Get Support</a>
+                    <a href="{{WEBSITE_URL}}/privacy">Privacy Policy</a>
+                </div>
+
+                <div>
+                    <small>
+                        This email was sent to {{EMAIL_ADDRESS}}. If you no longer wish to receive these emails,
+                        you can <a href="{{UNSUBSCRIBE_LINK}}" style="color: #81c784;">unsubscribe here</a>.
+                    </small>
+                </div>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #4a5568;">
+                    <small>© {{CURRENT_YEAR}} Study Connect. All rights reserved.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

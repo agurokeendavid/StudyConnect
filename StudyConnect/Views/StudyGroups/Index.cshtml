@@ -1,71 +1,105 @@
 @{
-    ViewBag.Title = "Study Groups";
+    ViewBag.Title = "Study Groups Management";
     Layout = "Dashboard/_Layout";
 }
 
 @section Styles
 {
-    @* <link rel="stylesheet" href="~/modules/study_group_categories/index.css" asp-append-version="true" /> *@
+    <link rel="stylesheet" href="~/modules/study_groups/index.css" asp-append-version="true" />
 }
 
 <div class="body-wrapper">
     <div class="container-fluid">
-        <div class="card bg-info-subtle shadow-none position-relative overflow-hidden mb-4">
-            <div class="card-body px-4 py-3">
-                <div class="row align-items-center">
-                    <div class="col-9">
-                        <h4 class="fw-semibold mb-8">Study Groups</h4>
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item">
-                                    <a class="text-muted text-decoration-none" href="#">Study Groups</a>
-                                </li>
-                                <li class="breadcrumb-item" aria-current="page">List</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div class="col-3">
-                        <div class="text-center mb-n5">
-                            <img src="~/templates/modernize/images/breadcrumb/ChatBc.png"
-                                 alt=""
-                                 class="img-fluid mb-n4" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="card bg-info-subtle shadow-none position-relative overflow-hidden mb-4">
+  <div class="card-body px-4 py-3">
+      <div class="row align-items-center">
+    <div class="col-9">
+    <h4 class="fw-semibold mb-8">Study Groups Management</h4>
+     <nav aria-label="breadcrumb">
+               <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+   <a class="text-muted text-decoration-none" href="#">Study Groups</a>
+              </li>
+     <li class="breadcrumb-item" aria-current="page">Management</li>
+        </ol>
+ </nav>
+    </div>
+    <div class="col-3">
+         <div class="text-center mb-n5">
+    <img src="~/templates/modernize/images/breadcrumb/ChatBc.png"
+              alt="Breadcrumb logo"
+       class="img-fluid mb-n4" />
+         </div>
+          </div>
+  </div>
+   </div>
         </div>
 
         <div class="card">
-            <div class="card-body">
-                <div class="mb-2">
-                    <h5 class="mb-0">Study Groups</h5>
-                </div>
-                <p class="card-subtitle mb-3">
-                    List of all study groups
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+       <h5 class="mb-0">Study Groups Management</h5>
+   <p class="card-subtitle mb-0 mt-1 text-muted">
+    Approve, disapprove, and manage all study groups
                 </p>
-                <div class="mb-3">
-                    <a asp-controller="StudyGroups" asp-action="Upsert" class="btn btn-primary">
-                        <i class="ti ti-plus me-1"></i> Add Study Group
-                    </a>
-                </div>
-                <div class="table-responsive">
-                    <table id="studygroups-table" class="table table-striped table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Category</th>
-                                <th>Privacy</th>
-                                <th>Max Members</th>
-                                <th>Created At</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
+ </div>
+  </div>
+
+         <!-- Filter Tabs -->
+            <ul class="nav nav-pills mb-4" id="filterTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+  <button class="nav-link active" id="all-tab" data-filter="all" type="button">
+         All Groups <span class="badge bg-primary ms-1" id="allCount">0</span>
+      </button>
+          </li>
+ <li class="nav-item" role="presentation">
+         <button class="nav-link" id="pending-tab" data-filter="pending" type="button">
+        Pending Approval <span class="badge bg-warning ms-1" id="pendingCount">0</span>
+               </button>
+          </li>
+          <li class="nav-item" role="presentation">
+ <button class="nav-link" id="approved-tab" data-filter="approved" type="button">
+        Approved <span class="badge bg-success ms-1" id="approvedCount">0</span>
+             </button>
+        </li>
+               <li class="nav-item" role="presentation">
+  <button class="nav-link" id="rejected-tab" data-filter="rejected" type="button">
+  Rejected <span class="badge bg-danger ms-1" id="rejectedCount">0</span>
+        </button>
+   </li>
+     </ul>
+
+            <!-- DevExtreme Search Box for filtering -->
+   <div class="mb-4">
+    <label for="searchBox" class="form-label">Search by Group Name, Category, or Owner</label>
+            <div id="searchBox"></div>
+   </div>
+
+      <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="text-center py-5" style="display: none;">
+      <div class="spinner-border text-primary" role="status">
+                 <span class="visually-hidden">Loading...</span>
+ </div>
+          <p class="mt-2 text-muted">Loading study groups...</p>
+      </div>
+
+    <!-- Empty State -->
+       <div id="emptyState" class="text-center py-5" style="display: none;">
+       <i class="ti ti-folder-off" style="font-size: 4rem; color: #ccc;"></i>
+     <h5 class="mt-3">No Study Groups Found</h5>
+       <p class="text-muted">There are no study groups matching your criteria.</p>
+         </div>
+
+   <!-- Study Groups Container -->
+     <div id="studyGroupsContainer" class="row">
+      <!-- Study group cards will be dynamically inserted here -->
+     </div>
+    </div>
         </div>
     </div>
 </div>
+
 @section FooterScripts {
-    <script src="~/modules/study_group_categories/footer_index.js" asp-append-version="true"></script>
+    <script src="~/modules/study_groups/footer_index.js" asp-append-version="true"></script>
 }

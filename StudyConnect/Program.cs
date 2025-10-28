@@ -31,8 +31,8 @@ builder.Services
 
 builder.Services.ConfigureApplicationCookie(opt =>
 {
-    opt.LoginPath = "/Account/Login";
-    opt.AccessDeniedPath = "/Account/AccessDenied";
+    opt.LoginPath = "/Auth";
+    opt.AccessDeniedPath = "/Error";
 });
 
 // Add services to the container.

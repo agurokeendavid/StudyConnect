@@ -11,6 +11,8 @@ namespace StudyConnect.Models
         [Required] public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
         public bool IsApproved { get; set; } = false;
+        public bool IsRejected { get; set; } = false;
+        
         public int? MaximumNumbers { get; set; }
 
         [Required] public string Privacy { get; set; } = string.Empty;

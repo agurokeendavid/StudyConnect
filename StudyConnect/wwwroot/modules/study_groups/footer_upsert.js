@@ -81,7 +81,7 @@ type: 'GET',
   placeholder: "Maximum Members (optional)",
      value: $("#maximumnumbers-hidden").val() ? parseInt($("#maximumnumbers-hidden").val()) : null,
         min: 1,
-        max: 1000,
+        max: 50,
         showSpinButtons: true,
         inputAttr: {
    'aria-label': 'Maximum Members'
