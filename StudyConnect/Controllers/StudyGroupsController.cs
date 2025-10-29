@@ -194,7 +194,7 @@ namespace StudyConnect.Controllers
                     studyGroup.Description = viewModel.Description;
                     studyGroup.MaximumNumbers = viewModel.MaximumNumbers;
                     studyGroup.Privacy = viewModel.Privacy;
-                    studyGroup.CategoryId = viewModel.CategoryId;
+                    studyGroup.CategoryId = Convert.ToInt32(viewModel.CategoryId);
                     studyGroup.ModifiedBy = currentUserId ?? "";
                     studyGroup.ModifiedByName = currentUserName;
                     studyGroup.ModifiedAt = DateTime.Now;
@@ -226,7 +226,7 @@ namespace StudyConnect.Controllers
                         Description = viewModel.Description,
                         MaximumNumbers = viewModel.MaximumNumbers,
                         Privacy = viewModel.Privacy,
-                        CategoryId = viewModel.CategoryId,
+                        CategoryId = Convert.ToInt32(viewModel.CategoryId),
                         CreatedBy = currentUserId ?? "",
                         CreatedByName = currentUserName,
                         CreatedAt = DateTime.Now,

@@ -22,6 +22,6 @@ namespace StudyConnect.ViewModels.StudyGroups
 
         [Required]
         [Display(Name = "Category")]
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
     }
 }

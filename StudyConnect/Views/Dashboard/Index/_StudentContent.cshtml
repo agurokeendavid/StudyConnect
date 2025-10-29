@@ -151,8 +151,8 @@
 									<i class="ti ti-dots-vertical"></i>
 								</button>
 								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" asp-controller="Users" asp-action="Upsert">Add New User</a></li>
-									<li><a class="dropdown-item" asp-controller="AuditLogs" asp-action="Index">View Audit Logs</a></li>
+									<li><a class="dropdown-item" asp-controller="StudyGroups" asp-action="Upsert">Create New Study Group</a></li>
+									<li><a class="dropdown-item" asp-controller="AuditLogs" asp-action="MyActivityLogs">View Audit Logs</a></li>
 									<li><hr class="dropdown-divider"></li>
 									<li><a class="dropdown-item" href="#">System Settings</a></li>
 								</ul>
@@ -165,7 +165,7 @@
 							<a asp-controller="Users" asp-action="Index" class="btn btn-outline-primary">
 								<i class="ti ti-users me-2"></i>View Study Group
 							</a>
-							<a asp-controller="AuditLogs" asp-action="Index" class="btn btn-outline-info">
+							<a asp-controller="AuditLogs" asp-action="MyActivityLogs" class="btn btn-outline-info">
 								<i class="ti ti-file-analytics me-2"></i>View Audit Logs
 							</a>
 							<a href="#" class="btn btn-outline-secondary">

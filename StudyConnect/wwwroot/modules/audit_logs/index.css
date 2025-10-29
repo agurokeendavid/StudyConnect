@@ -1,0 +1,56 @@
+﻿#activityLogsDataGrid {
+    font-size: 0.875rem;
+}
+
+#activityLogsDataGrid .dx-datagrid-headers {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+#activityLogsDataGrid .dx-datagrid-rowsview .dx-row {
+    border-bottom: 1px solid #e9ecef;
+}
+
+#activityLogsDataGrid .dx-datagrid-rowsview .dx-row:hover {
+    background-color: #f1f3f5;
+}
+
+#activityLogsDataGrid .dx-datagrid-rowsview .dx-row-alt {
+    background-color: #f8f9fa;
+}
+
+.audit-log-details {
+    font-size: 0.875rem;
+}
+
+.audit-log-details .row {
+    margin-bottom: 0.5rem;
+}
+
+.audit-log-details strong {
+    color: #495057;
+  font-weight: 600;
+}
+
+.audit-log-details pre {
+    font-size: 0.75rem;
+    border-radius: 4px;
+max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.audit-log-details small {
+    color: #6c757d;
+    font-size: 0.75rem;
+    word-break: break-all;
+}
+
+.dx-datagrid .dx-command-edit .dx-link {
+    color: #5d87ff;
+}
+
+.dx-datagrid .dx-command-edit .dx-link:hover {
+    color: #4570ea;
+}

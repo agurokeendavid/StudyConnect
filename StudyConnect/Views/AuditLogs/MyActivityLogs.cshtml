@@ -1,11 +1,11 @@
-@{
-    ViewBag.Title = "Activity Logs";
+﻿@{
+    ViewBag.Title = "My Activity Logs";
     Layout = "Dashboard/_Layout";
 }
 
 @section Styles
 {
-    <link rel="stylesheet" href="~/modules/audit_logs/index.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/modules/audit_logs/my_activity_logs.css" asp-append-version="true" />
 }
 
 <div class="body-wrapper">
@@ -14,14 +14,14 @@
             <div class="card-body px-4 py-3">
                 <div class="row align-items-center">
                     <div class="col-9">
-                        <h4 class="fw-semibold mb-8">Activity Logs</h4>
+                        <h4 class="fw-semibold mb-8">My Activity Logs</h4>
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item">
                                     <a class="text-muted text-decoration-none" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                                 </li>
                                 <li class="breadcrumb-item">
-                                    <a class="text-muted text-decoration-none" href="#">Activity Logs</a>
+                                    <a class="text-muted text-decoration-none" href="#">My Activity Logs</a>
                                 </li>
                                 <li class="breadcrumb-item" aria-current="page">List</li>
                             </ol>
@@ -43,7 +43,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <h4 class="card-title mb-0">Activity Logs</h4>
+                            <h4 class="card-title mb-0">My Activity Logs</h4>
                             <div id="btn-add-study-group-category"></div>
                         </div>
                         <div id="activityLogsDataGrid"></div>
@@ -55,5 +55,5 @@
 </div>
 
 @section FooterScripts {
-    <script src="~/modules/audit_logs/footer_index.js" asp-append-version="true"></script>
+    <script src="~/modules/audit_logs/footer_my_activity_logs.js" asp-append-version="true"></script>
 }
