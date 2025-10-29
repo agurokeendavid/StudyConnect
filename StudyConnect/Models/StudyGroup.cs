@@ -12,7 +12,7 @@ namespace StudyConnect.Models
         public string? Description { get; set; }
         public bool IsApproved { get; set; } = false;
         public bool IsRejected { get; set; } = false;
-        
+
         public int? MaximumNumbers { get; set; }
 
         [Required] public string Privacy { get; set; } = string.Empty;
@@ -24,9 +24,15 @@ namespace StudyConnect.Models
         [ForeignKey(nameof(CategoryId))]
         public StudyGroupCategory Category { get; set; }
 
+        // Invite Link Properties
+        [MaxLength(100)]
+        public string? InviteToken { get; set; }
+
+        public DateTime? InviteTokenExpiration { get; set; }
+
         // Navigation property for members
         public ICollection<StudyGroupMember> Members { get; set; } = new List<StudyGroupMember>();
-        
+
         // Navigation property for resources
         public ICollection<StudyGroupResource> Resources { get; set; } = new List<StudyGroupResource>();
     }

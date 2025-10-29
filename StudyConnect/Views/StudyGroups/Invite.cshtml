@@ -1,0 +1,141 @@
+@{
+    ViewBag.Title = "Join Study Group";
+    Layout = ViewBag.IsAuthenticated ? "Dashboard/_Layout" : "Auth/_Layout";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/modules/study_groups/invite.css" asp-append-version="true" />
+}
+
+<div class="body-wrapper">
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-8 col-xl-6">
+                <div class="card shadow-lg">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <div class="mb-3">
+                                <i class="ti ti-users" style="font-size: 64px; color: #5D87FF;"></i>
+                            </div>
+                            <h3 class="fw-bold mb-2">You're Invited!</h3>
+                            <p class="text-muted">Join this study group and start collaborating</p>
+                        </div>
+
+                        @if (ViewBag.IsPendingApproval == true)
+                        {
+                            <div class="alert alert-warning" role="alert">
+                                <i class="ti ti-clock-hour-4 me-2"></i>
+                                <strong>Pending Approval</strong><br />
+                                You've already requested to join this group. Please wait for the owner to approve your request.
+                            </div>
+                        }
+
+                        <!-- Study Group Information -->
+                        <div class="card bg-light-subtle border-0 mb-4">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3">@ViewBag.StudyGroupName</h5>
+
+                                @if (!string.IsNullOrEmpty(ViewBag.StudyGroupDescription))
+                                {
+                                    <p class="text-muted mb-3">@ViewBag.StudyGroupDescription</p>
+                                }
+
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <i class="ti ti-category text-primary me-2"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Category</small>
+                                                <span class="fw-medium">@ViewBag.CategoryName</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <i class="ti ti-shield-lock text-info me-2"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Privacy</small>
+                                                <span class="fw-medium">@ViewBag.Privacy</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="d-flex align-items-center">
+                                            <i class="ti ti-users text-success me-2"></i>
+                                            <div>
+                                                <small class="text-muted d-block">Members</small>
+                                                <span class="fw-medium">
+                                                    @ViewBag.CurrentMemberCount
+                                                    @if (ViewBag.MaxMembers != null)
+                                                    {
+                                                        <text>/ @ViewBag.MaxMembers</text>
+                                                    }
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if (ViewBag.MaxMembers != null && ViewBag.CurrentMemberCount >= ViewBag.MaxMembers)
+                                    {
+                                        <div class="col-12">
+                                            <div class="alert alert-danger mb-0" role="alert">
+                                                <i class="ti ti-alert-circle me-2"></i>
+                                                This study group has reached its maximum capacity.
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (ViewBag.IsAuthenticated)
+                        {
+                            @if (ViewBag.IsPendingApproval != true && (ViewBag.MaxMembers == null || ViewBag.CurrentMemberCount < ViewBag.MaxMembers))
+                            {
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-primary btn-lg" id="btnJoinGroup">
+                                        <i class="ti ti-user-plus me-2"></i>
+                                        @(ViewBag.Privacy == "Public" ? "Join Now" : "Request to Join")
+                                    </button>
+                                </div>
+
+                                @if (ViewBag.Privacy == "Private")
+                                {
+                                    <div class="alert alert-info mt-3 mb-0" role="alert">
+                                        <i class="ti ti-info-circle me-2"></i>
+                                        This is a private group. Your request will be reviewed by the group owner.
+                                    </div>
+                                }
+                            }
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning" role="alert">
+                                <i class="ti ti-login me-2"></i>
+                                <strong>Sign in required</strong><br />
+                                You need to sign in to join this study group.
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a href="/Auth?returnUrl=@System.Net.WebUtility.UrlEncode(Context.Request.Path)" class="btn btn-primary btn-lg">
+                                    <i class="ti ti-login me-2"></i>Sign In to Join
+                                </a>
+                                <a href="/Auth/Register?returnUrl=@System.Net.WebUtility.UrlEncode(Context.Request.Path)" class="btn btn-outline-primary btn-lg">
+                                    <i class="ti ti-user-plus me-2"></i>Create an Account
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section FooterScripts {
+    <script>
+        var inviteToken = '@ViewBag.InviteToken';
+        var studyGroupId = @ViewBag.StudyGroupId;
+        var isAuthenticated = @(ViewBag.IsAuthenticated ? "true" : "false");
+    </script>
+    <script src="~/modules/study_groups/footer_invite.js" asp-append-version="true"></script>
+}

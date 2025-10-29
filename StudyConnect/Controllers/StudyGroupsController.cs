@@ -42,7 +42,7 @@ namespace StudyConnect.Controllers
         }
 
         [HttpGet]
-        public async Task<ViewResult> AvailableStudyGroups()
+        public ViewResult AvailableStudyGroups()
         {
             return View();
         }
@@ -74,6 +74,7 @@ namespace StudyConnect.Controllers
                 ViewBag.StudyGroupId = id;
                 ViewBag.IsOwner = isOwner;
                 ViewBag.IsMember = isMember;
+                ViewBag.IsApproved = studyGroup.IsApproved;
                 ViewBag.StudyGroupName = studyGroup.Name;
                 ViewBag.StudyGroupDescription = studyGroup.Description;
                 ViewBag.CategoryName = studyGroup.Category.Name;
@@ -1058,7 +1059,7 @@ namespace StudyConnect.Controllers
                 var isMember = await _context.StudyGroupMembers
               .AnyAsync(m => m.StudyGroupId == request.StudyGroupId &&
          m.UserId == currentUserId &&
-                m.IsApproved &&
+                  m.IsApproved &&
          m.DeletedAt == null);
 
                 if (!isMember)
@@ -1587,7 +1588,7 @@ namespace StudyConnect.Controllers
                 var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
 
                 var message = await _context.StudyGroupMessages
-          .Where(m => m.DeletedAt == null)
+    .Where(m => m.DeletedAt == null)
        .FirstOrDefaultAsync(m => m.Id == messageId);
 
                 if (message == null)
@@ -1597,13 +1598,13 @@ namespace StudyConnect.Controllers
 
                 // Check if user is the message owner, or an owner/admin of the group
                 var member = await _context.StudyGroupMembers
-           .Where(m => m.StudyGroupId == message.StudyGroupId &&
-                    m.UserId == currentUserId &&
-                  m.DeletedAt == null)
-           .FirstOrDefaultAsync();
+                         .Where(m => m.StudyGroupId == message.StudyGroupId &&
+                   m.UserId == currentUserId &&
+                      m.DeletedAt == null)
+                 .FirstOrDefaultAsync();
 
                 bool canDelete = message.UserId == currentUserId ||
-                       (member != null && (member.Role == "Owner" || member.Role == "Admin"));
+        (member != null && (member.Role == "Owner" || member.Role == "Admin"));
 
                 if (!canDelete)
                 {
@@ -1620,7 +1621,7 @@ namespace StudyConnect.Controllers
 
                 // Notify all clients in the group
                 await _hubContext.Clients.Group($"StudyGroup_{message.StudyGroupId}")
-                            .SendAsync("MessageDeleted", messageId);
+                   .SendAsync("MessageDeleted", messageId);
 
                 // Log the action
                 await _auditService.LogDeleteAsync("StudyGroupMessage", message.Id.ToString(), new
@@ -1631,6 +1632,362 @@ namespace StudyConnect.Controllers
                 });
 
                 return Json(ResponseHelper.Success("Message deleted successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred."));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GenerateInviteLink([FromBody] GenerateInviteLinkRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+                  .AnyAsync(m => m.StudyGroupId == request.StudyGroupId &&
+                 m.UserId == currentUserId &&
+              m.Role == "Owner" &&
+                   m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to generate invite links."));
+                }
+
+                var studyGroup = await _context.StudyGroups
+               .Where(sg => sg.DeletedAt == null)
+               .FirstOrDefaultAsync(sg => sg.Id == request.StudyGroupId);
+
+                if (studyGroup == null)
+                {
+                    return Json(ResponseHelper.Failed("Study group not found."));
+                }
+
+                // Generate unique invite token
+                studyGroup.InviteToken = Guid.NewGuid().ToString("N").Substring(0, 16);
+
+                // Set expiration
+                if (request.ExpirationDays.HasValue && request.ExpirationDays.Value > 0)
+                {
+                    studyGroup.InviteTokenExpiration = DateTime.Now.AddDays(request.ExpirationDays.Value);
+                }
+                else
+                {
+                    studyGroup.InviteTokenExpiration = null; // No expiration
+                }
+
+                studyGroup.ModifiedBy = currentUserId ?? "";
+                studyGroup.ModifiedByName = currentUserName;
+                studyGroup.ModifiedAt = DateTime.Now;
+
+                _context.StudyGroups.Update(studyGroup);
+                await _context.SaveChangesAsync();
+
+                // Generate the full invite URL
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
+                var inviteUrl = $"{baseUrl}/StudyGroups/Invite?token={studyGroup.InviteToken}";
+
+                await _auditService.LogCustomActionAsync($"Generated invite link for study group {request.StudyGroupId}");
+
+                return Json(ResponseHelper.Success("Invite link generated successfully.", new
+                {
+                    inviteUrl = inviteUrl,
+                    inviteToken = studyGroup.InviteToken,
+                    expiresAt = studyGroup.InviteTokenExpiration?.ToString("MMMM dd, yyyy hh:mm tt")
+                }));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred."));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RevokeInviteLink([FromBody] int studyGroupId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+                  .AnyAsync(m => m.StudyGroupId == studyGroupId &&
+                   m.UserId == currentUserId &&
+             m.Role == "Owner" &&
+           m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to revoke invite links."));
+                }
+
+                var studyGroup = await _context.StudyGroups
+                     .Where(sg => sg.DeletedAt == null)
+                           .FirstOrDefaultAsync(sg => sg.Id == studyGroupId);
+
+                if (studyGroup == null)
+                {
+                    return Json(ResponseHelper.Failed("Study group not found."));
+                }
+
+                studyGroup.InviteToken = null;
+                studyGroup.InviteTokenExpiration = null;
+                studyGroup.ModifiedBy = currentUserId ?? "";
+                studyGroup.ModifiedByName = currentUserName;
+                studyGroup.ModifiedAt = DateTime.Now;
+
+                _context.StudyGroups.Update(studyGroup);
+                await _context.SaveChangesAsync();
+
+                await _auditService.LogCustomActionAsync($"Revoked invite link for study group {studyGroupId}");
+
+                return Json(ResponseHelper.Success("Invite link revoked successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred."));
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Invite(string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                {
+                    return NotFound();
+                }
+
+                var studyGroup = await _context.StudyGroups
+                         .Include(sg => sg.Category)
+                     .Include(sg => sg.Members.Where(m => m.DeletedAt == null && m.IsApproved))
+                .Where(sg => sg.DeletedAt == null && sg.InviteToken == token)
+                .FirstOrDefaultAsync();
+
+                if (studyGroup == null)
+                {
+                    ViewBag.ErrorMessage = "Invalid or expired invite link.";
+                    return View("InviteError");
+                }
+
+                // Check if link has expired
+                if (studyGroup.InviteTokenExpiration.HasValue &&
+                 studyGroup.InviteTokenExpiration.Value < DateTime.Now)
+                {
+                    ViewBag.ErrorMessage = "This invite link has expired.";
+                    return View("InviteError");
+                }
+
+                // Check if study group is approved
+                if (!studyGroup.IsApproved)
+                {
+                    ViewBag.ErrorMessage = "This study group is not yet approved.";
+                    return View("InviteError");
+                }
+
+                // Check if user is authenticated
+                if (User.Identity?.IsAuthenticated == true)
+                {
+                    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                    // Check if user is already a member
+                    var existingMember = studyGroup.Members.FirstOrDefault(m => m.UserId == currentUserId);
+
+                    if (existingMember != null)
+                    {
+                        if (existingMember.IsApproved)
+                        {
+                            // Already a member, redirect to details
+                            return RedirectToAction("Details", new { id = studyGroup.Id });
+                        }
+                        else
+                        {
+                            ViewBag.IsPendingApproval = true;
+                        }
+                    }
+                }
+
+                // Populate ViewBag with study group info
+                ViewBag.StudyGroupId = studyGroup.Id;
+                ViewBag.StudyGroupName = studyGroup.Name;
+                ViewBag.StudyGroupDescription = studyGroup.Description;
+                ViewBag.CategoryName = studyGroup.Category.Name;
+                ViewBag.Privacy = studyGroup.Privacy;
+                ViewBag.MaxMembers = studyGroup.MaximumNumbers;
+                ViewBag.CurrentMemberCount = studyGroup.Members.Count;
+                ViewBag.InviteToken = token;
+                ViewBag.IsAuthenticated = User.Identity?.IsAuthenticated == true;
+
+                return View();
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return NotFound();
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RequestAccessViaInvite([FromBody] RequestAccessViaInviteRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                if (string.IsNullOrEmpty(currentUserId))
+                {
+                    return Json(ResponseHelper.Failed("You must be logged in to join a study group."));
+                }
+
+                var studyGroup = await _context.StudyGroups
+              .Where(sg => sg.DeletedAt == null && sg.InviteToken == request.InviteToken)
+                    .FirstOrDefaultAsync();
+
+                if (studyGroup == null)
+                {
+                    return Json(ResponseHelper.Failed("Invalid invite link."));
+                }
+
+                // Check if link has expired
+                if (studyGroup.InviteTokenExpiration.HasValue &&
+               studyGroup.InviteTokenExpiration.Value < DateTime.Now)
+                {
+                    return Json(ResponseHelper.Failed("This invite link has expired."));
+                }
+
+                // Check if user is already a member
+                var existingMember = await _context.StudyGroupMembers
+                  .Where(m => m.DeletedAt == null)
+                .FirstOrDefaultAsync(m => m.StudyGroupId == studyGroup.Id && m.UserId == currentUserId);
+
+                if (existingMember != null)
+                {
+                    if (existingMember.IsApproved)
+                    {
+                        return Json(ResponseHelper.Success("You are already a member of this group.",
+                                redirectUrl: Url.Action("Details", "StudyGroups", new { id = studyGroup.Id })));
+                    }
+                    else
+                    {
+                        return Json(ResponseHelper.Failed("You already have a pending membership request."));
+                    }
+                }
+
+                // Check if group has reached maximum capacity
+                if (studyGroup.MaximumNumbers.HasValue)
+                {
+                    var currentMemberCount = await _context.StudyGroupMembers
+                     .Where(m => m.StudyGroupId == studyGroup.Id && m.DeletedAt == null && m.IsApproved)
+            .CountAsync();
+
+                    if (currentMemberCount >= studyGroup.MaximumNumbers.Value)
+                    {
+                        return Json(ResponseHelper.Failed("Study group has reached its maximum capacity."));
+                    }
+                }
+
+                // Add new member with pending approval
+                var newMember = new StudyGroupMember
+                {
+                    StudyGroupId = studyGroup.Id,
+                    UserId = currentUserId,
+                    Role = "Member",
+                    IsApproved = studyGroup.Privacy == "Public", // Auto-approve for public groups
+                    JoinedAt = studyGroup.Privacy == "Public" ? DateTime.Now : null,
+                    CreatedBy = currentUserId,
+                    CreatedByName = currentUserName,
+                    CreatedAt = DateTime.Now,
+                    ModifiedBy = currentUserId,
+                    ModifiedByName = currentUserName,
+                    ModifiedAt = DateTime.Now
+                };
+
+                _context.StudyGroupMembers.Add(newMember);
+                await _context.SaveChangesAsync();
+
+                // Log the action
+                await _auditService.LogCreateAsync("StudyGroupMember", newMember.Id.ToString(), new
+                {
+                    newMember.Id,
+                    newMember.StudyGroupId,
+                    newMember.UserId,
+                    newMember.Role,
+                    JoinedViaInvite = true
+                });
+
+                var message = studyGroup.Privacy == "Public"
+              ? "Successfully joined the study group!"
+                      : "Join request sent. Waiting for approval from the group owner.";
+
+                return Json(ResponseHelper.Success(message,
+            redirectUrl: Url.Action("Details", "StudyGroups", new { id = studyGroup.Id })));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred."));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetInviteLink(int studyGroupId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+                    .AnyAsync(m => m.StudyGroupId == studyGroupId &&
+                      m.UserId == currentUserId &&
+               m.Role == "Owner" &&
+                m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to view invite links."));
+                }
+
+                var studyGroup = await _context.StudyGroups
+         .Where(sg => sg.DeletedAt == null)
+                 .FirstOrDefaultAsync(sg => sg.Id == studyGroupId);
+
+                if (studyGroup == null)
+                {
+                    return Json(ResponseHelper.Failed("Study group not found."));
+                }
+
+                if (string.IsNullOrEmpty(studyGroup.InviteToken))
+                {
+                    return Json(ResponseHelper.Success("No active invite link.", null));
+                }
+
+                // Check if expired
+                bool isExpired = studyGroup.InviteTokenExpiration.HasValue &&
+                studyGroup.InviteTokenExpiration.Value < DateTime.Now;
+
+                var baseUrl = $"{Request.Scheme}://{Request.Host}";
+                var inviteUrl = $"{baseUrl}/StudyGroups/Invite?token={studyGroup.InviteToken}";
+
+                return Json(ResponseHelper.Success("", new
+                {
+                    inviteUrl = inviteUrl,
+                    inviteToken = studyGroup.InviteToken,
+                    expiresAt = studyGroup.InviteTokenExpiration?.ToString("MMMM dd, yyyy hh:mm tt"),
+                    isExpired = isExpired
+                }));
             }
             catch (Exception exception)
             {

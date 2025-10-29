@@ -15,6 +15,7 @@
 
     if (isOwner) {
         loadMembershipRequests();
+        loadInviteLink();
     }
 
     // Event handlers
@@ -26,6 +27,12 @@
     $('#btnPostMessage').on('click', postForumMessage);
     $('#btnSaveMeetLink').on('click', saveMeetingLink);
     $('#btnJoinMeet').on('click', joinMeeting);
+    
+    // Invite link handlers
+    $('#btnGenerateInvite').on('click', generateInviteLink);
+    $('#btnCopyInvite').on('click', copyInviteLink);
+    $('#btnRevokeInvite').on('click', revokeInviteLink);
+    $('#btnShareInvite').on('click', shareInviteLink);
 });
 
 // Initialize SignalR Connection
@@ -736,6 +743,205 @@ function rejectRequest(memberId) {
     });
 }
 
+// Load Invite Link (Owner Only)
+function loadInviteLink() {
+    $.ajax({
+        url: '/StudyGroups/GetInviteLink',
+        type: 'GET',
+        data: { studyGroupId: studyGroupId },
+        success: function (response) {
+            if (response.IsSuccess && response.Data) {
+                displayInviteLink(response.Data);
+            } else {
+                $('#noInviteLink').show();
+                $('#activeInviteLink').hide();
+            }
+        },
+        error: function () {
+            console.error('Error loading invite link');
+            $('#noInviteLink').show();
+            $('#activeInviteLink').hide();
+        }
+    });
+}
+
+function displayInviteLink(data) {
+    $('#inviteLinkInput').val(data.inviteUrl);
+    
+    if (data.expiresAt) {
+        $('#expiryDate').text(data.expiresAt);
+        $('#inviteExpiry').show();
+        
+        if (data.isExpired) {
+            $('#inviteExpiry').removeClass('alert-info').addClass('alert-danger');
+            $('#expiryDate').parent().html('<i class="ti ti-alert-circle me-1"></i>Expired on: ' + data.expiresAt);
+        }
+    } else {
+        $('#inviteExpiry').hide();
+    }
+    
+    $('#noInviteLink').hide();
+    $('#activeInviteLink').show();
+}
+
+// Generate Invite Link
+function generateInviteLink() {
+    var expirationDays = $('#inviteExpiration').val();
+    var data = {
+        studyGroupId: studyGroupId
+    };
+    
+    if (expirationDays) {
+        data.expirationDays = parseInt(expirationDays);
+    }
+    
+    Swal.fire({
+        title: 'Generate Invite Link?',
+        text: expirationDays ? `This link will expire in ${expirationDays} day(s).` : 'This link will never expire.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#5D87FF',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Generate'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            AmagiLoader.show();
+            
+            $.ajax({
+                url: '/StudyGroups/GenerateInviteLink',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    AmagiLoader.hide();
+                    if (response.MessageType === 'Success') {
+                        Swal.fire('Success!', 'Invite link generated successfully', 'success');
+                        displayInviteLink(response.Data);
+                    } else {
+                        Swal.fire('Error', response.Message || 'Failed to generate invite link', 'error');
+                    }
+                },
+                error: function () {
+                    AmagiLoader.hide();
+                    Swal.fire('Error', 'An error occurred while generating the link', 'error');
+                }
+            });
+        }
+    });
+}
+
+function copyInviteLink() {
+    var inviteLink = $('#inviteLinkInput').val();
+    
+    // Modern clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(inviteLink).then(function() {
+            Swal.fire({
+                title: 'Copied!',
+                text: 'Invite link copied to clipboard',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }).catch(function(err) {
+            console.error('Failed to copy: ', err);
+            fallbackCopyToClipboard(inviteLink);
+        });
+    } else {
+        fallbackCopyToClipboard(inviteLink);
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        var successful = document.execCommand('copy');
+        if (successful) {
+            Swal.fire({
+                title: 'Copied!',
+                text: 'Invite link copied to clipboard',
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            Swal.fire('Error', 'Failed to copy link', 'error');
+        }
+    } catch (err) {
+        Swal.fire('Error', 'Failed to copy link', 'error');
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+function revokeInviteLink() {
+    Swal.fire({
+        title: 'Revoke Invite Link?',
+        text: 'The current invite link will no longer work. This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, revoke it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            AmagiLoader.show();
+            
+            $.ajax({
+                url: '/StudyGroups/RevokeInviteLink',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(studyGroupId),
+                success: function (response) {
+                    AmagiLoader.hide();
+                    if (response.MessageType === 'Success') {
+                        Swal.fire('Revoked!', 'Invite link has been revoked.', 'success');
+                        $('#noInviteLink').show();
+                        $('#activeInviteLink').hide();
+                        $('#inviteExpiration').val('');
+                    } else {
+                        Swal.fire('Error', response.Message || 'Failed to revoke invite link', 'error');
+                    }
+                },
+                error: function () {
+                    AmagiLoader.hide();
+                    Swal.fire('Error', 'An error occurred while revoking the link', 'error');
+                }
+            });
+        }
+    });
+}
+
+function shareInviteLink() {
+    var inviteLink = $('#inviteLinkInput').val();
+    
+    // Check if Web Share API is supported
+    if (navigator.share) {
+        navigator.share({
+            title: 'Join our Study Group',
+            text: 'You\'re invited to join our study group on StudyConnect!',
+            url: inviteLink
+        }).then(() => {
+            console.log('Shared successfully');
+        }).catch((error) => {
+            console.log('Error sharing:', error);
+            // Fallback to copy
+            copyInviteLink();
+        });
+    } else {
+        // Fallback to copy for browsers that don't support Web Share API
+        copyInviteLink();
+    }
+}
+
 // Helper Functions
 function getInitials(name) {
     if (!name) return '?';
@@ -777,9 +983,207 @@ function escapeHtml(text) {
     var map = {
         '&': '&amp;',
         '<': '&lt;',
-        '>': '&gt;',
+     '>': '&gt;',
         '"': '&quot;',
-        "'": '&#039;'
+    "'": '&#039;'
     };
     return String(text).replace(/[&<>"']/g, function (m) { return map[m]; });
+}
+
+// Invite Link Functions
+function loadInviteLink() {
+    $.ajax({
+        url: '/StudyGroups/GetInviteLink',
+        type: 'GET',
+        data: { studyGroupId: studyGroupId },
+        success: function (response) {
+       if (response.MessageType === "Success" && response.Data && response.Data.inviteUrl) {
+    displayInviteLink(response.Data);
+    } else {
+           $('#noInviteLink').show();
+                $('#activeInviteLink').hide();
+            }
+        },
+        error: function () {
+     console.error('Error loading invite link');
+        $('#noInviteLink').show();
+    $('#activeInviteLink').hide();
+        }
+    });
+}
+
+function displayInviteLink(data) {
+    $('#inviteLinkInput').val(data.inviteUrl);
+    
+    if (data.expiresAt) {
+        $('#expiryDate').text(data.expiresAt);
+        $('#inviteExpiry').show();
+        
+if (data.isExpired) {
+            $('#inviteExpiry').removeClass('alert-info').addClass('alert-danger');
+            $('#expiryDate').parent().html('<i class="ti ti-alert-circle me-1"></i>Expired on: ' + data.expiresAt);
+        }
+    } else {
+        $('#inviteExpiry').hide();
+    }
+    
+    $('#noInviteLink').hide();
+    $('#activeInviteLink').show();
+}
+
+function generateInviteLink() {
+    var expirationDays = $('#inviteExpiration').val();
+var data = {
+    studyGroupId: studyGroupId
+    };
+    
+    if (expirationDays) {
+        data.expirationDays = parseInt(expirationDays);
+    }
+    
+    Swal.fire({
+        title: 'Generate Invite Link?',
+        text: expirationDays ? `This link will expire in ${expirationDays} day(s).` : 'This link will never expire.',
+        icon: 'question',
+        showCancelButton: true,
+     confirmButtonColor: '#5D87FF',
+   cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Generate'
+  }).then((result) => {
+        if (result.isConfirmed) {
+       AmagiLoader.show();
+            
+$.ajax({
+    url: '/StudyGroups/GenerateInviteLink',
+     type: 'POST',
+     contentType: 'application/json',
+     data: JSON.stringify(data),
+         success: function (response) {
+        AmagiLoader.hide();
+        if (response.MessageType === 'Success') {
+      Swal.fire('Success!', 'Invite link generated successfully', 'success');
+      displayInviteLink(response.Data);
+  } else {
+            Swal.fire('Error', response.Message || 'Failed to generate invite link', 'error');
+   }
+  },
+      error: function () {
+            AmagiLoader.hide();
+ Swal.fire('Error', 'An error occurred while generating the link', 'error');
+         }
+            });
+        }
+  });
+}
+
+function copyInviteLink() {
+    var inviteLink = $('#inviteLinkInput').val();
+    
+    // Modern clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(inviteLink).then(function() {
+    Swal.fire({
+         title: 'Copied!',
+  text: 'Invite link copied to clipboard',
+        icon: 'success',
+          timer: 2000,
+     showConfirmButton: false
+            });
+        }).catch(function(err) {
+     console.error('Failed to copy: ', err);
+            fallbackCopyToClipboard(inviteLink);
+        });
+    } else {
+        fallbackCopyToClipboard(inviteLink);
+    }
+}
+
+function fallbackCopyToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        var successful = document.execCommand('copy');
+        if (successful) {
+    Swal.fire({
+     title: 'Copied!',
+ text: 'Invite link copied to clipboard',
+       icon: 'success',
+     timer: 2000,
+    showConfirmButton: false
+            });
+        } else {
+   Swal.fire('Error', 'Failed to copy link', 'error');
+    }
+    } catch (err) {
+        Swal.fire('Error', 'Failed to copy link', 'error');
+  }
+    
+    document.body.removeChild(textArea);
+}
+
+function revokeInviteLink() {
+    Swal.fire({
+        title: 'Revoke Invite Link?',
+        text: 'The current invite link will no longer work. This action cannot be undone.',
+    icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+  confirmButtonText: 'Yes, revoke it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+   AmagiLoader.show();
+            
+            $.ajax({
+         url: '/StudyGroups/RevokeInviteLink',
+        type: 'POST',
+       contentType: 'application/json',
+  data: JSON.stringify(studyGroupId),
+        success: function (response) {
+            AmagiLoader.hide();
+     if (response.MessageType === 'Success') {
+       Swal.fire('Revoked!', 'Invite link has been revoked.', 'success');
+       $('#noInviteLink').show();
+   $('#activeInviteLink').hide();
+           $('#inviteExpiration').val('');
+       } else {
+  Swal.fire('Error', response.Message || 'Failed to revoke invite link', 'error');
+     }
+   },
+     error: function () {
+           AmagiLoader.hide();
+   Swal.fire('Error', 'An error occurred while revoking the link', 'error');
+     }
+      });
+        }
+    });
+}
+
+function shareInviteLink() {
+    var inviteLink = $('#inviteLinkInput').val();
+    
+    // Check if Web Share API is supported
+    if (navigator.share) {
+        navigator.share({
+        title: 'Join our Study Group',
+  text: 'You\'re invited to join our study group on StudyConnect!',
+      url: inviteLink
+}).then(() => {
+       console.log('Shared successfully');
+        }).catch((error) => {
+      console.log('Error sharing:', error);
+      // Fallback to copy
+copyInviteLink();
+    });
+    } else {
+        // Fallback to copy for browsers that don't support Web Share API
+        copyInviteLink();
+    }
 }
