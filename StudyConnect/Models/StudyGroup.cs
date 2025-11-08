@@ -35,5 +35,8 @@ namespace StudyConnect.Models
 
         // Navigation property for resources
         public ICollection<StudyGroupResource> Resources { get; set; } = new List<StudyGroupResource>();
+        
+        // Navigation property for meetings
+        public ICollection<StudyGroupMeeting> Meetings { get; set; } = new List<StudyGroupMeeting>();
     }
 }

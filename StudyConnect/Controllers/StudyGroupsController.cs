@@ -1995,5 +1995,341 @@ namespace StudyConnect.Controllers
                 return Json(ResponseHelper.Error("An unexpected error occurred."));
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateMeeting([FromBody] CreateMeetingRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+            .AnyAsync(m => m.StudyGroupId == request.StudyGroupId &&
+              m.UserId == currentUserId &&
+               m.Role == "Owner" &&
+              m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to create meetings."));
+                }
+
+                // Validate Google Meet URL
+                if (!request.MeetingLink.Contains("meet.google.com"))
+                {
+                    return Json(ResponseHelper.Failed("Please provide a valid Google Meet link."));
+                }
+
+                // Validate dates
+                if (request.ScheduledStartTime < DateTime.Now)
+                {
+                    return Json(ResponseHelper.Failed("Start time cannot be in the past."));
+                }
+
+                if (request.ScheduledEndTime <= request.ScheduledStartTime)
+                {
+                    return Json(ResponseHelper.Failed("End time must be after start time."));
+                }
+
+                // Create new meeting
+                var meeting = new StudyGroupMeeting
+                {
+                    StudyGroupId = request.StudyGroupId,
+                    Title = request.Title,
+                    Description = request.Description,
+                    MeetingLink = request.MeetingLink,
+                    ScheduledStartTime = request.ScheduledStartTime,
+                    ScheduledEndTime = request.ScheduledEndTime,
+                    IsRecurring = request.IsRecurring,
+                    RecurrencePattern = request.RecurrencePattern,
+                    RecurrenceEndDate = request.RecurrenceEndDate,
+                    MaxParticipants = request.MaxParticipants,
+                    CreatedByUserId = currentUserId ?? "",
+                    CreatedBy = currentUserId ?? "",
+                    CreatedByName = currentUserName,
+                    CreatedAt = DateTime.Now,
+                    ModifiedBy = currentUserId ?? "",
+                    ModifiedByName = currentUserName,
+                    ModifiedAt = DateTime.Now,
+                    IsActive = true,
+                    IsCancelled = false
+                };
+
+                _context.StudyGroupMeetings.Add(meeting);
+                await _context.SaveChangesAsync();
+
+                // Log the action
+                await _auditService.LogCreateAsync("StudyGroupMeeting", meeting.Id.ToString(), new
+                {
+                    meeting.Id,
+                    meeting.StudyGroupId,
+                    meeting.Title,
+                    meeting.ScheduledStartTime,
+                    meeting.ScheduledEndTime
+                });
+
+                return Json(ResponseHelper.Success("Meeting created successfully.", new
+                {
+                    meetingId = meeting.Id
+                }));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while creating the meeting."));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMeetings(int studyGroupId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Check if user is an approved member
+                var isMember = await _context.StudyGroupMembers
+                       .AnyAsync(m => m.StudyGroupId == studyGroupId &&
+               m.UserId == currentUserId &&
+              m.IsApproved &&
+              m.DeletedAt == null);
+
+                if (!isMember)
+                {
+                    return Json(new { data = new List<object>() });
+                }
+
+                var meetings = await _context.StudyGroupMeetings
+   .Where(m => m.StudyGroupId == studyGroupId &&
+   m.DeletedAt == null &&
+       !m.IsCancelled &&
+       m.IsActive)
+     .Include(m => m.CreatedByUser)
+          .OrderBy(m => m.ScheduledStartTime)
+         .Select(m => new
+         {
+             id = m.Id,
+             title = m.Title,
+             description = m.Description,
+             meetingLink = m.MeetingLink,
+             scheduledStartTime = m.ScheduledStartTime,
+             scheduledEndTime = m.ScheduledEndTime,
+             startTimeFormatted = m.ScheduledStartTime.ToString("MMMM dd, yyyy hh:mm tt"),
+             endTimeFormatted = m.ScheduledEndTime.ToString("hh:mm tt"),
+             isRecurring = m.IsRecurring,
+             recurrencePattern = m.RecurrencePattern,
+             maxParticipants = m.MaxParticipants,
+             createdByName = $"{m.CreatedByUser.FirstName} {m.CreatedByUser.LastName}".Trim(),
+             createdByUserId = m.CreatedByUserId,
+             isPast = m.ScheduledEndTime < DateTime.Now,
+             isUpcoming = m.ScheduledStartTime > DateTime.Now,
+             isOngoing = m.ScheduledStartTime <= DateTime.Now && m.ScheduledEndTime >= DateTime.Now
+         })
+          .ToListAsync();
+
+                return Json(new { data = meetings });
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(new { data = new List<object>() });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateMeeting([FromBody] UpdateMeetingRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var meeting = await _context.StudyGroupMeetings
+         .Where(m => m.DeletedAt == null)
+             .FirstOrDefaultAsync(m => m.Id == request.MeetingId);
+
+                if (meeting == null)
+                {
+                    return Json(ResponseHelper.Failed("Meeting not found."));
+                }
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+                     .AnyAsync(m => m.StudyGroupId == meeting.StudyGroupId &&
+                 m.UserId == currentUserId &&
+                     m.Role == "Owner" &&
+                            m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to update meetings."));
+                }
+
+                // Validate Google Meet URL
+                if (!request.MeetingLink.Contains("meet.google.com"))
+                {
+                    return Json(ResponseHelper.Failed("Please provide a valid Google Meet link."));
+                }
+
+                // Validate dates
+                if (request.ScheduledEndTime <= request.ScheduledStartTime)
+                {
+                    return Json(ResponseHelper.Failed("End time must be after start time."));
+                }
+
+                // Store old values for audit
+                var oldValues = new
+                {
+                    meeting.Title,
+                    meeting.Description,
+                    meeting.MeetingLink,
+                    meeting.ScheduledStartTime,
+                    meeting.ScheduledEndTime
+                };
+
+                // Update meeting
+                meeting.Title = request.Title;
+                meeting.Description = request.Description;
+                meeting.MeetingLink = request.MeetingLink;
+                meeting.ScheduledStartTime = request.ScheduledStartTime;
+                meeting.ScheduledEndTime = request.ScheduledEndTime;
+                meeting.MaxParticipants = request.MaxParticipants;
+                meeting.ModifiedBy = currentUserId ?? "";
+                meeting.ModifiedByName = currentUserName;
+                meeting.ModifiedAt = DateTime.Now;
+
+                _context.StudyGroupMeetings.Update(meeting);
+                await _context.SaveChangesAsync();
+
+                // Store new values for audit
+                var newValues = new
+                {
+                    meeting.Title,
+                    meeting.Description,
+                    meeting.MeetingLink,
+                    meeting.ScheduledStartTime,
+                    meeting.ScheduledEndTime
+                };
+
+                // Log the action
+                await _auditService.LogUpdateAsync("StudyGroupMeeting", meeting.Id.ToString(), oldValues, newValues);
+
+                return Json(ResponseHelper.Success("Meeting updated successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while updating the meeting."));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CancelMeeting([FromBody] CancelMeetingRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var meeting = await _context.StudyGroupMeetings
+               .Where(m => m.DeletedAt == null)
+                       .FirstOrDefaultAsync(m => m.Id == request.MeetingId);
+
+                if (meeting == null)
+                {
+                    return Json(ResponseHelper.Failed("Meeting not found."));
+                }
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+                 .AnyAsync(m => m.StudyGroupId == meeting.StudyGroupId &&
+                      m.UserId == currentUserId &&
+                    m.Role == "Owner" &&
+                         m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to cancel meetings."));
+                }
+
+                // Cancel meeting
+                meeting.IsCancelled = true;
+                meeting.IsActive = false;
+                meeting.CancellationReason = request.CancellationReason;
+                meeting.ModifiedBy = currentUserId ?? "";
+                meeting.ModifiedByName = currentUserName;
+                meeting.ModifiedAt = DateTime.Now;
+
+                _context.StudyGroupMeetings.Update(meeting);
+                await _context.SaveChangesAsync();
+
+                // Log the action
+                await _auditService.LogCustomActionAsync($"Cancelled meeting {meeting.Id} for study group {meeting.StudyGroupId}. Reason: {request.CancellationReason ?? "No reason provided"}");
+
+                return Json(ResponseHelper.Success("Meeting cancelled successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while cancelling the meeting."));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteMeeting([FromBody] int meetingId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var meeting = await _context.StudyGroupMeetings
+             .Where(m => m.DeletedAt == null)
+                   .FirstOrDefaultAsync(m => m.Id == meetingId);
+
+                if (meeting == null)
+                {
+                    return Json(ResponseHelper.Failed("Meeting not found."));
+                }
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+              .AnyAsync(m => m.StudyGroupId == meeting.StudyGroupId &&
+                    m.UserId == currentUserId &&
+            m.Role == "Owner" &&
+             m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to delete meetings."));
+                }
+
+                // Soft delete
+                meeting.DeletedBy = currentUserId;
+                meeting.DeletedByName = currentUserName;
+                meeting.DeletedAt = DateTime.Now;
+
+                _context.StudyGroupMeetings.Update(meeting);
+                await _context.SaveChangesAsync();
+
+                // Log the action
+                await _auditService.LogDeleteAsync("StudyGroupMeeting", meeting.Id.ToString(), new
+                {
+                    meeting.Id,
+                    meeting.StudyGroupId,
+                    meeting.Title,
+                    meeting.ScheduledStartTime
+                });
+
+                return Json(ResponseHelper.Success("Meeting deleted successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while deleting the meeting."));
+            }
+        }
     }
 }

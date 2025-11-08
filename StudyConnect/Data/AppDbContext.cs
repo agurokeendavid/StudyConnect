@@ -14,5 +14,6 @@ namespace StudyConnect.Data
         public DbSet<StudyGroupMember> StudyGroupMembers { get; set; }
         public DbSet<StudyGroupResource> StudyGroupResources { get; set; }
         public DbSet<StudyGroupMessage> StudyGroupMessages { get; set; }
+        public DbSet<StudyGroupMeeting> StudyGroupMeetings { get; set; }
     }
 }
