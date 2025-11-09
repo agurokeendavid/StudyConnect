@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: studyconnect-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ""
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: StudyConnectDb
+    ports:
+      - "3006:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - studyconnect-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: --default-authentication-plugin=mysql_native_password
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: studyconnect-web
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=StudyConnectDb;User Id=root;Password=;SslMode=None;
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - studyconnect-network
+    volumes:
+      - ./wwwroot/uploads:/app/wwwroot/uploads
+
+volumes:
+  mysql_data:
+
+networks:
+  studyconnect-network:
+    driver: bridge

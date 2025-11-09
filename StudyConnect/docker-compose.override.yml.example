@@ -1,0 +1,38 @@
+# docker-compose.override.yml.example
+# Copy this file to docker-compose.override.yml and customize as needed
+# This file is for local development overrides
+
+version: '3.8'
+
+services:
+  mysql:
+    # Uncomment to expose MySQL to host network
+    # ports:
+    #   - "3307:3306"  # Change if 3006 is in use
+    
+    # Uncomment to enable MySQL logs
+    # command: --general-log=1 --general-log-file=/var/log/mysql/general.log
+    
+    # volumes:
+    #   - ./mysql-logs:/var/log/mysql
+
+  web:
+    # Uncomment for live code reload (requires volume mount)
+    # volumes:
+    #   - ./:/src
+    #   - /src/bin
+    #   - /src/obj
+    
+    # Uncomment to change ports
+    # ports:
+    #   - "5050:8080"
+    #   - "5051:8081"
+    
+    # Add custom environment variables
+    # environment:
+    #   - CUSTOM_VAR=value
+    
+    # Enable debugging
+    # environment:
+    #   - ASPNETCORE_ENVIRONMENT=Development
+    #   - ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=false

@@ -53,53 +53,113 @@ public static class SeedData
             await userMgr.AddToRoleAsync(student, AppRoles.Student);
         }
 
-        // if (!await db.StudyGroups.AnyAsync())
-        // {
-        //     var g1 = new StudyGroup
-        //     {
-        //         Name = "C# Fundamentals",
-        //         Description = "Beginner to intermediate C# topics",
-        //         IsApproved = true,
-        //         CreatedById = admin.Id
-        //     };
-        //     var g2 = new StudyGroup
-        //     {
-        //         Name = "Data Structures & Algorithms",
-        //         Description = "DSA study group",
-        //         IsApproved = false,
-        //         CreatedById = student.Id
-        //     };
-        //
-        //     db.StudyGroups.AddRange(g1, g2);
-        //     await db.SaveChangesAsync();
-        //
-        //     db.GroupMemberships.AddRange(
-        //         new GroupMembership { StudyGroupId = g1.Id, UserId = admin.Id, Role = "Owner" },
-        //         new GroupMembership { StudyGroupId = g1.Id, UserId = student.Id, Role = "Member" },
-        //         new GroupMembership { StudyGroupId = g2.Id, UserId = student.Id, Role = "Owner" }
-        //     );
-        //
-        //     db.Posts.AddRange(
-        //         new Post
-        //         {
-        //             StudyGroupId = g1.Id,
-        //             Title = "What is the difference between ref and out?",
-        //             Content = "Can someone explain scenarios for ref vs out?",
-        //             IsApproved = true,
-        //             CreatedById = student.Id
-        //         },
-        //         new Post
-        //         {
-        //             StudyGroupId = g1.Id,
-        //             Title = "Lesson: Delegates & Events",
-        //             Content = "Short primer on delegates/events with examples.",
-        //             IsApproved = false, // pending approval
-        //             CreatedById = admin.Id
-        //         }
-        //     );
-        //
-        //     await db.SaveChangesAsync();
-        // }
+        var math201 = await db.StudyGroupCategories.FirstOrDefaultAsync(sgc => sgc.Name == "MATH 201");
+
+        if (math201 is null)
+        {
+            math201 = new StudyGroupCategory()
+            {
+                Name = "MATH 201",
+                Description = "MATH 201",
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.StudyGroupCategories.AddAsync(math201);
+        }
+
+        var phys301 = await db.StudyGroupCategories.FirstOrDefaultAsync(sgc => sgc.Name == "PHYS 301");
+
+        if (phys301 is null)
+        {
+            phys301 = new StudyGroupCategory()
+            {
+                Name = "PHYS 301",
+                Description = "PHYS 301",
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.StudyGroupCategories.AddAsync(phys301);
+        }
+
+        var cs401 = await db.StudyGroupCategories.FirstOrDefaultAsync(sgc => sgc.Name == "CS 401");
+
+        if (cs401 is null)
+        {
+            cs401 = new StudyGroupCategory()
+            {
+                Name = "CS 401",
+                Description = "CS 401",
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.StudyGroupCategories.AddAsync(cs401);
+        }
+
+        var bio301 = await db.StudyGroupCategories.FirstOrDefaultAsync(sgc => sgc.Name == "BIO 301");
+
+        if (bio301 is null)
+        {
+            bio301 = new StudyGroupCategory()
+            {
+                Name = "BIO 301",
+                Description = "BIO 301",
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.StudyGroupCategories.AddAsync(bio301);
+        }
+
+        var chem202 = await db.StudyGroupCategories.FirstOrDefaultAsync(sgc => sgc.Name == "CHEM 202");
+
+        if (chem202 is null)
+        {
+            chem202 = new StudyGroupCategory()
+            {
+                Name = "CHEM 202",
+                Description = "CHEM 202",
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.StudyGroupCategories.AddAsync(chem202);
+        }
+
+        var eng301 = await db.StudyGroupCategories.FirstOrDefaultAsync(sgc => sgc.Name == "ENG 301");
+
+        if (eng301 is null)
+        {
+            eng301 = new StudyGroupCategory()
+            {
+                Name = "ENG 301",
+                Description = "ENG 301",
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.StudyGroupCategories.AddAsync(eng301);
+        }
         await db.SaveChangesAsync();
     }
 }
