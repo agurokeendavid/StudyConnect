@@ -1,0 +1,133 @@
+﻿@model StudyConnect.ViewModels.Ads.UpsertViewModel
+@{
+    ViewBag.Title = "Upsert - Ads Management";
+    Layout = "Dashboard/_Layout";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/modules/ads/upsert.css" asp-append-version="true" />
+}
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <div class="card bg-info-subtle shadow-none position-relative overflow-hidden mb-4">
+            <div class="card-body px-4 py-3">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <h4 class="fw-semibold mb-8">Ads</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a class="text-muted text-decoration-none" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item">
+                                    <a class="text-muted text-decoration-none" asp-controller="Ads" asp-action="Index">Ads Management</a>
+                                </li>
+                                <li class="breadcrumb-item" aria-current="page">@(Model?.Id is null ? "Add" : "Edit")</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-center mb-n5">
+                            <img src="~/templates/modernize/images/breadcrumb/ChatBc.png"
+                                 alt=""
+                                 class="img-fluid mb-n4" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="border-bottom title-part-padding">
+                        <h4 class="card-title mb-0">Ads | @(Model?.Id is null ? "Add" : "Edit")</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="form" role="form" method="POST">
+                            @Html.AntiForgeryToken()
+                            @Html.HiddenFor(m => m.Id, new { @readonly = true })
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="titleEditor" class="form-label">Title <code>*</code></label>
+                                        <div id="titleEditor"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="positionEditor" class="form-label">Position <code>*</code></label>
+                                        <div id="positionEditor"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="descriptionEditor" class="form-label">Description <code>*</code></label>
+                                        <div id="descriptionEditor"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="imageUrlEditor" class="form-label">Image URL <code>*</code></label>
+                                        <div id="imageUrlEditor"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="linkUrlEditor" class="form-label">Link URL</label>
+                                        <div id="linkUrlEditor"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="startDateEditor" class="form-label">Start Date <code>*</code></label>
+                                        <div id="startDateEditor"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="endDateEditor" class="form-label">End Date <code>*</code></label>
+                                        <div id="endDateEditor"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <div id="isActiveEditor"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row text-center">
+                                <div class="col-sm-12">
+                                    <div id="btn-save" class="d-inline-block me-2"></div>
+                                    <a asp-controller="Ads" asp-action="Index"
+                                       class="btn btn-danger rounded-pill px-4 text-white">Cancel</a>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section FooterScripts {
+    <script>
+        var isEditMode = @Json.Serialize(Model?.Id != null);
+        var adId = @Json.Serialize(Model?.Id);
+        var modelData = @Json.Serialize(Model);
+    </script>
+    <script src="~/modules/ads/footer_upsert.js" asp-append-version="true"></script>
+}
