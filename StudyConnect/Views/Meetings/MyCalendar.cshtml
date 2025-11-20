@@ -1,0 +1,121 @@
+﻿@{
+    ViewBag.Title = "My Calendar";
+    Layout = "Dashboard/_Layout";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/modules/meetings/my_calendar.css" asp-append-version="true" />
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+}
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="card bg-info-subtle shadow-none position-relative overflow-hidden mb-4">
+            <div class="card-body px-4 py-3">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <h4 class="fw-semibold mb-8">My Study Group Meetings</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a class="text-muted text-decoration-none" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item" aria-current="page">My Calendar</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-center mb-n5">
+                            <img src="~/templates/modernize/images/breadcrumb/ChatBc.png" alt="Breadcrumb" class="img-fluid mb-n4" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Card -->
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h5 class="card-title fw-semibold mb-1">Meeting Schedule</h5>
+                        <p class="card-subtitle text-muted mb-0">All meetings from your study groups</p>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-primary" onclick="refreshCalendar()">
+                            <i class="ti ti-refresh me-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Calendar Container -->
+                <div id="calendar"></div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="card shadow mt-4">
+            <div class="card-body">
+                <h6 class="fw-semibold mb-3">
+                    <i class="ti ti-info-circle me-2"></i>Legend
+                </h6>
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary rounded me-2" style="width: 20px; height: 20px;"></div>
+                            <span>Upcoming Meetings</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success rounded me-2" style="width: 20px; height: 20px;"></div>
+                            <span>Ongoing Meetings</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-secondary rounded me-2" style="width: 20px; height: 20px;"></div>
+                            <span>Past Meetings</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <div class="d-flex align-items-center">
+                            <i class="ti ti-repeat me-2 text-info"></i>
+                            <span>Recurring Meeting</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Meeting Details Modal -->
+<div class="modal fade" id="meetingDetailsModal" tabindex="-1" aria-labelledby="meetingDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="meetingDetailsModalLabel">
+                    <i class="ti ti-video me-2"></i>Meeting Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="meetingDetailsContent">
+                <!-- Meeting details will be loaded here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="#" id="joinMeetingBtn" class="btn btn-primary" target="_blank">
+                    <i class="ti ti-video me-1"></i>Join Meeting
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section FooterScripts {
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+    <script src="~/modules/meetings/footer_my_calendar.js" asp-append-version="true"></script>
+}
