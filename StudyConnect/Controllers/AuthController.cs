@@ -1,6 +1,8 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using StudyConnect.Data;
 using StudyConnect.Helpers;
 using StudyConnect.Models;
 using StudyConnect.ViewModels.Auth;
@@ -14,17 +16,20 @@ namespace StudyConnect.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IAuditService _auditService;
+        private readonly AppDbContext _context;
         
         public AuthController(
             ILogger<AuthController> logger, 
             UserManager<ApplicationUser> userManager, 
             SignInManager<ApplicationUser> signInManager,
-            IAuditService auditService)
+            IAuditService auditService,
+            AppDbContext context)
         {
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
             _auditService = auditService;
+            _context = context;
         }
         public ViewResult Index()
         {
@@ -150,6 +155,43 @@ namespace StudyConnect.Controllers
                     // Assign default role (Student)
                     await _userManager.AddToRoleAsync(user, AppRoles.Student);
 
+                    // Auto-assign Free Trial subscription
+                    var freeTrialSubscription = await _context.Subscriptions
+                        .FirstOrDefaultAsync(s => s.Name == "Free Trial" && s.IsActive && s.DeletedAt == null);
+
+                    if (freeTrialSubscription != null)
+                    {
+                        var startDate = DateTime.Now;
+                        var endDate = startDate.AddHours(4); // Free trial is 4 hours
+
+                        // Create user subscription
+                        var userSubscription = new UserSubscription
+                        {
+                            UserId = user.Id,
+                            SubscriptionId = freeTrialSubscription.Id,
+                            StartDate = startDate,
+                            EndDate = endDate,
+                            IsActive = true,
+                            FilesUploaded = 0,
+                            CreatedBy = user.Id,
+                            CreatedByName = $"{user.FirstName} {user.LastName}",
+                            CreatedAt = DateTime.Now,
+                            ModifiedBy = user.Id,
+                            ModifiedByName = $"{user.FirstName} {user.LastName}",
+                            ModifiedAt = DateTime.Now
+                        };
+
+                        _context.UserSubscriptions.Add(userSubscription);
+
+                        // Update user's subscription tracking fields
+                        user.SubscriptionStartDate = startDate;
+                        user.SubscriptionEndDate = endDate;
+                        user.HasActiveSubscription = true;
+                        user.FilesUploadedCount = 0;
+
+                        await _context.SaveChangesAsync();
+                    }
+
                     // Get existing claims
                     var existingClaims = await _userManager.GetClaimsAsync(user);
 
@@ -184,7 +226,7 @@ namespace StudyConnect.Controllers
                     // Sign in again to refresh the claims in the cookie
                     await _signInManager.SignOutAsync();
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return Json(ResponseHelper.Success("Successfully registered.", null, redirectUrl: Url.Action("Index", "Dashboard")));
+                    return Json(ResponseHelper.Success("Successfully registered. You have been granted a 4-hour Free Trial!", null, redirectUrl: Url.Action("Index", "Dashboard")));
                 }
 
                 string errors = string.Join("\n", result.Errors.Select(e => e.Description));

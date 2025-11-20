@@ -1,0 +1,170 @@
+FREE TRIAL SUBSCRIPTION - 4 HOURS ACCESS LIMITATION
+===================================================
+
+OVERVIEW
+--------
+The system now automatically tracks and enforces Free Trial subscription limits:
+- 4 hours of system access after registration
+- Maximum 5 file uploads
+- Automatic access revocation after expiration
+- Protected pages: My Study Groups, Available Study Groups, My Calendar, My Resources
+
+
+IMPLEMENTATION DETAILS
+----------------------
+
+1. AUTOMATIC FREE TRIAL ASSIGNMENT
+   - When a new user registers, they are automatically assigned a Free Trial subscription
+   - Start Date: Registration time
+   - End Date: Registration time + 4 hours
+   - File Upload Limit: 5 files
+   - Location: AuthController.cs ? Register() method
+
+2. SUBSCRIPTION TRACKING
+   - UserSubscription table tracks individual user subscriptions
+   - ApplicationUser model updated with subscription fields:
+     * SubscriptionStartDate
+     * SubscriptionEndDate  
+     * HasActiveSubscription
+     * FilesUploadedCount
+
+3. ACCESS PROTECTION
+   The following pages are protected and check subscription status:
+   
+   a) My Study Groups (/StudyGroups/MyStudyGroups)
+      - Shows expiration warning banner
+      - Prevents accessing study groups when expired
+   
+   b) Available Study Groups (/StudyGroups/AvailableStudyGroups)
+      - Shows expiration warning banner
+      - Prevents joining new groups when expired
+   
+   c) My Resources (/StudyGroups/MyResources)
+      - Shows expiration warning banner
+      - Prevents accessing resources when expired
+   
+   d) My Calendar (via middleware protection)
+      - Blocks access when expired
+
+4. SUBSCRIPTION CHECK MIDDLEWARE
+   - Location: Middleware/SubscriptionCheckMiddleware.cs
+   - Runs on every request to protected paths
+   - Checks if subscription has expired
+   - Updates user's HasActiveSubscription flag automatically
+   - For AJAX requests: Returns JSON error response
+   - For regular requests: Allows page load but shows warning banners
+
+5. FILE UPLOAD LIMITATION
+   - UploadResource method checks subscription before allowing uploads
+   - Free Trial users: Limited to 5 files
+   - Premium users: Unlimited uploads
+   - Counter incremented automatically after successful upload
+   - Error message shows remaining upload count
+
+6. SUBSCRIPTION SERVICE
+   Methods available:
+   - HasActiveSubscriptionAsync() - Checks if subscription is active
+   - IsSubscriptionExpiredAsync() - Checks if subscription expired
+   - CanUploadFileAsync() - Checks if user can upload files
+   - IncrementFileUploadCountAsync() - Increments file count
+   - GetRemainingFileUploadsAsync() - Gets remaining upload quota
+
+7. USER EXPERIENCE
+   When subscription expires:
+   - Red warning banner appears on protected pages
+   - "Upgrade Now" button redirects to subscription plans
+   - Join/Request actions are blocked with warning dialogs
+   - File upload attempts show clear error messages
+   - All messages include call-to-action to upgrade
+
+
+PROTECTED PAGES
+---------------
+? My Study Groups - Full page protection with banner
+? Available Study Groups - Full page protection with banner
+? My Resources - Full page protection with banner
+? My Calendar - Middleware protection
+? Study Group Details - Inherits protection from parent pages
+? File Upload - Enforces file limit before upload
+
+
+USER FLOW
+---------
+1. User registers ? Auto-assigned Free Trial (4 hours)
+2. User can access all features for 4 hours
+3. After 4 hours:
+   - Subscription expires automatically
+   - Protected pages show warning banner
+   - Actions are blocked with upgrade prompts
+   - User redirected to subscription plans
+4. User upgrades to Premium ? Full access restored
+
+
+ADMIN EXCLUSIONS
+----------------
+- Admins bypass all subscription checks
+- No time limits or file upload restrictions
+- Can access all pages regardless of subscription
+
+
+TECHNICAL NOTES
+---------------
+- Subscription expiration checked on every page load
+- Middleware runs before controller actions
+- Time calculation: Registration time + 4 hours
+- Free Trial duration stored as 1 day in DB (represents 4 hours)
+- Actual 4-hour calculation done in code: startDate.AddHours(4)
+- All checks respect user roles (Admin vs Student)
+
+
+UPGRADE PATH
+------------
+When users click "Upgrade Now":
+1. Redirected to /Subscriptions/AvailablePlans
+2. Can view Free Trial and Premium plans
+3. Premium plan: ?500 for 30 days, unlimited access
+4. (Payment integration to be implemented separately)
+
+
+MIGRATION REQUIRED
+------------------
+Before using this feature, run:
+1. Add-Migration AddSubscriptionTables
+2. Update-Database
+
+This will create:
+- Subscriptions table
+- UserSubscriptions table
+- Update ApplicationUser with subscription fields
+
+
+TESTING SCENARIOS
+-----------------
+1. Register new user ? Check Free Trial assigned
+2. Wait 4 hours ? Verify access blocked
+3. Try to upload files ? Check 5-file limit
+4. Try to join group when expired ? Verify blocked
+5. Admin user ? Verify no restrictions
+6. Upgrade to Premium ? Verify unlimited access
+
+
+FILES MODIFIED
+--------------
+Controllers:
+- AuthController.cs (auto-assign Free Trial on registration)
+- StudyGroupsController.cs (subscription checks on actions)
+
+Views:
+- MyStudyGroups.cshtml (warning banner)
+- AvailableStudyGroups.cshtml (warning banner)
+- AvailablePlans.cshtml (expiration message)
+
+JavaScript:
+- footer_available_study_groups.js (client-side checks)
+
+New Files:
+- Middleware/SubscriptionCheckMiddleware.cs
+- Filters/SubscriptionAuthorizationFilter.cs
+
+Configuration:
+- Program.cs (middleware registration)

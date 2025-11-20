@@ -160,6 +160,52 @@ public static class SeedData
             };
             await db.StudyGroupCategories.AddAsync(eng301);
         }
+
+        // Subscription Plans
+        var freeTrial = await db.Subscriptions.FirstOrDefaultAsync(s => s.Name == "Free Trial");
+        if (freeTrial is null)
+        {
+            freeTrial = new Subscription()
+            {
+                Name = "Free Trial",
+                Description = "4 hours lang pwede makapag access sa system. Limited files to be uploaded 5 files only",
+                Price = 0,
+                DurationInDays = 1, // Using 1 day to represent 4 hours (0.167 days)
+                MaxFileUploads = 5,
+                HasUnlimitedAccess = false,
+                IsActive = true,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.Subscriptions.AddAsync(freeTrial);
+        }
+
+        var premium = await db.Subscriptions.FirstOrDefaultAsync(s => s.Name == "Premium");
+        if (premium is null)
+        {
+            premium = new Subscription()
+            {
+                Name = "Premium",
+                Description = "All features of the system. Unlimited access to all study groups, resources, and meetings",
+                Price = 500,
+                DurationInDays = 30, // 1 month
+                MaxFileUploads = 0, // 0 means unlimited
+                HasUnlimitedAccess = true,
+                IsActive = true,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.Subscriptions.AddAsync(premium);
+        }
+
         await db.SaveChangesAsync();
     }
 }

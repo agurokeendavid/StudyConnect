@@ -1,0 +1,306 @@
+﻿@{
+    ViewBag.Title = "Generate Reports";
+    Layout = "Dashboard/_Layout";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/modules/reports/index.css" asp-append-version="true" />
+}
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h4 class="fw-semibold mb-1">System Reports</h4>
+                        <p class="text-muted mb-0">Comprehensive analytics and insights</p>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-primary" onclick="refreshAllCharts()">
+                            <i class="ti ti-refresh me-2"></i>Refresh Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overview Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="card bg-primary-subtle shadow-none border">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-primary mb-0">Total Users</h5>
+                                <span class="h2 font-weight-bold mb-0 text-primary" id="totalUsers">0</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon icon-shape bg-primary text-white rounded-circle shadow">
+                                    <i class="ti ti-users fs-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-muted text-sm">
+                            <span class="text-success me-2"><i class="ti ti-arrow-up-right"></i> <span id="newUsersToday">0</span></span>
+                            <span class="text-nowrap">New today</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card bg-success-subtle shadow-none border">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-success mb-0">Study Groups</h5>
+                                <span class="h2 font-weight-bold mb-0 text-success" id="totalStudyGroups">0</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon icon-shape bg-success text-white rounded-circle shadow">
+                                    <i class="ti ti-books fs-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-muted text-sm">
+                            <span class="text-success me-2"><i class="ti ti-arrow-up-right"></i> <span id="newGroupsToday">0</span></span>
+                            <span class="text-nowrap">New today</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card bg-warning-subtle shadow-none border">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-warning mb-0">Active Users</h5>
+                                <span class="h2 font-weight-bold mb-0 text-warning" id="activeUsers">0</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                                    <i class="ti ti-user-check fs-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-muted text-sm">
+                            <span class="text-success me-2"><i class="ti ti-activity"></i> Active</span>
+                            <span class="text-nowrap">Today</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="card bg-info-subtle shadow-none border">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="card-title text-info mb-0">Resources</h5>
+                                <span class="h2 font-weight-bold mb-0 text-info" id="totalResources">0</span>
+                            </div>
+                            <div class="col-auto">
+                                <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+                                    <i class="ti ti-files fs-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-muted text-sm">
+                            <span class="text-info me-2"><i class="ti ti-file"></i> Shared</span>
+                            <span class="text-nowrap">Resources</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="row mb-4">
+            <!-- User Growth Chart -->
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title fw-semibold mb-1">User Growth Trend</h5>
+                                <p class="card-subtitle text-muted mb-0">Last 30 days</p>
+                            </div>
+                        </div>
+                        <div id="userGrowthChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Role Distribution -->
+            <div class="col-lg-4">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title fw-semibold mb-1">User Roles</h5>
+                                <p class="card-subtitle text-muted mb-0">Distribution</p>
+                            </div>
+                        </div>
+                        <div id="userRoleChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div class="row mb-4">
+            <!-- Study Group Statistics -->
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title fw-semibold mb-1">Study Group Status</h5>
+                                <p class="card-subtitle text-muted mb-0">Current status breakdown</p>
+                            </div>
+                        </div>
+                        <div id="studyGroupStatusChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Study Groups by Category -->
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title fw-semibold mb-1">Groups by Category</h5>
+                                <p class="card-subtitle text-muted mb-0">Category distribution</p>
+                            </div>
+                        </div>
+                        <div id="studyGroupCategoryChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 3 -->
+        <div class="row mb-4">
+            <!-- Activity Stats -->
+            <div class="col-lg-12">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title fw-semibold mb-1">System Activity</h5>
+                                <p class="card-subtitle text-muted mb-0">Last 7 days activity trend</p>
+                            </div>
+                        </div>
+                        <div id="activityChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 4 -->
+        <div class="row mb-4">
+            <!-- Subscription Stats -->
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title fw-semibold mb-1">Subscription Plans</h5>
+                                <p class="card-subtitle text-muted mb-0">Active subscriptions</p>
+                            </div>
+                        </div>
+                        <div id="subscriptionChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue by Plan -->
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title fw-semibold mb-1">Revenue by Plan</h5>
+                                <p class="card-subtitle text-muted mb-0">Total revenue breakdown</p>
+                            </div>
+                        </div>
+                        <div id="revenueChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 5 -->
+        <div class="row mb-4">
+            <!-- Resource Stats -->
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title fw-semibold mb-1">Resources by Type</h5>
+                                <p class="card-subtitle text-muted mb-0">File type distribution</p>
+                            </div>
+                        </div>
+                        <div id="resourceTypeChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meeting Stats -->
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title fw-semibold mb-1">Meeting Statistics</h5>
+                                <p class="card-subtitle text-muted mb-0">Meeting status overview</p>
+                            </div>
+                        </div>
+                        <div id="meetingStatsChart" style="height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Downloaded Resources -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title fw-semibold mb-1">Top Downloaded Resources</h5>
+                                <p class="card-subtitle text-muted mb-0">Most popular resources</p>
+                            </div>
+                        </div>
+                        <div id="topResourcesChart" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Most Active Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-4">
+                            <div>
+                                <h5 class="card-title fw-semibold mb-1">Most Active Actions</h5>
+                                <p class="card-subtitle text-muted mb-0">Top 10 user actions (Last 7 days)</p>
+                            </div>
+                        </div>
+                        <div id="topActionsChart" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section FooterScripts {
+    <script src="~/modules/reports/footer_index.js" asp-append-version="true"></script>
+}

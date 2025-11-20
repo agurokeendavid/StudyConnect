@@ -1,0 +1,22 @@
+/* Subscriptions Index Page Styles */
+#subscriptionsDataGrid {
+    margin-top: 10px;
+}
+
+.text-icon-primary {
+    color: #5d87ff !important;
+}
+
+.text-icon-red {
+    color: #fa896b !important;
+}
+
+.dx-datagrid .dx-row > td {
+    vertical-align: middle;
+}
+
+.badge {
+    padding: 0.35em 0.65em;
+    font-size: 0.75rem;
+    font-weight: 600;
+}

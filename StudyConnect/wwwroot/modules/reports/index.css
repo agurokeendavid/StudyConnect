@@ -1,0 +1,139 @@
+﻿/* Reports Page Styles */
+
+/* Card hover effects */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Icon shapes */
+.icon-shape {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Chart containers */
+.chart-container {
+    position: relative;
+    min-height: 350px;
+}
+
+/* Loading state */
+.chart-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+/* Stat cards animation */
+.card-body h2 {
+    transition: all 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .h2 {
+        font-size: 1.5rem;
+    }
+    
+    .icon-shape {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+/* DevExtreme chart customization */
+.dx-chart {
+    font-family: 'Inter', sans-serif;
+}
+
+.dx-chart-legend {
+    font-size: 12px;
+}
+
+/* Tooltip styling */
+.dx-tooltip-wrapper .dx-overlay-content {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Empty state */
+.empty-chart-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 350px;
+    color: #6c757d;
+}
+
+.empty-chart-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Button hover effects */
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Smooth transitions for numbers */
+.stat-number {
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+/* Card title styling */
+.card-title {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+.card-subtitle {
+    font-size: 0.875rem;
+    font-weight: 400;
+}
+
+/* Page header styling */
+.body-wrapper .container-fluid > .row:first-child {
+    margin-bottom: 1.5rem;
+}
+
+/* Loading spinner */
+.spinner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    border-radius: 8px;
+}
+
+.spinner-overlay .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}

@@ -207,6 +207,24 @@
     });
 
     function joinGroup(groupId) {
+        // Check if subscription expired from ViewBag
+        if (typeof isSubscriptionExpired !== 'undefined' && isSubscriptionExpired) {
+            Swal.fire({
+                title: 'Subscription Expired',
+                text: 'Your subscription has expired. Please upgrade to join study groups.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                confirmButtonText: 'Upgrade Now',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/Subscriptions/AvailablePlans';
+                }
+            });
+            return;
+        }
+
         Swal.fire({
             title: 'Join Study Group?',
             text: 'Do you want to join this study group?',
@@ -261,6 +279,24 @@
     }
 
     function requestToJoin(groupId) {
+        // Check if subscription expired from ViewBag
+        if (typeof isSubscriptionExpired !== 'undefined' && isSubscriptionExpired) {
+            Swal.fire({
+                title: 'Subscription Expired',
+                text: 'Your subscription has expired. Please upgrade to request joining study groups.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#5D87FF',
+                confirmButtonText: 'Upgrade Now',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/Subscriptions/AvailablePlans';
+                }
+            });
+            return;
+        }
+
         Swal.fire({
             title: 'Request to Join?',
             text: 'Your request will be sent to the group owner for approval.',

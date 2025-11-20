@@ -1,0 +1,132 @@
+@model StudyConnect.ViewModels.Subscriptions.UpsertViewModel
+@{
+    ViewBag.Title = Model.Id.HasValue ? "Edit Subscription" : "Create Subscription";
+    Layout = "Dashboard/_Layout";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/modules/subscriptions/upsert.css" asp-append-version="true" />
+}
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <div class="card bg-info-subtle shadow-none position-relative overflow-hidden mb-4">
+            <div class="card-body px-4 py-3">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <h4 class="fw-semibold mb-8">@ViewBag.Title</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a class="text-muted text-decoration-none" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item">
+                                    <a class="text-muted text-decoration-none" asp-controller="Subscriptions" asp-action="Index">Subscriptions Management</a>
+                                </li>
+                                <li class="breadcrumb-item" aria-current="page">@(Model.Id.HasValue ? "Edit" : "Create")</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-center mb-n5">
+                            <img src="~/templates/modernize/images/breadcrumb/ChatBc.png"
+                                 alt=""
+                                 class="img-fluid mb-n4" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">@(Model.Id.HasValue ? "Edit Subscription Plan" : "Create New Subscription Plan")</h4>
+                        
+                        <form id="subscriptionForm" method="post" asp-action="Upsert">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="Id" />
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Name" class="form-label fw-semibold">Subscription Name</label>
+                                    <input asp-for="Name" class="form-control" placeholder="e.g., Free Trial, Premium" />
+                                    <span asp-validation-for="Name" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label asp-for="Price" class="form-label fw-semibold">Price (PHP)</label>
+                                    <input asp-for="Price" type="number" step="0.01" class="form-control" placeholder="0.00" />
+                                    <span asp-validation-for="Price" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter subscription description"></textarea>
+                                    <span asp-validation-for="Description" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label asp-for="DurationInDays" class="form-label fw-semibold">Duration (Days)</label>
+                                    <input asp-for="DurationInDays" type="number" class="form-control" placeholder="e.g., 30" />
+                                    <span asp-validation-for="DurationInDays" class="text-danger small"></span>
+                                    <small class="text-muted">For Free Trial: Use 1 for 4 hours (0.167 days rounded)</small>
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <label asp-for="MaxFileUploads" class="form-label fw-semibold">Max File Uploads</label>
+                                    <input asp-for="MaxFileUploads" type="number" class="form-control" placeholder="e.g., 5" />
+                                    <span asp-validation-for="MaxFileUploads" class="text-danger small"></span>
+                                    <small class="text-muted">0 means unlimited</small>
+                                </div>
+
+                                <div class="col-md-4 mb-3">
+                                    <div class="pt-4">
+                                        <div class="form-check form-switch">
+                                            <input asp-for="HasUnlimitedAccess" class="form-check-input" type="checkbox" />
+                                            <label asp-for="HasUnlimitedAccess" class="form-check-label fw-semibold">Unlimited Access</label>
+                                        </div>
+                                        <small class="text-muted d-block">Check for premium features</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <div class="form-check form-switch">
+                                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                        <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+                                    </div>
+                                    <small class="text-muted">Only active subscriptions will be available for users</small>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <button type="submit" id="btnSubmit" class="btn btn-primary me-2">
+                                        <i class="ti ti-device-floppy me-1"></i>
+                                        @(Model.Id.HasValue ? "Update Subscription" : "Create Subscription")
+                                    </button>
+                                    <a asp-controller="Subscriptions" asp-action="Index" class="btn btn-outline-secondary">
+                                        <i class="ti ti-arrow-left me-1"></i>
+                                        Back to List
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section FooterScripts {
+    <script src="~/modules/subscriptions/footer_upsert.js" asp-append-version="true"></script>
+}

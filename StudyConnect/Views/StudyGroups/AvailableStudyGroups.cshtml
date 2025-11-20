@@ -35,6 +35,23 @@
             </div>
         </div>
 
+        @if (ViewBag.IsSubscriptionExpired == true)
+        {
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="ti ti-alert-triangle fs-5 me-3"></i>
+                    <div class="flex-grow-1">
+                        <h5 class="alert-heading mb-1">Subscription Expired</h5>
+                        <p class="mb-0">@ViewBag.ExpiredMessage</p>
+                    </div>
+                    <a href="@Url.Action("AvailablePlans", "Subscriptions")" class="btn btn-danger btn-sm ms-3">
+                        <i class="ti ti-shopping-cart me-1"></i>Upgrade Now
+                    </a>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -83,5 +100,8 @@
 </div>
 
 @section FooterScripts {
+    <script>
+        var isSubscriptionExpired = @((ViewBag.IsSubscriptionExpired == true) ? "true" : "false");
+    </script>
     <script src="~/modules/study_groups/footer_available_study_groups.js" asp-append-version="true"></script>
 }

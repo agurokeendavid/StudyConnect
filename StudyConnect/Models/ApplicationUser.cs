@@ -12,6 +12,13 @@ namespace StudyConnect.Models
         public string? Sex { get; set; }
         public string? Address { get; set; }
         public string? ContactNo { get; set; }
+        
+        // Subscription tracking
+        public DateTime? SubscriptionStartDate { get; set; }
+        public DateTime? SubscriptionEndDate { get; set; }
+        public int FilesUploadedCount { get; set; }
+        public bool HasActiveSubscription { get; set; }
+        
         public string CreatedBy { get; set; } = string.Empty;
         public string CreatedByName { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.Now;

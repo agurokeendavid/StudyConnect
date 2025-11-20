@@ -20,17 +20,20 @@ namespace StudyConnect.Controllers
         private readonly AppDbContext _context;
         private readonly IAuditService _auditService;
         private readonly IHubContext<StudyGroupHub> _hubContext;
+        private readonly ISubscriptionService _subscriptionService;
 
         public StudyGroupsController(
             ILogger<StudyGroupsController> logger,
-        AppDbContext context,
-  IAuditService auditService,
-     IHubContext<StudyGroupHub> hubContext)
+            AppDbContext context,
+            IAuditService auditService,
+            IHubContext<StudyGroupHub> hubContext,
+            ISubscriptionService subscriptionService)
         {
             _logger = logger;
             _context = context;
             _auditService = auditService;
             _hubContext = hubContext;
+            _subscriptionService = subscriptionService;
         }
 
         [HttpGet]
@@ -42,8 +45,25 @@ namespace StudyConnect.Controllers
         }
 
         [HttpGet]
-        public ViewResult AvailableStudyGroups()
+        public async Task<ViewResult> AvailableStudyGroups()
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Check subscription status for students only
+            if (!User.IsInRole("Admin") && !string.IsNullOrEmpty(currentUserId))
+            {
+                var hasActiveSubscription = await _subscriptionService.HasActiveSubscriptionAsync(currentUserId);
+                var isExpired = await _subscriptionService.IsSubscriptionExpiredAsync(currentUserId);
+
+                ViewBag.HasActiveSubscription = hasActiveSubscription;
+                ViewBag.IsSubscriptionExpired = isExpired;
+
+                if (isExpired)
+                {
+                    ViewBag.ExpiredMessage = "Your subscription has expired. Please upgrade to continue accessing study groups.";
+                }
+            }
+
             return View();
         }
 
@@ -98,6 +118,23 @@ namespace StudyConnect.Controllers
         [HttpGet]
         public async Task<ViewResult> MyStudyGroups()
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Check subscription status for students only
+            if (!User.IsInRole("Admin") && !string.IsNullOrEmpty(currentUserId))
+            {
+                var hasActiveSubscription = await _subscriptionService.HasActiveSubscriptionAsync(currentUserId);
+                var isExpired = await _subscriptionService.IsSubscriptionExpiredAsync(currentUserId);
+
+                ViewBag.HasActiveSubscription = hasActiveSubscription;
+                ViewBag.IsSubscriptionExpired = isExpired;
+
+                if (isExpired)
+                {
+                    ViewBag.ExpiredMessage = "Your subscription has expired. Please upgrade to continue accessing your study groups.";
+                }
+            }
+
             await _auditService.LogCustomActionAsync("Viewed My Study Groups Page");
             return View();
         }
@@ -668,7 +705,7 @@ namespace StudyConnect.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ApproveRequest([FromBody] int memberId)
+        public async Task<IActionResult> ApproveRequest(int memberId)
         {
             try
             {
@@ -715,7 +752,7 @@ namespace StudyConnect.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RejectRequest([FromBody] int memberId)
+        public async Task<IActionResult> RejectRequest(int memberId)
         {
             try
             {
@@ -1059,8 +1096,7 @@ namespace StudyConnect.Controllers
                 var isMember = await _context.StudyGroupMembers
               .AnyAsync(m => m.StudyGroupId == request.StudyGroupId &&
          m.UserId == currentUserId &&
-                  m.IsApproved &&
-         m.DeletedAt == null);
+                  m.DeletedAt == null);
 
                 if (!isMember)
                 {
@@ -1292,8 +1328,25 @@ namespace StudyConnect.Controllers
 
         [Authorize(Roles = "Student")]
         [HttpGet]
-        public ViewResult MyResources()
+        public async Task<ViewResult> MyResources()
         {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Check subscription status
+            if (!string.IsNullOrEmpty(currentUserId))
+            {
+                var hasActiveSubscription = await _subscriptionService.HasActiveSubscriptionAsync(currentUserId);
+                var isExpired = await _subscriptionService.IsSubscriptionExpiredAsync(currentUserId);
+
+                ViewBag.HasActiveSubscription = hasActiveSubscription;
+                ViewBag.IsSubscriptionExpired = isExpired;
+
+                if (isExpired)
+                {
+                    ViewBag.ExpiredMessage = "Your subscription has expired. Please upgrade to continue accessing your resources.";
+                }
+            }
+
             return View();
         }
 
@@ -2006,7 +2059,7 @@ namespace StudyConnect.Controllers
 
                 // Check if current user is owner
                 var isOwner = await _context.StudyGroupMembers
-            .AnyAsync(m => m.StudyGroupId == request.StudyGroupId &&
+                       .AnyAsync(m => m.StudyGroupId == request.StudyGroupId &&
               m.UserId == currentUserId &&
                m.Role == "Owner" &&
               m.DeletedAt == null);

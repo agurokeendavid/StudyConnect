@@ -1,0 +1,102 @@
+SUBSCRIPTION FEATURE IMPLEMENTATION - QUICK REFERENCE
+=====================================================
+
+DATABASE MIGRATION COMMANDS
+---------------------------
+To create and apply the migration for subscription features, run these commands in the Package Manager Console:
+
+1. Add Migration:
+   Add-Migration AddSubscriptionTables
+
+2. Update Database:
+   Update-Database
+
+Or using .NET CLI:
+1. dotnet ef migrations add AddSubscriptionTables
+2. dotnet ef database update
+
+
+NEW MODELS CREATED
+------------------
+1. Subscription - Stores subscription plan details
+   - Id, Name, Description, Price, DurationInDays
+   - MaxFileUploads, HasUnlimitedAccess, IsActive
+
+2. UserSubscription - Tracks user subscriptions
+   - Id, UserId, SubscriptionId, StartDate, EndDate
+   - IsActive, FilesUploaded
+
+3. ApplicationUser - Updated with subscription tracking fields
+   - SubscriptionStartDate, SubscriptionEndDate
+   - FilesUploadedCount, HasActiveSubscription
+
+
+SUBSCRIPTION PLANS (Seeded Data)
+---------------------------------
+1. Free Trial
+   - Price: FREE (?0)
+   - Duration: 4 hours (represented as 1 day in DB)
+   - Max Files: 5 files
+   - Features: Limited access
+
+2. Premium
+   - Price: ?500
+   - Duration: 30 days
+   - Max Files: Unlimited (0 = unlimited)
+   - Features: All features, unlimited access
+
+
+MENU LOCATIONS
+--------------
+Admin Menu:
+- Subscriptions Management
+  * Add Subscription (Subscriptions/Upsert)
+  * All Subscriptions (Subscriptions/Index)
+
+Student Menu:
+- Subscription Plans (Subscriptions/AvailablePlans)
+
+
+PAGES CREATED
+-------------
+1. /Subscriptions/Index - Admin view to manage subscriptions (DevExtreme grid)
+2. /Subscriptions/Upsert - Add/Edit subscription plans
+3. /Subscriptions/AvailablePlans - Student view to see available plans
+
+
+SERVICES CREATED
+----------------
+SubscriptionService (ISubscriptionService)
+- HasActiveSubscriptionAsync() - Check if user has active subscription
+- GetActiveSubscriptionAsync() - Get user's current subscription
+- CanUploadFileAsync() - Check if user can upload files
+- IncrementFileUploadCountAsync() - Track file uploads
+- IsSubscriptionExpiredAsync() - Check subscription expiration
+- GetRemainingFileUploadsAsync() - Get remaining file upload quota
+
+
+DEVEXTREME CONTROLS USED
+-------------------------
+- dxDataGrid - For subscription list with search, filter, pagination
+- dxButton - For action buttons
+- Dialog.confirm - For delete/toggle confirmations
+- Notify - For toast notifications
+
+
+CSS STYLING
+-----------
+All pages use the same design pattern as other pages in the system:
+- Bootstrap 5 cards and layouts
+- Modernize template styling
+- DevExtreme Material Blue Light theme
+- Responsive design
+- Consistent breadcrumb navigation
+
+
+NOTES
+-----
+- No database changes were made (as requested)
+- Run migrations manually: Add-Migration AddSubscriptionTables, Update-Database
+- Seed data will auto-populate Free Trial and Premium plans
+- All pages follow existing design patterns
+- DevExtreme controls used throughout for consistency

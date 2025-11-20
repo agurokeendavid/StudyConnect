@@ -7,6 +7,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Services;
+using StudyConnect.Data;
 
 namespace StudyConnect.Controllers
 {
@@ -17,17 +18,20 @@ namespace StudyConnect.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IAuditService _auditService;
+        private readonly AppDbContext _context;
 
         public UsersController(
             ILogger<UsersController> logger,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            IAuditService auditService)
+            IAuditService auditService,
+            AppDbContext context)
         {
             _logger = logger;
             _userManager = userManager;
             _roleManager = roleManager;
             _auditService = auditService;
+            _context = context;
         }
 
         public async Task<IActionResult> Index()
@@ -361,6 +365,87 @@ namespace StudyConnect.Controllers
             }
 
             return Json(ResponseHelper.Error("An unexpected error occurred. Please try again later."));
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UsersWithSubscriptions()
+        {
+            await _auditService.LogCustomActionAsync("Viewed Users With Subscriptions Page");
+            return View();
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUsersWithSubscriptions()
+        {
+            try
+            {
+                var usersWithSubscriptions = await _userManager.Users
+                    .Where(u => u.DeletedAt == null)
+                    .Select(u => new
+                    {
+                        id = u.Id,
+                        fullName = $"{u.FirstName} {(u.MiddleName ?? "")} {u.LastName}".Replace("  ", " ").Trim(),
+                        email = u.Email,
+                        contactNo = u.ContactNo,
+                        userSubscriptions = _context.UserSubscriptions
+                            .Where(us => us.UserId == u.Id && us.DeletedAt == null)
+                            .Include(us => us.Subscription)
+                            .Select(us => new
+                            {
+                                id = us.Id,
+                                subscriptionName = us.Subscription!.Name,
+                                subscriptionPrice = us.Subscription!.Price,
+                                startDate = us.StartDate,
+                                endDate = us.EndDate,
+                                isActive = us.IsActive,
+                                filesUploaded = us.FilesUploaded,
+                                maxFileUploads = us.Subscription!.MaxFileUploads,
+                                hasUnlimitedAccess = us.Subscription!.HasUnlimitedAccess,
+                                durationInDays = us.Subscription!.DurationInDays
+                            })
+                            .OrderByDescending(us => us.startDate)
+                            .ToList()
+                    })
+                    .ToListAsync();
+
+                // Filter only users who have at least one subscription
+                var filteredUsers = usersWithSubscriptions
+                    .Where(u => u.userSubscriptions.Any())
+                    .Select(u => new
+                    {
+                        u.id,
+                        u.fullName,
+                        u.email,
+                        u.contactNo,
+                        activeSubscription = u.userSubscriptions.FirstOrDefault(us => us.isActive),
+                        totalSubscriptions = u.userSubscriptions.Count,
+                        subscriptionHistory = u.userSubscriptions.Select(us => new
+                        {
+                            us.subscriptionName,
+                            us.subscriptionPrice,
+                            startDate = us.startDate.ToString("MM/dd/yyyy"),
+                            endDate = us.endDate.ToString("MM/dd/yyyy"),
+                            us.isActive,
+                            us.filesUploaded,
+                            us.maxFileUploads,
+                            us.hasUnlimitedAccess,
+                            daysRemaining = us.isActive ? (us.endDate - DateTime.Now).Days : 0,
+                            status = us.isActive 
+                                ? (us.endDate < DateTime.Now ? "Expired" : "Active") 
+                                : "Inactive"
+                        })
+                    })
+                    .ToList();
+
+                return Json(new { data = filteredUsers });
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(new { data = new List<object>() });
+            }
         }
     }
 }

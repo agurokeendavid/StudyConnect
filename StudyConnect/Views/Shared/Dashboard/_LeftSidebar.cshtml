@@ -59,6 +59,15 @@
 									<span class="hide-menu">List of Users</span>
 								</a>
 							</li>
+
+							<li class="sidebar-item">
+								<a asp-controller="Users" asp-action="UsersWithSubscriptions" class="sidebar-link">
+									<div class="round-16 d-flex align-items-center justify-content-center">
+										<i class="ti ti-circle"></i>
+									</div>
+									<span class="hide-menu">Users with Subscriptions</span>
+								</a>
+							</li>
 						</ul>
 					</li>
 
@@ -87,6 +96,36 @@
 										<i class="ti ti-circle"></i>
 									</div>
 									<span class="hide-menu">All Ads</span>
+								</a>
+							</li>
+						</ul>
+					</li>
+
+					<li class="sidebar-item">
+						<a class="sidebar-link has-arrow"
+						   href="javascript:void(0)"
+						   aria-expanded="false">
+							<span class="d-flex">
+								<i class="ti ti-credit-card"></i>
+							</span>
+							<span class="hide-menu">Subscriptions</span>
+						</a>
+						<ul aria-expanded="false" class="collapse first-level">
+							<li class="sidebar-item">
+								<a asp-controller="Subscriptions" asp-action="Upsert" class="sidebar-link">
+									<div class="round-16 d-flex align-items-center justify-content-center">
+										<i class="ti ti-circle"></i>
+									</div>
+									<span class="hide-menu">Add Subscription</span>
+								</a>
+							</li>
+
+							<li class="sidebar-item">
+								<a asp-controller="Subscriptions" asp-action="Index" class="sidebar-link">
+									<div class="round-16 d-flex align-items-center justify-content-center">
+										<i class="ti ti-circle"></i>
+									</div>
+									<span class="hide-menu">All Subscriptions</span>
 								</a>
 							</li>
 						</ul>
@@ -142,11 +181,11 @@
 							</li>
 
 							<li class="sidebar-item">
-								<a asp-controller="Reports" asp-action="SalesReport" class="sidebar-link">
+								<a asp-controller="Reports" asp-action="Index" class="sidebar-link">
 									<div class="round-16 d-flex align-items-center justify-content-center">
 										<i class="ti ti-circle"></i>
 									</div>
-									<span class="hide-menu">Sales Report</span>
+									<span class="hide-menu">Generate Reports</span>
 								</a>
 							</li>
 						</ul>
@@ -175,7 +214,17 @@
                     </li>
 
                     <li class="sidebar-item">
-                        <a class="sidebar-link" asp-controller="Calenday" asp-action="Index"
+                        <a class="sidebar-link" asp-controller="Subscriptions" asp-action="AvailablePlans"
+                           aria-expanded="false">
+                            <span>
+                                <i class="ti ti-credit-card"></i>
+                            </span>
+                            <span class="hide-menu">Subscription Plans</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" asp-controller="StudyGroups" asp-action="MyCalendar"
                            aria-expanded="false">
                             <span>
                                 <i class="ti ti-calendar"></i>

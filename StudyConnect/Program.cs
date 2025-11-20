@@ -6,6 +6,7 @@ using StudyConnect.Repositories;
 using StudyConnect.Repositories.Contracts;
 using StudyConnect.Services;
 using StudyConnect.Hubs;
+using StudyConnect.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 // ---------- DB (MySQL 8 via Pomelo) ----------
@@ -51,6 +52,7 @@ builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepositor
 // ---------- Services ----------
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 
 var app = builder.Build();
 
@@ -79,6 +81,7 @@ app.UseRouting();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSubscriptionCheck(); // Check subscription status
 
 app.MapControllerRoute(
     name: "default",

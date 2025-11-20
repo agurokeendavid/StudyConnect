@@ -1,0 +1,28 @@
+/* Subscriptions Upsert Page Styles */
+#subscriptionForm .form-label {
+    margin-bottom: 0.5rem;
+}
+
+#subscriptionForm .form-control,
+#subscriptionForm .form-select {
+    border-radius: 0.375rem;
+}
+
+#subscriptionForm .form-check-input {
+    cursor: pointer;
+}
+
+#subscriptionForm .form-check-label {
+    cursor: pointer;
+}
+
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+#btnSubmit:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
