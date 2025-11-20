@@ -1,9 +1,4 @@
-﻿body {
-}
-
-/* Ads Upsert Page Styles */
-
-/* Form container */
+﻿/* Form container */
 .card-body form {
     padding: 20px 10px;
 }
@@ -111,13 +106,6 @@
 /* Select box arrow */
 .dx-selectbox .dx-dropdowneditor-button {
     color: #0d6efd;
-}
-
-/* Placeholder text */
-.dx-texteditor-input::placeholder,
-.dx-textarea-content::placeholder {
-    color: #6c757d;
-    opacity: 0.7;
 }
 
 /* Clear button */

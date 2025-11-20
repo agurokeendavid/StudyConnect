@@ -16,6 +16,7 @@ function initializeFormEditors() {
     try {
         // Title Editor
         $('#titleEditor').dxTextBox({
+            placeholder: "Title",
             maxLength: 200,
             value: modelData?.Title || '',
             showClearButton: true
@@ -23,6 +24,7 @@ function initializeFormEditors() {
 
         // Description Editor
         $('#descriptionEditor').dxTextArea({
+            placeholder: "Description",
             maxLength: 2000,
             height: 120,
             value: modelData?.Description || '',
@@ -31,6 +33,7 @@ function initializeFormEditors() {
 
         // Image URL Editor
         $('#imageUrlEditor').dxTextBox({
+            placeholder: "Image URL",
             maxLength: 500,
             value: modelData?.ImageUrl || '',
             showClearButton: true
@@ -38,6 +41,7 @@ function initializeFormEditors() {
 
         // Link URL Editor
         $('#linkUrlEditor').dxTextBox({
+            placeholder: "Link URL",
             maxLength: 500,
             value: modelData?.LinkUrl || '',
             showClearButton: true
@@ -52,6 +56,7 @@ function initializeFormEditors() {
 
         // Start Date Editor
         $('#startDateEditor').dxDateBox({
+            placeholder: "Start Date",
             type: 'date',
             displayFormat: 'MM/dd/yyyy',
             value: modelData?.StartDate ? new Date(modelData.StartDate) : new Date(),
@@ -60,6 +65,7 @@ function initializeFormEditors() {
 
         // End Date Editor
         $('#endDateEditor').dxDateBox({
+            placeholder: "End Date",
             type: 'date',
             displayFormat: 'MM/dd/yyyy',
             value: modelData?.EndDate ? new Date(modelData.EndDate) : new Date(new Date().setMonth(new Date().getMonth() + 1)),
