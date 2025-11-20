@@ -1,0 +1,46 @@
+﻿body {
+}
+
+/* Feedback Management Styles */
+.feedback-details {
+    padding: 10px;
+}
+
+.feedback-details .row {
+    margin-bottom: 10px;
+}
+
+.feedback-details strong {
+    color: #2a3547;
+    font-size: 14px;
+}
+
+.respond-form .form-label {
+    color: #2a3547;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.text-icon-primary {
+    color: #5D87FF !important;
+}
+
+.text-icon-red {
+    color: #FA896B !important;
+}
+
+/* DataGrid custom styles */
+.dx-datagrid .dx-row-alt {
+    background-color: #f8f9fa;
+}
+
+.dx-datagrid-headers {
+    font-weight: 600;
+}
+
+/* Status badges */
+.badge {
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 500;
+}

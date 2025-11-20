@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "Submit Feedback";
+    Layout = "Dashboard/_Layout";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/modules/feedback/submit_feedback.css" asp-append-version="true" />
+}
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <div class="card bg-info-subtle shadow-none position-relative overflow-hidden mb-4">
+            <div class="card-body px-4 py-3">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <h4 class="fw-semibold mb-8">Submit Feedback</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a class="text-muted text-decoration-none" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                                </li>
+                                <li class="breadcrumb-item" aria-current="page">Submit Feedback</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-center mb-n5">
+                            <img src="~/templates/modernize/images/breadcrumb/ChatBc.png"
+                                 alt=""
+                                 class="img-fluid mb-n4" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">Share Your Feedback</h4>
+                        <p class="text-muted mb-4">
+                            We value your opinion! Please share your feedback, suggestions, or report any issues you've encountered.
+                            Your input helps us improve the platform for everyone.
+                        </p>
+
+                        <form id="feedbackForm">
+                            <div class="mb-4">
+                                <label for="subject" class="form-label fw-semibold">Subject <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="subject" 
+                                       name="subject" 
+                                       placeholder="Brief description of your feedback"
+                                       required>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="category" class="form-label fw-semibold">Category <span class="text-danger">*</span></label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select a category</option>
+                                    <option value="Bug Report">Bug Report</option>
+                                    <option value="Feature Request">Feature Request</option>
+                                    <option value="Improvement">Improvement Suggestion</option>
+                                    <option value="User Experience">User Experience</option>
+                                    <option value="Performance">Performance Issue</option>
+                                    <option value="Content">Content Related</option>
+                                    <option value="General">General Feedback</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="message" class="form-label fw-semibold">Your Feedback <span class="text-danger">*</span></label>
+                                <textarea class="form-control" 
+                                          id="message" 
+                                          name="message" 
+                                          rows="8" 
+                                          placeholder="Please provide detailed feedback..."
+                                          required></textarea>
+                                <div class="form-text">
+                                    <i class="ti ti-info-circle me-1"></i>
+                                    Please be as detailed as possible to help us understand and address your feedback.
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <button type="reset" class="btn btn-light">
+                                    <i class="ti ti-refresh me-1"></i>Clear Form
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="submitBtn">
+                                    <i class="ti ti-send me-1"></i>Submit Feedback
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Info Cards -->
+                <div class="row mt-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-primary-subtle border">
+                            <div class="card-body">
+                                <h6 class="fw-semibold mb-2">
+                                    <i class="ti ti-clock me-2"></i>Response Time
+                                </h6>
+                                <p class="mb-0 text-muted small">
+                                    We typically respond to feedback within 24-48 hours.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card bg-success-subtle border">
+                            <div class="card-body">
+                                <h6 class="fw-semibold mb-2">
+                                    <i class="ti ti-shield-check me-2"></i>Privacy
+                                </h6>
+                                <p class="mb-0 text-muted small">
+                                    Your feedback is confidential and will be reviewed by our team.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Anti-Forgery Token for AJAX requests *@
+@Html.AntiForgeryToken()
+
+@section FooterScripts {
+    <script src="~/modules/feedback/footer_submit_feedback.js" asp-append-version="true"></script>
+}

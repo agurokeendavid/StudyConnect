@@ -7,6 +7,7 @@ using StudyConnect.Helpers;
 using StudyConnect.Models;
 using StudyConnect.ViewModels.Auth;
 using StudyConnect.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace StudyConnect.Controllers
 {
@@ -31,6 +32,158 @@ namespace StudyConnect.Controllers
             _auditService = auditService;
             _context = context;
         }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> UpdateProfile()
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return RedirectToAction("Index", "Auth");
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                await _auditService.LogCustomActionAsync("Viewed Update Profile Page");
+
+                var viewModel = new UpdateProfileViewModel
+                {
+                    FirstName = user.FirstName,
+                    MiddleName = user.MiddleName,
+                    LastName = user.LastName,
+                    Sex = user.Sex ?? "Male",
+                    Dob = user.Dob,
+                    ContactNo = user.ContactNo ?? "",
+                    Address = user.Address ?? ""
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return RedirectToAction("Index", "Dashboard");
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(UpdateProfileViewModel viewModel)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    string errorMessages = string.Join("\n", ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage));
+                    return Json(ResponseHelper.Failed(errorMessages));
+                }
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Json(ResponseHelper.Failed("User not found."));
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return Json(ResponseHelper.Failed("User not found."));
+                }
+
+                // Store old values for audit
+                var oldValues = new
+                {
+                    user.FirstName,
+                    user.LastName,
+                    user.MiddleName,
+                    user.Sex,
+                    user.Dob,
+                    user.ContactNo,
+                    user.Address
+                };
+
+                // Update user properties
+                user.FirstName = viewModel.FirstName;
+                user.MiddleName = viewModel.MiddleName;
+                user.LastName = viewModel.LastName;
+                user.Sex = viewModel.Sex;
+                user.Dob = viewModel.Dob;
+                user.ContactNo = viewModel.ContactNo;
+                user.Address = viewModel.Address;
+                user.ModifiedBy = userId;
+                user.ModifiedByName = $"{viewModel.FirstName} {viewModel.LastName}";
+                user.ModifiedAt = DateTime.Now;
+
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    string errors = string.Join("\n", result.Errors.Select(e => e.Description));
+                    return Json(ResponseHelper.Failed(errors));
+                }
+
+                // Update claims
+                var existingClaims = await _userManager.GetClaimsAsync(user);
+                
+                // Remove old claims
+                var claimsToRemove = existingClaims.Where(c => 
+                    c.Type == "FirstName" || 
+                    c.Type == "LastName" || 
+                    c.Type == "FullName" || 
+                    c.Type == "Gender").ToList();
+                
+                if (claimsToRemove.Any())
+                {
+                    await _userManager.RemoveClaimsAsync(user, claimsToRemove);
+                }
+
+                // Add new claims
+                var newClaims = new List<Claim>
+                {
+                    new Claim("FirstName", user.FirstName),
+                    new Claim("LastName", user.LastName),
+                    new Claim("FullName", $"{user.FirstName} {user.LastName}"),
+                    new Claim("Gender", user.Sex ?? "Not Specified")
+                };
+
+                await _userManager.AddClaimsAsync(user, newClaims);
+
+                // Sign in again to refresh the claims in the cookie
+                await _signInManager.RefreshSignInAsync(user);
+
+                // Store new values for audit
+                var newValues = new
+                {
+                    user.FirstName,
+                    user.LastName,
+                    user.MiddleName,
+                    user.Sex,
+                    user.Dob,
+                    user.ContactNo,
+                    user.Address
+                };
+
+                // Log the update
+                await _auditService.LogUpdateAsync("User Profile", user.Id, oldValues, newValues);
+
+                return Json(ResponseHelper.Success("Profile updated successfully.", null, redirectUrl: Url.Action("Index", "Dashboard")));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred. Please try again later."));
+            }
+        }
+
         public ViewResult Index()
         {
             return View();

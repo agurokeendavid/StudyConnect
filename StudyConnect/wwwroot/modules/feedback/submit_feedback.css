@@ -1,0 +1,66 @@
+﻿/* Submit Feedback Form Styles */
+.card {
+    border-radius: 8px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #2a3547;
+    margin-bottom: 8px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #5D87FF;
+    box-shadow: 0 0 0 0.2rem rgba(93, 135, 255, 0.15);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 150px;
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.btn-primary {
+    background-color: #5D87FF;
+    border-color: #5D87FF;
+}
+
+.btn-primary:hover {
+    background-color: #4570ea;
+    border-color: #4570ea;
+}
+
+/* Info Cards */
+.card.bg-primary-subtle {
+    background-color: rgba(93, 135, 255, 0.1) !important;
+}
+
+.card.bg-success-subtle {
+    background-color: rgba(19, 194, 150, 0.1) !important;
+}
+
+.card.border {
+    border: 1px solid #e0e0e0 !important;
+}
+
+/* Icons */
+.ti {
+    vertical-align: middle;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+    }
+}

@@ -18,5 +18,6 @@ namespace StudyConnect.Data
         public DbSet<Ad> Ads { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<UserSubscription> UserSubscriptions { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
     }
 }

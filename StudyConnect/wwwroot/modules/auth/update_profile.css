@@ -1,0 +1,44 @@
+﻿/* Custom styling for Update Profile page */
+
+#btn-save .dx-button-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Ensure DevExtreme controls have proper spacing */
+.dx-textbox, .dx-selectbox, .dx-datebox {
+    width: 100%;
+}
+
+/* Style validation messages */
+.dx-invalid-message {
+    font-size: 0.875rem;
+}
+
+/* Card styling */
+.card {
+    margin-bottom: 1.5rem;
+}
+
+.title-part-padding {
+    padding: 1.25rem 1.5rem;
+}
+
+/* Form styling */
+form .row {
+    margin-bottom: 0;
+}
+
+form .mb-3 {
+    margin-bottom: 1rem !important;
+}
+
+/* Breadcrumb styling */
+.breadcrumb-item a {
+    color: #5a6a85;
+}
+
+.breadcrumb-item.active {
+    color: #2a3547;
+}
