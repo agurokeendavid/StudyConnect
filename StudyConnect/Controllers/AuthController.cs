@@ -100,6 +100,51 @@ namespace StudyConnect.Controllers
                     return Json(ResponseHelper.Failed("User not found."));
                 }
 
+                // Handle password change if provided
+                bool passwordChanged = false;
+                if (!string.IsNullOrEmpty(viewModel.CurrentPassword) || 
+                    !string.IsNullOrEmpty(viewModel.NewPassword) || 
+                    !string.IsNullOrEmpty(viewModel.ConfirmNewPassword))
+                {
+                    // Validate that all password fields are provided
+                    if (string.IsNullOrEmpty(viewModel.CurrentPassword))
+                    {
+                        return Json(ResponseHelper.Failed("Current password is required to change password."));
+                    }
+                    
+                    if (string.IsNullOrEmpty(viewModel.NewPassword))
+                    {
+                        return Json(ResponseHelper.Failed("New password is required."));
+                    }
+                    
+                    if (string.IsNullOrEmpty(viewModel.ConfirmNewPassword))
+                    {
+                        return Json(ResponseHelper.Failed("Please confirm your new password."));
+                    }
+                    
+                    if (viewModel.NewPassword != viewModel.ConfirmNewPassword)
+                    {
+                        return Json(ResponseHelper.Failed("New password and confirmation password do not match."));
+                    }
+
+                    // Verify current password
+                    var passwordCheck = await _userManager.CheckPasswordAsync(user, viewModel.CurrentPassword);
+                    if (!passwordCheck)
+                    {
+                        return Json(ResponseHelper.Failed("Current password is incorrect."));
+                    }
+
+                    // Change password
+                    var passwordResult = await _userManager.ChangePasswordAsync(user, viewModel.CurrentPassword, viewModel.NewPassword);
+                    if (!passwordResult.Succeeded)
+                    {
+                        string passwordErrors = string.Join("\n", passwordResult.Errors.Select(e => e.Description));
+                        return Json(ResponseHelper.Failed(passwordErrors));
+                    }
+                    
+                    passwordChanged = true;
+                }
+
                 // Store old values for audit
                 var oldValues = new
                 {
@@ -174,8 +219,18 @@ namespace StudyConnect.Controllers
 
                 // Log the update
                 await _auditService.LogUpdateAsync("User Profile", user.Id, oldValues, newValues);
+                
+                // Log password change if it occurred
+                if (passwordChanged)
+                {
+                    await _auditService.LogCustomActionAsync("Changed Password");
+                }
 
-                return Json(ResponseHelper.Success("Profile updated successfully.", null, redirectUrl: Url.Action("Index", "Dashboard")));
+                string successMessage = passwordChanged 
+                    ? "Profile and password updated successfully." 
+                    : "Profile updated successfully.";
+                    
+                return Json(ResponseHelper.Success(successMessage, null, redirectUrl: Url.Action("Index", "Dashboard")));
             }
             catch (Exception exception)
             {

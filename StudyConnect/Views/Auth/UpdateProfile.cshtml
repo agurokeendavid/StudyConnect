@@ -54,6 +54,9 @@
                             <input type="hidden" id="sex-hidden" name="Sex" value="@Model.Sex" />
                             <input type="hidden" id="address-hidden" name="Address" value="@Model.Address" />
                             <input type="hidden" id="contactno-hidden" name="ContactNo" value="@Model.ContactNo" />
+                            <input type="hidden" id="currentpassword-hidden" name="CurrentPassword" value="" />
+                            <input type="hidden" id="newpassword-hidden" name="NewPassword" value="" />
+                            <input type="hidden" id="confirmnewpassword-hidden" name="ConfirmNewPassword" value="" />
 
                             <div class="row">
                                 <div class="col-sm-4">
@@ -102,6 +105,34 @@
                                     <div class="mb-3">
                                         <label for="address" class="form-label">Address <code>*</code></label>
                                         <div id="address"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="my-4" />
+                            
+                            <h5 class="mb-3">Change Password (Optional)</h5>
+                            <p class="text-muted small mb-3">Leave blank if you don't want to change your password</p>
+
+                            <div class="row">
+                                <div class="col-sm-4">
+                                    <div class="mb-3">
+                                        <label for="current_password" class="form-label">Current Password</label>
+                                        <div id="current_password"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="mb-3">
+                                        <label for="new_password" class="form-label">New Password</label>
+                                        <div id="new_password"></div>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <div class="mb-3">
+                                        <label for="confirm_new_password" class="form-label">Confirm New Password</label>
+                                        <div id="confirm_new_password"></div>
                                     </div>
                                 </div>
                             </div>

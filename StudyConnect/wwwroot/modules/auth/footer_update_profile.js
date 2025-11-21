@@ -136,6 +136,45 @@
         }]
     });
 
+    // Initialize DevExtreme TextBox for Current Password
+    $("#current_password").dxTextBox({
+        placeholder: "Enter current password",
+        mode: "password",
+        inputAttr: {
+            'aria-label': 'Current Password'
+        },
+        validationMessageMode: "always",
+        onValueChanged: function(e) {
+            $("#currentpassword-hidden").val(e.value);
+        }
+    });
+
+    // Initialize DevExtreme TextBox for New Password
+    $("#new_password").dxTextBox({
+        placeholder: "Enter new password",
+        mode: "password",
+        inputAttr: {
+            'aria-label': 'New Password'
+        },
+        validationMessageMode: "always",
+        onValueChanged: function(e) {
+            $("#newpassword-hidden").val(e.value);
+        }
+    });
+
+    // Initialize DevExtreme TextBox for Confirm New Password
+    $("#confirm_new_password").dxTextBox({
+        placeholder: "Confirm new password",
+        mode: "password",
+        inputAttr: {
+            'aria-label': 'Confirm New Password'
+        },
+        validationMessageMode: "always",
+        onValueChanged: function(e) {
+            $("#confirmnewpassword-hidden").val(e.value);
+        }
+    });
+
     // Initialize DevExtreme Button for Save
     $("#btn-save").dxButton({
         text: "Update Profile",
@@ -155,6 +194,9 @@
             var dob = $("#dob").dxDateBox("instance").option("value");
             var contactNo = $("#contact_no").dxTextBox("instance").option("value");
             var address = $("#address").dxTextBox("instance").option("value");
+            var currentPassword = $("#current_password").dxTextBox("instance").option("value");
+            var newPassword = $("#new_password").dxTextBox("instance").option("value");
+            var confirmNewPassword = $("#confirm_new_password").dxTextBox("instance").option("value");
 
             // Update hidden fields
             $("#lastname-hidden").val(lastName);
@@ -163,6 +205,9 @@
             $("#sex-hidden").val(gender);
             $("#contactno-hidden").val(contactNo);
             $("#address-hidden").val(address);
+            $("#currentpassword-hidden").val(currentPassword || "");
+            $("#newpassword-hidden").val(newPassword || "");
+            $("#confirmnewpassword-hidden").val(confirmNewPassword || "");
 
             if (dob) {
                 var date = new Date(dob);
@@ -170,6 +215,55 @@
                     String(date.getMonth() + 1).padStart(2, '0') + '-' + 
                     String(date.getDate()).padStart(2, '0');
                 $("#dob-hidden").val(formattedDate);
+            }
+
+            // Custom validation for password fields
+            var hasCurrentPassword = currentPassword && currentPassword.length > 0;
+            var hasNewPassword = newPassword && newPassword.length > 0;
+            var hasConfirmPassword = confirmNewPassword && confirmNewPassword.length > 0;
+            
+            // If any password field is filled, all must be filled
+            if (hasCurrentPassword || hasNewPassword || hasConfirmPassword) {
+                if (!hasCurrentPassword) {
+                    Swal.fire({
+                        title: 'Validation Error',
+                        text: 'Please enter your current password',
+                        icon: 'warning'
+                    });
+                    return;
+                }
+                if (!hasNewPassword) {
+                    Swal.fire({
+                        title: 'Validation Error',
+                        text: 'Please enter a new password',
+                        icon: 'warning'
+                    });
+                    return;
+                }
+                if (!hasConfirmPassword) {
+                    Swal.fire({
+                        title: 'Validation Error',
+                        text: 'Please confirm your new password',
+                        icon: 'warning'
+                    });
+                    return;
+                }
+                if (newPassword !== confirmNewPassword) {
+                    Swal.fire({
+                        title: 'Validation Error',
+                        text: 'New password and confirmation password do not match',
+                        icon: 'warning'
+                    });
+                    return;
+                }
+                if (newPassword.length < 6) {
+                    Swal.fire({
+                        title: 'Validation Error',
+                        text: 'New password must be at least 6 characters long',
+                        icon: 'warning'
+                    });
+                    return;
+                }
             }
 
             // Trigger form validation and submit
