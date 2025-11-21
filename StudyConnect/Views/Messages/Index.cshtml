@@ -1,0 +1,144 @@
+@{
+    ViewBag.Title = "Messages - Direct Messaging";
+    Layout = "Dashboard/_Layout";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/modules/messages/index.css" asp-append-version="true" />
+}
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <div class="card bg-info-subtle shadow-none position-relative overflow-hidden mb-4">
+            <div class="card-body px-4 py-3">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <h4 class="fw-semibold mb-8">Messages</h4>
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item">
+                                    <a class="text-muted text-decoration-none" href="#">Communication</a>
+                                </li>
+                                <li class="breadcrumb-item" aria-current="page">Direct Messages</li>
+                            </ol>
+                        </nav>
+                    </div>
+                    <div class="col-3">
+                        <div class="text-center mb-n5">
+                            <img src="~/templates/modernize/images/breadcrumb/ChatBc.png" alt="Breadcrumb logo" class="img-fluid mb-n4" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <!-- Conversations List -->
+                    <div class="col-md-4 border-end">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-semibold mb-0">Conversations</h5>
+                            <button type="button" class="btn btn-primary btn-sm" id="btnNewMessage">
+                                <i class="ti ti-plus me-1"></i>New
+                            </button>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="searchConversations" placeholder="Search conversations..." />
+                        </div>
+
+                        <div id="conversationsList" style="height: 600px; overflow-y: auto;">
+                            <!-- Conversations will be loaded here -->
+                        </div>
+
+                        <div id="conversationsEmpty" class="text-center py-5" style="display: none;">
+                            <i class="ti ti-message-circle-off text-muted" style="font-size: 64px;"></i>
+                            <p class="text-muted mt-3">No conversations yet</p>
+                            <button type="button" class="btn btn-primary" id="btnStartConversation">
+                                <i class="ti ti-plus me-1"></i>Start a Conversation
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chat Area -->
+                    <div class="col-md-8">
+                        <!-- No Conversation Selected -->
+                        <div id="noConversationSelected" class="text-center py-5">
+                            <i class="ti ti-message-circle text-muted" style="font-size: 96px;"></i>
+                            <h5 class="mt-3 text-muted">Select a conversation to start messaging</h5>
+                        </div>
+
+                        <!-- Chat Container -->
+                        <div id="chatContainer" style="display: none;">
+                            <!-- Chat Header -->
+                            <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom">
+                                <div class="d-flex align-items-center">
+                                    <div class="message-avatar me-3" id="chatUserAvatar">AC</div>
+                                    <div>
+                                        <h6 class="mb-0 fw-semibold" id="chatUserName">User Name</h6>
+                                        <small class="text-muted" id="chatUserEmail">user@email.com</small>
+                                    </div>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnRefreshChat" title="Refresh">
+                                        <i class="ti ti-refresh"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Messages Area -->
+                            <div id="messagesArea" style="height: 450px; overflow-y: auto; margin-bottom: 20px;">
+                                <!-- Messages will be loaded here -->
+                            </div>
+
+                            <!-- Message Input -->
+                            <div class="border-top pt-3">
+                                <div class="input-group">
+                                    <textarea class="form-control" id="messageInput" rows="2" placeholder="Type your message..." style="resize: none;"></textarea>
+                                    <button class="btn btn-primary" type="button" id="btnSendMessage">
+                                        <i class="ti ti-send"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Press Ctrl+Enter to send</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Message Modal -->
+<div class="modal fade" id="newMessageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Message</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="userSearch" class="form-label">To:</label>
+                    <input type="text" class="form-control" id="userSearch" placeholder="Search for a user..." />
+                </div>
+                <div id="userSearchResults" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Search results will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section FooterScripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        var currentUserId = '@(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "")';
+    </script>
+    <script src="~/modules/messages/footer_index.js" asp-append-version="true"></script>
+}

@@ -37,8 +37,15 @@
 
 /* Animations */
 @keyframes countUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .fw-bold {
@@ -57,10 +64,10 @@
     transition: transform 0.2s ease;
 }
 
-.p-3:hover i {
-    transform: scale(1.1);
-    transition: transform 0.2s ease;
-}
+    .p-3:hover i {
+        transform: scale(1.1);
+        transition: transform 0.2s ease;
+    }
 
 /* Statistics Cards Enhancements */
 .card-body {
@@ -139,6 +146,7 @@
         opacity: 0;
         transform: translateX(100px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -164,57 +172,57 @@
     overflow: hidden;
 }
 
-.ad-banner:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
-}
+    .ad-banner:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+    }
 
-.ad-banner .btn-light {
-    transition: all 0.2s ease;
-}
+    .ad-banner .btn-light {
+        transition: all 0.2s ease;
+    }
 
-.ad-banner .btn-light:hover {
-    background-color: #ffffff !important;
-    color: #667eea !important;
-    transform: translateX(5px);
-}
+        .ad-banner .btn-light:hover {
+            background-color: #ffffff !important;
+            color: #667eea !important;
+            transform: translateX(5px);
+        }
 
-.ad-banner img {
-    transition: transform 0.3s ease;
-}
+    .ad-banner img {
+        transition: transform 0.3s ease;
+    }
 
-.ad-banner:hover img {
-    transform: scale(1.05);
-}
+    .ad-banner:hover img {
+        transform: scale(1.05);
+    }
 
 /* Ad Sidebar Styles (Sidebar position) */
 .ad-sidebar {
     transition: all 0.3s ease;
 }
 
-.ad-sidebar:hover {
-    transform: translateY(-2px);
-}
+    .ad-sidebar:hover {
+        transform: translateY(-2px);
+    }
 
-.ad-sidebar img {
-    transition: transform 0.3s ease;
-    border: 2px solid #f8f9fa;
-}
+    .ad-sidebar img {
+        transition: transform 0.3s ease;
+        border: 2px solid #f8f9fa;
+    }
 
-.ad-sidebar:hover img {
-    transform: scale(1.03);
-    border-color: #5d87ff;
-}
+    .ad-sidebar:hover img {
+        transform: scale(1.03);
+        border-color: #5d87ff;
+    }
 
-.ad-sidebar h6 {
-    color: #2a3547;
-    line-height: 1.4;
-}
+    .ad-sidebar h6 {
+        color: #2a3547;
+        line-height: 1.4;
+    }
 
-.ad-sidebar p {
-    font-size: 0.875rem;
-    line-height: 1.5;
-}
+    .ad-sidebar p {
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
 
 /* Ad Middle Styles (Middle position) */
 .ad-middle {
@@ -222,27 +230,27 @@
     border: 1px solid #e9ecef;
 }
 
-.ad-middle:hover {
-    border-color: #5d87ff;
-    box-shadow: 0 8px 20px rgba(93, 135, 255, 0.15) !important;
-}
+    .ad-middle:hover {
+        border-color: #5d87ff;
+        box-shadow: 0 8px 20px rgba(93, 135, 255, 0.15) !important;
+    }
 
-.ad-middle img {
-    transition: transform 0.3s ease;
-}
+    .ad-middle img {
+        transition: transform 0.3s ease;
+    }
 
-.ad-middle:hover img {
-    transform: scale(1.08);
-}
+    .ad-middle:hover img {
+        transform: scale(1.08);
+    }
 
-/* Ad Badge Styling */
-.ad-banner .badge,
-.ad-middle .badge {
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    padding: 0.35em 0.65em;
-}
+    /* Ad Badge Styling */
+    .ad-banner .badge,
+    .ad-middle .badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        padding: 0.35em 0.65em;
+    }
 
 /* Ad Fade-in Animation */
 @keyframes fadeInAd {
@@ -250,6 +258,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -421,6 +430,79 @@
     border-radius: 4px;
 }
 
-.activity-scroll::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+    .activity-scroll::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+.announcement-item {
+    border-left: 4px solid;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+    .announcement-item:hover {
+        background-color: #e9ecef;
+        transform: translateX(5px);
+    }
+
+    .announcement-item.priority-high {
+        border-left-color: #fa896b;
+    }
+
+    .announcement-item.priority-normal {
+        border-left-color: #539bff;
+    }
+
+    .announcement-item.priority-low {
+        border-left-color: #8b95a5;
+    }
+
+    .announcement-item.pinned {
+        background-color: #fff3cd;
+        border-left-color: #ffae1f;
+    }
+
+        .announcement-item.pinned:hover {
+            background-color: #ffe69c;
+        }
+
+.announcement-type-badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.announcement-type-urgent {
+    background-color: #fa896b;
+    color: white;
+}
+
+.announcement-type-important {
+    background-color: #ffae1f;
+    color: white;
+}
+
+.announcement-type-event {
+    background-color: #539bff;
+    color: white;
+}
+
+.announcement-type-general {
+    background-color: #8b95a5;
+    color: white;
+}
+
+.announcement-content {
+    color: #495057;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.announcement-meta {
+    font-size: 0.8rem;
+    color: #6c757d;
 }

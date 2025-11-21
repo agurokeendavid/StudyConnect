@@ -90,5 +90,6 @@ app.MapControllerRoute(
 
 // Map SignalR Hub
 app.MapHub<StudyGroupHub>("/studyGroupHub");
+app.MapHub<DirectMessageHub>("/directMessageHub");
 
 app.Run();
