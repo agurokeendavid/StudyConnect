@@ -7,12 +7,147 @@ $(document).ready(function() {
     loadRecentActivities();
     loadActivityChart(7);
 
+    // Load ads for free trial users
+    if ($('#adBannerSection').length > 0) {
+        loadDashboardAds();
+    }
+
     // Auto-refresh every 30 seconds
     setInterval(function() {
         loadRecentActivities();
         loadDashboardStats();
     }, 30000);
 });
+
+// ==================== Ad Loading Functions ====================
+function loadDashboardAds() {
+    // Load banner ad (top position)
+    loadAd('Top', '#adBannerContainer', 'banner');
+    
+    // Load sidebar ad (sidebar position)
+    loadAd('Sidebar', '#sidebarAdContainer', 'sidebar');
+    
+    // Load middle ad (middle position)
+    loadAd('Middle', '#middleAdContainer', 'middle');
+}
+
+function loadAd(position, containerId, adType) {
+    $.ajax({
+        url: getUrl('GetActiveAds'),
+        type: 'GET',
+        data: { position: position },
+        success: function(response) {
+            if (response.success && response.data && response.data.length > 0) {
+                const ad = response.data[0]; // Get first ad
+                displayAd(ad, containerId, adType);
+                trackAdView(ad.id);
+            }
+        },
+        error: function() {
+            console.error('Failed to load ads for position: ' + position);
+        }
+    });
+}
+
+function displayAd(ad, containerId, adType) {
+    let html = '';
+    
+    if (adType === 'banner') {
+        // Banner ad (full width, horizontal)
+        html = `
+            <div class="card shadow-sm border-0 ad-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer;" onclick="handleAdClick(${ad.id}, '${escapeHtml(ad.linkUrl || '#')}')">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="text-white">
+                                <span class="badge bg-white text-primary mb-2">SPONSORED</span>
+                                <h4 class="fw-bold text-white mb-2">${escapeHtml(ad.title)}</h4>
+                                <p class="mb-3 opacity-90">${escapeHtml(ad.description)}</p>
+                                <button class="btn btn-light btn-sm">
+                                    <i class="ti ti-arrow-right me-1"></i> Learn More
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <img src="${escapeHtml(ad.imageUrl)}" alt="${escapeHtml(ad.title)}" 
+                                 class="img-fluid rounded" style="max-height: 150px; object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    } else if (adType === 'sidebar') {
+        // Sidebar ad (vertical, card style)
+        html = `
+            <div class="ad-sidebar" onclick="handleAdClick(${ad.id}, '${escapeHtml(ad.linkUrl || '#')}')">
+                <div class="text-center mb-3" style="cursor: pointer;">
+                    <img src="${escapeHtml(ad.imageUrl)}" alt="${escapeHtml(ad.title)}" 
+                         class="img-fluid rounded shadow-sm" style="max-height: 200px; object-fit: cover; width: 100%;">
+                </div>
+                <h6 class="fw-semibold mb-2">${escapeHtml(ad.title)}</h6>
+                <p class="text-muted small mb-3">${escapeHtml(ad.description)}</p>
+                <a href="javascript:void(0)" class="btn btn-primary btn-sm w-100">
+                    <i class="ti ti-external-link me-1"></i> View Details
+                </a>
+            </div>
+        `;
+    } else if (adType === 'middle') {
+        // Middle ad (card style, horizontal)
+        html = `
+            <div class="card shadow-sm border-0 ad-middle" onclick="handleAdClick(${ad.id}, '${escapeHtml(ad.linkUrl || '#')}')">
+                <div class="card-body p-4" style="cursor: pointer;">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 text-center">
+                            <img src="${escapeHtml(ad.imageUrl)}" alt="${escapeHtml(ad.title)}" 
+                                 class="img-fluid rounded shadow-sm" style="max-height: 120px; object-fit: cover;">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="fw-semibold mb-0">${escapeHtml(ad.title)}</h5>
+                                <span class="badge bg-info-subtle text-info">Ad</span>
+                            </div>
+                            <p class="text-muted mb-3">${escapeHtml(ad.description)}</p>
+                            <a href="javascript:void(0)" class="btn btn-outline-primary btn-sm">
+                                <i class="ti ti-click me-1"></i> Click Here
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    $(containerId).html(html).hide().fadeIn(500);
+}
+
+function handleAdClick(adId, linkUrl) {
+    // Track the click
+    $.ajax({
+        url: getUrl('TrackAdClick'),
+        type: 'POST',
+        data: { 
+            adId: adId,
+            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+        },
+        success: function() {
+            // Open link if available
+            if (linkUrl && linkUrl !== '#' && linkUrl !== 'null') {
+                window.open(linkUrl, '_blank');
+            }
+        }
+    });
+}
+
+function trackAdView(adId) {
+    $.ajax({
+        url: getUrl('TrackAdView'),
+        type: 'POST',
+        data: { 
+            adId: adId,
+            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+        }
+    });
+}
 
 // ==================== Dashboard Statistics ====================
 function loadDashboardStats() {

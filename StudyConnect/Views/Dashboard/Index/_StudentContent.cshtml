@@ -1,5 +1,15 @@
 ﻿<div class="body-wrapper">
 	<div class="container-fluid">
+		<!-- Free Trial Ad Banner (only shown for free trial users) -->
+		@if (ViewBag.IsFreeTrial == true)
+		{
+			<div class="row mb-4" id="adBannerSection">
+				<div class="col-12">
+					<div id="adBannerContainer"></div>
+				</div>
+			</div>
+		}
+
 		<!-- Statistics Cards Row -->
 		<div class="row mb-4">
 			<div class="col-sm-6 col-xl-3">
@@ -140,42 +150,69 @@
 				</div>
 			</div>
 
-			<!-- Quick Actions Card -->
+			<!-- Quick Actions Card or Ad Sidebar -->
 			<div class="col-lg-4 d-flex align-items-stretch">
-				<div class="card w-100 shadow">
-					<div class="card-body">
-						<div class="d-flex align-items-center justify-content-between mb-4">
-							<h5 class="card-title fw-semibold mb-0">Quick Actions</h5>
-							<div class="dropdown">
-								<button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-									<i class="ti ti-dots-vertical"></i>
-								</button>
-								<ul class="dropdown-menu">
-									<li><a class="dropdown-item" asp-controller="StudyGroups" asp-action="Upsert">Create New Study Group</a></li>
-									<li><a class="dropdown-item" asp-controller="AuditLogs" asp-action="MyActivityLogs">View Audit Logs</a></li>
-									<li><hr class="dropdown-divider"></li>
-									<li><a class="dropdown-item" href="#">System Settings</a></li>
-								</ul>
+				@if (ViewBag.IsFreeTrial == true)
+				{
+					<!-- Ad Sidebar for Free Trial Users -->
+					<div class="card w-100 shadow">
+						<div class="card-body">
+							<div class="d-flex align-items-center justify-content-between mb-4">
+								<h5 class="card-title fw-semibold mb-0">Sponsored</h5>
+								<span class="badge bg-info-subtle text-info">Ad</span>
 							</div>
-						</div>
-						<div class="d-grid gap-2">
-							<a asp-controller="StudyGroups" asp-action="Upsert" class="btn btn-primary btn-lg">
-								<i class="ti ti-plus me-2"></i>Create Study Group
-							</a>
-							<a asp-controller="Users" asp-action="Index" class="btn btn-outline-primary">
-								<i class="ti ti-users me-2"></i>View Study Group
-							</a>
-							<a asp-controller="AuditLogs" asp-action="MyActivityLogs" class="btn btn-outline-info">
-								<i class="ti ti-file-analytics me-2"></i>View Audit Logs
-							</a>
-							<a href="#" class="btn btn-outline-secondary">
-								<i class="ti ti-settings me-2"></i>Settings
-							</a>
+							<div id="sidebarAdContainer"></div>
 						</div>
 					</div>
-				</div>
+				}
+				else
+				{
+					<!-- Quick Actions Card for Premium Users -->
+					<div class="card w-100 shadow">
+						<div class="card-body">
+							<div class="d-flex align-items-center justify-content-between mb-4">
+								<h5 class="card-title fw-semibold mb-0">Quick Actions</h5>
+								<div class="dropdown">
+									<button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+										<i class="ti ti-dots-vertical"></i>
+									</button>
+									<ul class="dropdown-menu">
+										<li><a class="dropdown-item" asp-controller="StudyGroups" asp-action="Upsert">Create New Study Group</a></li>
+										<li><a class="dropdown-item" asp-controller="AuditLogs" asp-action="MyActivityLogs">View Audit Logs</a></li>
+										<li><hr class="dropdown-divider"></li>
+										<li><a class="dropdown-item" href="#">System Settings</a></li>
+									</ul>
+								</div>
+							</div>
+							<div class="d-grid gap-2">
+								<a asp-controller="StudyGroups" asp-action="Upsert" class="btn btn-primary btn-lg">
+									<i class="ti ti-plus me-2"></i>Create Study Group
+								</a>
+								<a asp-controller="Users" asp-action="Index" class="btn btn-outline-primary">
+									<i class="ti ti-users me-2"></i>View Study Group
+								</a>
+								<a asp-controller="AuditLogs" asp-action="MyActivityLogs" class="btn btn-outline-info">
+									<i class="ti ti-file-analytics me-2"></i>View Audit Logs
+								</a>
+								<a href="#" class="btn btn-outline-secondary">
+									<i class="ti ti-settings me-2"></i>Settings
+								</a>
+							</div>
+						</div>
+					</div>
+				}
 			</div>
 		</div>
+
+		<!-- Ad Section in Middle (for free trial users) -->
+		@if (ViewBag.IsFreeTrial == true)
+		{
+			<div class="row mt-4">
+				<div class="col-12">
+					<div id="middleAdContainer"></div>
+				</div>
+			</div>
+		}
 
 		<div class="row mt-4">
 			<!-- User Activity Chart -->

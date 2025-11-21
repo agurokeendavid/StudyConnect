@@ -156,6 +156,158 @@
     transform: scale(0.98);
 }
 
+/* ==================== Ad Styling Section ==================== */
+
+/* Ad Banner Styles (Top position) */
+.ad-banner {
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.ad-banner:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.ad-banner .btn-light {
+    transition: all 0.2s ease;
+}
+
+.ad-banner .btn-light:hover {
+    background-color: #ffffff !important;
+    color: #667eea !important;
+    transform: translateX(5px);
+}
+
+.ad-banner img {
+    transition: transform 0.3s ease;
+}
+
+.ad-banner:hover img {
+    transform: scale(1.05);
+}
+
+/* Ad Sidebar Styles (Sidebar position) */
+.ad-sidebar {
+    transition: all 0.3s ease;
+}
+
+.ad-sidebar:hover {
+    transform: translateY(-2px);
+}
+
+.ad-sidebar img {
+    transition: transform 0.3s ease;
+    border: 2px solid #f8f9fa;
+}
+
+.ad-sidebar:hover img {
+    transform: scale(1.03);
+    border-color: #5d87ff;
+}
+
+.ad-sidebar h6 {
+    color: #2a3547;
+    line-height: 1.4;
+}
+
+.ad-sidebar p {
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* Ad Middle Styles (Middle position) */
+.ad-middle {
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.ad-middle:hover {
+    border-color: #5d87ff;
+    box-shadow: 0 8px 20px rgba(93, 135, 255, 0.15) !important;
+}
+
+.ad-middle img {
+    transition: transform 0.3s ease;
+}
+
+.ad-middle:hover img {
+    transform: scale(1.08);
+}
+
+/* Ad Badge Styling */
+.ad-banner .badge,
+.ad-middle .badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 0.35em 0.65em;
+}
+
+/* Ad Fade-in Animation */
+@keyframes fadeInAd {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ad-banner,
+.ad-sidebar,
+.ad-middle {
+    animation: fadeInAd 0.6s ease-out;
+}
+
+/* Ad Section Spacing */
+#adBannerSection {
+    margin-bottom: 1.5rem;
+}
+
+#middleAdContainer {
+    margin-top: 1.5rem;
+}
+
+/* Sponsored Badge Enhancement */
+.badge.bg-white {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Ad Image Styling */
+.ad-banner img,
+.ad-sidebar img,
+.ad-middle img {
+    object-fit: cover;
+    width: 100%;
+}
+
+/* Ad Text Styling */
+.ad-banner h4,
+.ad-sidebar h6,
+.ad-middle h5 {
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.5px;
+}
+
+/* Ad Button Hover Effects */
+.ad-sidebar .btn-primary:hover,
+.ad-middle .btn-outline-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(93, 135, 255, 0.3);
+}
+
+/* Clickable Cursor */
+.ad-banner,
+.ad-sidebar,
+.ad-middle {
+    cursor: pointer;
+}
+
+/* ==================== End Ad Styling Section ==================== */
+
 /* Responsive Design */
 @media (max-width: 768px) {
     #activityChart {
@@ -173,6 +325,31 @@
     .h2 {
         font-size: 1.5rem !important;
     }
+
+    /* Ad Responsive Adjustments */
+    .ad-banner .col-md-8,
+    .ad-banner .col-md-4 {
+        text-align: center;
+    }
+
+    .ad-banner img {
+        max-height: 120px !important;
+        margin-top: 1rem;
+    }
+
+    .ad-middle .col-md-3,
+    .ad-middle .col-md-9 {
+        text-align: center;
+    }
+
+    .ad-middle img {
+        max-height: 100px !important;
+        margin-bottom: 1rem;
+    }
+
+    .ad-sidebar img {
+        max-height: 150px !important;
+    }
 }
 
 @media (max-width: 576px) {
@@ -187,6 +364,19 @@
 
     .welcome-bg-img img {
         max-height: 150px !important;
+    }
+
+    /* Small Screen Ad Adjustments */
+    .ad-banner h4 {
+        font-size: 1.25rem;
+    }
+
+    .ad-banner p {
+        font-size: 0.875rem;
+    }
+
+    .ad-middle h5 {
+        font-size: 1rem;
     }
 }
 

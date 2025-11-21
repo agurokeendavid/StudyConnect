@@ -251,5 +251,47 @@ namespace StudyConnect.Controllers
                 return Json(ResponseHelper.Error("Failed to toggle ad status"));
             }
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Authorize(Roles = "Admin,Student")]
+        public async Task<IActionResult> GetActiveAds(string? position = null)
+        {
+            try
+            {
+                var now = DateTime.Now;
+                var query = _context.Ads
+                    .Where(a => a.IsActive 
+                        && a.DeletedAt == null
+                        && a.StartDate <= now
+                        && a.EndDate >= now);
+
+                if (!string.IsNullOrEmpty(position))
+                {
+                    query = query.Where(a => a.Position == position);
+                }
+
+                var ads = await query
+                    .OrderBy(a => Guid.NewGuid()) // Random order
+                    .Take(3)
+                    .Select(a => new
+                    {
+                        a.Id,
+                        a.Title,
+                        a.Description,
+                        a.ImageUrl,
+                        a.LinkUrl,
+                        a.Position
+                    })
+                    .ToListAsync();
+
+                return Json(new { success = true, data = ads });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching active ads");
+                return Json(new { success = false, message = "Error loading ads" });
+            }
+        }
     }
 }

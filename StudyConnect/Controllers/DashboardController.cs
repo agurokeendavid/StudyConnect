@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyConnect.Data;
 using StudyConnect.Services;
+using System.Security.Claims;
 
 namespace StudyConnect.Controllers;
 
@@ -12,20 +13,35 @@ public class DashboardController : Controller
     private readonly ILogger<DashboardController> _logger;
     private readonly AppDbContext _context;
     private readonly IAuditService _auditService;
+    private readonly ISubscriptionService _subscriptionService;
         
     public DashboardController(
         ILogger<DashboardController> logger,
         AppDbContext context,
-        IAuditService auditService)
+        IAuditService auditService,
+        ISubscriptionService subscriptionService)
     {
         _logger = logger;
         _context = context;
         _auditService = auditService;
+        _subscriptionService = subscriptionService;
     }
     
     public async Task<ViewResult> Index()
     {
         await _auditService.LogCustomActionAsync("Viewed Dashboard");
+        
+        // Check if user is on free trial for displaying ads
+        if (User.IsInRole("Student"))
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var activeSubscription = await _subscriptionService.GetActiveSubscriptionAsync(userId);
+                ViewBag.IsFreeTrial = activeSubscription?.Subscription?.Name == "Free Trial";
+            }
+        }
+        
         return View();
     }
 
@@ -141,6 +157,90 @@ public class DashboardController : Controller
         {
             _logger.LogError(ex, "Error fetching activity chart data");
             return Json(new { success = false, message = "Error loading chart" });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetActiveAds(string? position = null)
+    {
+        try
+        {
+            var now = DateTime.Now;
+            var query = _context.Ads
+                .Where(a => a.IsActive 
+                    && a.DeletedAt == null
+                    && a.StartDate <= now
+                    && a.EndDate >= now);
+
+            if (!string.IsNullOrEmpty(position))
+            {
+                query = query.Where(a => a.Position == position);
+            }
+
+            var ads = await query
+                .OrderBy(a => Guid.NewGuid()) // Random order
+                .Take(3)
+                .Select(a => new
+                {
+                    a.Id,
+                    a.Title,
+                    a.Description,
+                    a.ImageUrl,
+                    a.LinkUrl,
+                    a.Position
+                })
+                .ToListAsync();
+
+            return Json(new { success = true, data = ads });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching active ads");
+            return Json(new { success = false, message = "Error loading ads" });
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> TrackAdView(int adId)
+    {
+        try
+        {
+            var ad = await _context.Ads.FindAsync(adId);
+            if (ad != null)
+            {
+                ad.ViewCount++;
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
+            }
+            return Json(new { success = false });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error tracking ad view for ad {adId}");
+            return Json(new { success = false });
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> TrackAdClick(int adId)
+    {
+        try
+        {
+            var ad = await _context.Ads.FindAsync(adId);
+            if (ad != null)
+            {
+                ad.ClickCount++;
+                await _context.SaveChangesAsync();
+                await _auditService.LogCustomActionAsync($"Clicked on Ad: {ad.Title} (ID: {adId})");
+                return Json(new { success = true });
+            }
+            return Json(new { success = false });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error tracking ad click for ad {adId}");
+            return Json(new { success = false });
         }
     }
 

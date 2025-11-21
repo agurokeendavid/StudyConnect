@@ -206,6 +206,133 @@ public static class SeedData
             await db.Subscriptions.AddAsync(premium);
         }
 
+        // Sample Ads for Testing
+        var topBannerAd = await db.Ads.FirstOrDefaultAsync(a => a.Position == "Top" && a.Title == "Upgrade to Premium - Unlock All Features!");
+        if (topBannerAd is null)
+        {
+            topBannerAd = new Ad()
+            {
+                Title = "Upgrade to Premium - Unlock All Features!",
+                Description = "Get unlimited access to all study groups, resources, and meetings. No ads, no limits! Upgrade now for only ₱500/month.",
+                ImageUrl = "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&h=300&fit=crop",
+                LinkUrl = "/Subscriptions/AvailablePlans",
+                StartDate = DateTime.Now.AddDays(-7),
+                EndDate = DateTime.Now.AddMonths(6),
+                Position = "Top",
+                IsActive = true,
+                ViewCount = 0,
+                ClickCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.Ads.AddAsync(topBannerAd);
+        }
+
+        var sidebarAd = await db.Ads.FirstOrDefaultAsync(a => a.Position == "Sidebar" && a.Title == "Student Discount Available");
+        if (sidebarAd is null)
+        {
+            sidebarAd = new Ad()
+            {
+                Title = "Student Discount Available",
+                Description = "Join thousands of students already using StudyConnect Premium. Get 20% off your first month!",
+                ImageUrl = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=400&h=400&fit=crop",
+                LinkUrl = "/Subscriptions/AvailablePlans",
+                StartDate = DateTime.Now.AddDays(-7),
+                EndDate = DateTime.Now.AddMonths(6),
+                Position = "Sidebar",
+                IsActive = true,
+                ViewCount = 0,
+                ClickCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.Ads.AddAsync(sidebarAd);
+        }
+
+        var middleAd = await db.Ads.FirstOrDefaultAsync(a => a.Position == "Middle" && a.Title == "Free Trial Ending Soon?");
+        if (middleAd is null)
+        {
+            middleAd = new Ad()
+            {
+                Title = "Free Trial Ending Soon?",
+                Description = "Don't lose access to your study groups and resources! Upgrade to Premium and continue your learning journey without interruption.",
+                ImageUrl = "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=200&fit=crop",
+                LinkUrl = "/Subscriptions/AvailablePlans",
+                StartDate = DateTime.Now.AddDays(-7),
+                EndDate = DateTime.Now.AddMonths(6),
+                Position = "Middle",
+                IsActive = true,
+                ViewCount = 0,
+                ClickCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.Ads.AddAsync(middleAd);
+        }
+
+        // Additional Sample Ads for variety
+        var topBannerAd2 = await db.Ads.FirstOrDefaultAsync(a => a.Position == "Top" && a.Title == "Limited Time Offer - 50% Off Premium!");
+        if (topBannerAd2 is null)
+        {
+            topBannerAd2 = new Ad()
+            {
+                Title = "Limited Time Offer - 50% Off Premium!",
+                Description = "Special promotion for new users! Get Premium access for only ₱250/month. Hurry, offer ends soon!",
+                ImageUrl = "https://images.unsplash.com/photo-1517842645767-c639042777db?w=800&h=300&fit=crop",
+                LinkUrl = "/Subscriptions/AvailablePlans",
+                StartDate = DateTime.Now.AddDays(-7),
+                EndDate = DateTime.Now.AddMonths(6),
+                Position = "Top",
+                IsActive = true,
+                ViewCount = 0,
+                ClickCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.Ads.AddAsync(topBannerAd2);
+        }
+
+        var sidebarAd2 = await db.Ads.FirstOrDefaultAsync(a => a.Position == "Sidebar" && a.Title == "Boost Your Grades");
+        if (sidebarAd2 is null)
+        {
+            sidebarAd2 = new Ad()
+            {
+                Title = "Boost Your Grades",
+                Description = "Premium members report 30% better grades. Collaborate more effectively with unlimited resources!",
+                ImageUrl = "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=400&fit=crop",
+                LinkUrl = "/Subscriptions/AvailablePlans",
+                StartDate = DateTime.Now.AddDays(-7),
+                EndDate = DateTime.Now.AddMonths(6),
+                Position = "Sidebar",
+                IsActive = true,
+                ViewCount = 0,
+                ClickCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.Ads.AddAsync(sidebarAd2);
+        }
+
         await db.SaveChangesAsync();
     }
 }

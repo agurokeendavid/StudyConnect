@@ -12,6 +12,7 @@
     <script src="~/modules/dashboard/header_index.js" asp-append-version="true"></script>
 }
 
+@Html.AntiForgeryToken()
 
 @if (User.IsInRole("Admin"))
 {
