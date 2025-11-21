@@ -6,18 +6,158 @@ $(document).ready(function() {
     loadDashboardStats();
     loadRecentActivities();
     loadActivityChart(7);
+    loadAnnouncements();
 
     // Load ads for free trial users
     if ($('#adBannerSection').length > 0) {
         loadDashboardAds();
     }
 
+    // View All Announcements button
+    $('#btnViewAllAnnouncements').on('click', function() {
+        showAllAnnouncementsPopup();
+    });
+
     // Auto-refresh every 30 seconds
     setInterval(function() {
         loadRecentActivities();
         loadDashboardStats();
+        loadAnnouncements();
     }, 30000);
 });
+
+// ==================== Announcements Loading ====================
+function loadAnnouncements() {
+    $.ajax({
+        url: getAnnouncementsUrl('GetActiveAnnouncements'),
+        type: 'GET',
+        success: function(response) {
+            if (response.data && response.data.length > 0) {
+                displayAnnouncements(response.data);
+                $('#announcementsSection').show();
+            } else {
+                $('#announcementsSection').hide();
+            }
+        },
+        error: function() {
+            console.error('Failed to load announcements');
+            $('#announcementsSection').hide();
+        }
+    });
+}
+
+function displayAnnouncements(announcements) {
+    let html = '';
+    
+    announcements.forEach(function(announcement) {
+        const priorityClass = 'priority-' + announcement.Priority.toLowerCase();
+        const typeClass = 'announcement-type-' + announcement.Type.toLowerCase();
+        const pinnedClass = announcement.IsPinned ? 'pinned' : '';
+        
+        html += `
+            <div class="announcement-item ${priorityClass} ${pinnedClass}">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        ${announcement.IsPinned ? '<i class="ti ti-pin fs-5 text-warning"></i>' : ''}
+                        <h6 class="mb-0 fw-semibold">${escapeHtml(announcement.Title)}</h6>
+                    </div>
+                    <span class="announcement-type-badge ${typeClass}">${escapeHtml(announcement.Type)}</span>
+                </div>
+                <div class="announcement-content mb-2">
+                    ${escapeHtml(announcement.Content.length > 150 ? announcement.Content.substring(0, 150) + '...' : announcement.Content)}
+                </div>
+                <div class="announcement-meta d-flex justify-content-between align-items-center">
+                    <span><i class="ti ti-user fs-4 me-1"></i>${escapeHtml(announcement.CreatedByName)}</span>
+                    <span><i class="ti ti-clock fs-4 me-1"></i>${formatDate(announcement.CreatedAt)}</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    $('#announcementsContainer').html(html);
+}
+
+function showAllAnnouncementsPopup() {
+    $.ajax({
+        url: getAnnouncementsUrl('GetActiveAnnouncements'),
+        type: 'GET',
+        success: function(response) {
+            if (response.data) {
+                const allAnnouncements = response.data;
+                
+                let content = '<div style="max-height: 500px; overflow-y: auto; padding: 10px;">';
+                
+                if (allAnnouncements.length === 0) {
+                    content += '<div class="text-center py-5"><i class="ti ti-megaphone fs-1 text-muted"></i><p class="text-muted mt-2">No announcements available</p></div>';
+                } else {
+                    allAnnouncements.forEach(function(announcement) {
+                        const priorityClass = 'priority-' + announcement.Priority.toLowerCase();
+                        const typeClass = 'announcement-type-' + announcement.Type.toLowerCase();
+                        const pinnedClass = announcement.IsPinned ? 'pinned' : '';
+                        
+                        content += `
+                            <div class="announcement-item ${priorityClass} ${pinnedClass}" style="margin-bottom: 15px;">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        ${announcement.IsPinned ? '<i class="ti ti-pin fs-5 text-warning"></i>' : ''}
+                                        <h6 class="mb-0 fw-semibold">${escapeHtml(announcement.Title)}</h6>
+                                    </div>
+                                    <span class="announcement-type-badge ${typeClass}">${escapeHtml(announcement.Type)}</span>
+                                </div>
+                                <div class="announcement-content mb-2">
+                                    ${escapeHtml(announcement.Content)}
+                                </div>
+                                <div class="announcement-meta d-flex justify-content-between align-items-center">
+                                    <span><i class="ti ti-user fs-4 me-1"></i>${escapeHtml(announcement.CreatedByName)}</span>
+                                    <span><i class="ti ti-clock fs-4 me-1"></i>${formatDate(announcement.CreatedAt)}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                content += '</div>';
+                
+                // Show popup using SweetAlert
+                Swal.fire({
+                    title: '<i class="ti ti-megaphone me-2"></i>All Announcements',
+                    html: content,
+                    width: '700px',
+                    showCloseButton: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'announcements-popup'
+                    }
+                });
+            }
+        },
+        error: function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to load announcements'
+            });
+        }
+    });
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000); // difference in seconds
+    
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return Math.floor(diff / 60) + ' minutes ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' hours ago';
+    if (diff < 2592000) return Math.floor(diff / 86400) + ' days ago';
+    
+    return date.toLocaleDateString();
+}
+
+function getAnnouncementsUrl(action) {
+    const baseUrl = window.location.origin;
+    return baseUrl + '/Announcements/' + action;
+}
 
 // ==================== Ad Loading Functions ====================
 function loadDashboardAds() {
@@ -55,21 +195,21 @@ function displayAd(ad, containerId, adType) {
     if (adType === 'banner') {
         // Banner ad (full width, horizontal)
         html = `
-            <div class="card shadow-sm border-0 ad-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer;" onclick="handleAdClick(${ad.id}, '${escapeHtml(ad.linkUrl || '#')}')">
+            <div class="card shadow-sm border-0 ad-banner" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); cursor: pointer;" onclick="handleAdClick(${ad.Id}, '${escapeHtml(ad.LinkUrl || '#')}')">
                 <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <div class="text-white">
                                 <span class="badge bg-white text-primary mb-2">SPONSORED</span>
-                                <h4 class="fw-bold text-white mb-2">${escapeHtml(ad.title)}</h4>
-                                <p class="mb-3 opacity-90">${escapeHtml(ad.description)}</p>
+                                <h4 class="fw-bold text-white mb-2">${escapeHtml(ad.Title)}</h4>
+                                <p class="mb-3 opacity-90">${escapeHtml(ad.Description)}</p>
                                 <button class="btn btn-light btn-sm">
                                     <i class="ti ti-arrow-right me-1"></i> Learn More
                                 </button>
                             </div>
                         </div>
                         <div class="col-md-4 text-center">
-                            <img src="${escapeHtml(ad.imageUrl)}" alt="${escapeHtml(ad.title)}" 
+                            <img src="${escapeHtml(ad.ImageUrl)}" alt="${escapeHtml(ad.Title)}" 
                                  class="img-fluid rounded" style="max-height: 150px; object-fit: cover;">
                         </div>
                     </div>
@@ -79,13 +219,13 @@ function displayAd(ad, containerId, adType) {
     } else if (adType === 'sidebar') {
         // Sidebar ad (vertical, card style)
         html = `
-            <div class="ad-sidebar" onclick="handleAdClick(${ad.id}, '${escapeHtml(ad.linkUrl || '#')}')">
+            <div class="ad-sidebar" onclick="handleAdClick(${ad.Id}, '${escapeHtml(ad.LinkUrl || '#')}')">
                 <div class="text-center mb-3" style="cursor: pointer;">
-                    <img src="${escapeHtml(ad.imageUrl)}" alt="${escapeHtml(ad.title)}" 
+                    <img src="${escapeHtml(ad.ImageUrl)}" alt="${escapeHtml(ad.Title)}" 
                          class="img-fluid rounded shadow-sm" style="max-height: 200px; object-fit: cover; width: 100%;">
                 </div>
-                <h6 class="fw-semibold mb-2">${escapeHtml(ad.title)}</h6>
-                <p class="text-muted small mb-3">${escapeHtml(ad.description)}</p>
+                <h6 class="fw-semibold mb-2">${escapeHtml(ad.Title)}</h6>
+                <p class="text-muted small mb-3">${escapeHtml(ad.Description)}</p>
                 <a href="javascript:void(0)" class="btn btn-primary btn-sm w-100">
                     <i class="ti ti-external-link me-1"></i> View Details
                 </a>
@@ -94,19 +234,19 @@ function displayAd(ad, containerId, adType) {
     } else if (adType === 'middle') {
         // Middle ad (card style, horizontal)
         html = `
-            <div class="card shadow-sm border-0 ad-middle" onclick="handleAdClick(${ad.id}, '${escapeHtml(ad.linkUrl || '#')}')">
+            <div class="card shadow-sm border-0 ad-middle" onclick="handleAdClick(${ad.Id}, '${escapeHtml(ad.LinkUrl || '#')}')">
                 <div class="card-body p-4" style="cursor: pointer;">
                     <div class="row align-items-center">
                         <div class="col-md-3 text-center">
-                            <img src="${escapeHtml(ad.imageUrl)}" alt="${escapeHtml(ad.title)}" 
+                            <img src="${escapeHtml(ad.ImageUrl)}" alt="${escapeHtml(ad.Title)}" 
                                  class="img-fluid rounded shadow-sm" style="max-height: 120px; object-fit: cover;">
                         </div>
                         <div class="col-md-9">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h5 class="fw-semibold mb-0">${escapeHtml(ad.title)}</h5>
+                                <h5 class="fw-semibold mb-0">${escapeHtml(ad.Title)}</h5>
                                 <span class="badge bg-info-subtle text-info">Ad</span>
                             </div>
-                            <p class="text-muted mb-3">${escapeHtml(ad.description)}</p>
+                            <p class="text-muted mb-3">${escapeHtml(ad.Description)}</p>
                             <a href="javascript:void(0)" class="btn btn-outline-primary btn-sm">
                                 <i class="ti ti-click me-1"></i> Click Here
                             </a>
@@ -433,6 +573,7 @@ window.dashboardFunctions = {
     loadDashboardStats: loadDashboardStats,
     loadRecentActivities: loadRecentActivities,
     loadActivityChart: loadActivityChart,
+    loadAnnouncements: loadAnnouncements,
  viewActivityDetails: viewActivityDetails,
     getActionColor: getActionColor,
     escapeHtml: escapeHtml

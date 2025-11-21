@@ -10,6 +10,27 @@
 			</div>
 		}
 
+		<!-- Announcements Section -->
+		<div class="row mb-4" id="announcementsSection" style="display: none;">
+			<div class="col-12">
+				<div class="card shadow">
+					<div class="card-body">
+						<div class="d-flex align-items-center justify-content-between mb-3">
+							<h5 class="card-title fw-semibold mb-0">
+								<i class="ti ti-megaphone me-2 text-primary"></i>Announcements
+							</h5>
+							<button class="btn btn-sm btn-outline-primary" id="btnViewAllAnnouncements">
+								View All
+							</button>
+						</div>
+						<div id="announcementsContainer">
+							<!-- Announcements will be loaded here -->
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<!-- Statistics Cards Row -->
 		<div class="row mb-4">
 			<div class="col-sm-6 col-xl-3">
@@ -397,3 +418,78 @@
 		</div>
 	</div>
 </div>
+
+<style>
+.announcement-item {
+    border-left: 4px solid;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.announcement-item:hover {
+    background-color: #e9ecef;
+    transform: translateX(5px);
+}
+
+.announcement-item.priority-high {
+    border-left-color: #fa896b;
+}
+
+.announcement-item.priority-normal {
+    border-left-color: #539bff;
+}
+
+.announcement-item.priority-low {
+    border-left-color: #8b95a5;
+}
+
+.announcement-item.pinned {
+    background-color: #fff3cd;
+    border-left-color: #ffae1f;
+}
+
+.announcement-item.pinned:hover {
+    background-color: #ffe69c;
+}
+
+.announcement-type-badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+
+.announcement-type-urgent {
+    background-color: #fa896b;
+    color: white;
+}
+
+.announcement-type-important {
+    background-color: #ffae1f;
+    color: white;
+}
+
+.announcement-type-event {
+    background-color: #539bff;
+    color: white;
+}
+
+.announcement-type-general {
+    background-color: #8b95a5;
+    color: white;
+}
+
+.announcement-content {
+    color: #495057;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.announcement-meta {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+</style>

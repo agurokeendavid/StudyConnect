@@ -181,13 +181,13 @@ function showMeetingDetails(event) {
 
         <div class="meeting-detail-item">
             <div class="meeting-detail-icon bg-info-subtle text-info">
-                <i class="ti ti-${statusIcon}"></i>
+                <i class="ti ${statusIcon}"></i>
             </div>
             <div class="meeting-detail-content">
                 <div class="meeting-detail-label">Status</div>
                 <div class="meeting-detail-value">
                     <span class="meeting-status-badge ${statusClass}">
-                        <i class="ti ti-${statusIcon}"></i>${status}
+                        <i class="ti ${statusIcon}"></i>${status}
                     </span>
                 </div>
             </div>

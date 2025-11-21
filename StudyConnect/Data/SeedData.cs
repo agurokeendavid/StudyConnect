@@ -333,6 +333,257 @@ public static class SeedData
             await db.Ads.AddAsync(sidebarAd2);
         }
 
+        // Sample Announcements for Testing
+        var welcomeAnnouncement = await db.Announcements.FirstOrDefaultAsync(a => a.Title == "Welcome to StudyConnect!");
+        if (welcomeAnnouncement is null)
+        {
+            welcomeAnnouncement = new Announcement()
+            {
+                Title = "Welcome to StudyConnect!",
+                Content = "We're excited to have you join our community of learners! StudyConnect is designed to help students collaborate, share resources, and achieve academic success together. Start by joining a study group or creating your own. Don't hesitate to reach out if you need any assistance!",
+                Type = "General",
+                Priority = "Normal",
+                IsActive = true,
+                IsPinned = true,
+                PublishDate = DateTime.Now.AddDays(-7),
+                ExpiryDate = DateTime.Now.AddMonths(3),
+                TargetAudience = "All",
+                ViewCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now.AddDays(-7),
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now.AddDays(-7)
+            };
+            await db.Announcements.AddAsync(welcomeAnnouncement);
+        }
+
+        var systemMaintenance = await db.Announcements.FirstOrDefaultAsync(a => a.Title == "Scheduled System Maintenance");
+        if (systemMaintenance is null)
+        {
+            systemMaintenance = new Announcement()
+            {
+                Title = "Scheduled System Maintenance",
+                Content = "Our system will undergo scheduled maintenance on January 15, 2025, from 2:00 AM to 4:00 AM. During this time, StudyConnect will be temporarily unavailable. We apologize for any inconvenience and appreciate your understanding. This maintenance will improve system performance and add exciting new features!",
+                Type = "Important",
+                Priority = "High",
+                IsActive = true,
+                IsPinned = true,
+                PublishDate = DateTime.Now.AddDays(-5),
+                ExpiryDate = DateTime.Now.AddDays(25),
+                TargetAudience = "All",
+                ViewCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now.AddDays(-5),
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now.AddDays(-5)
+            };
+            await db.Announcements.AddAsync(systemMaintenance);
+        }
+
+        var examReminder = await db.Announcements.FirstOrDefaultAsync(a => a.Title == "Final Exam Period Approaching");
+        if (examReminder is null)
+        {
+            examReminder = new Announcement()
+            {
+                Title = "Final Exam Period Approaching",
+                Content = "Dear Students, final exams are just around the corner! Make the most of StudyConnect by joining study groups, sharing notes, and attending virtual study sessions. Remember to take breaks, stay hydrated, and get enough rest. Good luck with your preparations!",
+                Type = "Event",
+                Priority = "Normal",
+                IsActive = true,
+                IsPinned = false,
+                PublishDate = DateTime.Now.AddDays(-3),
+                ExpiryDate = DateTime.Now.AddDays(45),
+                TargetAudience = "Students",
+                ViewCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now.AddDays(-3),
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now.AddDays(-3)
+            };
+            await db.Announcements.AddAsync(examReminder);
+        }
+
+        var newFeature = await db.Announcements.FirstOrDefaultAsync(a => a.Title == "New Feature: Group Video Meetings!");
+        if (newFeature is null)
+        {
+            newFeature = new Announcement()
+            {
+                Title = "New Feature: Group Video Meetings!",
+                Content = "We're thrilled to announce a new feature: Group Video Meetings! Now you can schedule and join virtual study sessions directly through StudyConnect. Premium members get unlimited meeting time, while free trial users get up to 4 hours. Start collaborating face-to-face today!",
+                Type = "Important",
+                Priority = "High",
+                IsActive = true,
+                IsPinned = false,
+                PublishDate = DateTime.Now.AddDays(-2),
+                ExpiryDate = DateTime.Now.AddMonths(1),
+                TargetAudience = "All",
+                ViewCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now.AddDays(-2),
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now.AddDays(-2)
+            };
+            await db.Announcements.AddAsync(newFeature);
+        }
+
+        var securityUpdate = await db.Announcements.FirstOrDefaultAsync(a => a.Title == "Security Update: Enable Two-Factor Authentication");
+        if (securityUpdate is null)
+        {
+            securityUpdate = new Announcement()
+            {
+                Title = "Security Update: Enable Two-Factor Authentication",
+                Content = "Your account security is our priority! We now offer two-factor authentication (2FA) to protect your account. Enable 2FA in your account settings to add an extra layer of security. This optional feature helps keep your study materials and personal information safe.",
+                Type = "Urgent",
+                Priority = "High",
+                IsActive = true,
+                IsPinned = false,
+                PublishDate = DateTime.Now.AddDays(-1),
+                ExpiryDate = DateTime.Now.AddMonths(2),
+                TargetAudience = "All",
+                ViewCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now.AddDays(-1),
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now.AddDays(-1)
+            };
+            await db.Announcements.AddAsync(securityUpdate);
+        }
+
+        var studyTips = await db.Announcements.FirstOrDefaultAsync(a => a.Title == "Weekly Study Tip: Pomodoro Technique");
+        if (studyTips is null)
+        {
+            studyTips = new Announcement()
+            {
+                Title = "Weekly Study Tip: Pomodoro Technique",
+                Content = "Try the Pomodoro Technique to boost your productivity! Study for 25 minutes, then take a 5-minute break. After 4 sessions, take a longer 15-30 minute break. This method helps maintain focus and prevents burnout. Share your experience with your study group!",
+                Type = "General",
+                Priority = "Low",
+                IsActive = true,
+                IsPinned = false,
+                PublishDate = DateTime.Now,
+                ExpiryDate = DateTime.Now.AddDays(7),
+                TargetAudience = "Students",
+                ViewCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now,
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now
+            };
+            await db.Announcements.AddAsync(studyTips);
+        }
+
+        var communityGuidelines = await db.Announcements.FirstOrDefaultAsync(a => a.Title == "Community Guidelines Reminder");
+        if (communityGuidelines is null)
+        {
+            communityGuidelines = new Announcement()
+            {
+                Title = "Community Guidelines Reminder",
+                Content = "Let's keep StudyConnect a positive and respectful space! Please be courteous to fellow students, share resources responsibly, and report any inappropriate behavior. Together, we can build a supportive learning community. Thank you for being an awesome member!",
+                Type = "General",
+                Priority = "Normal",
+                IsActive = true,
+                IsPinned = false,
+                PublishDate = DateTime.Now.AddHours(-12),
+                ExpiryDate = DateTime.Now.AddMonths(6),
+                TargetAudience = "All",
+                ViewCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now.AddHours(-12),
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now.AddHours(-12)
+            };
+            await db.Announcements.AddAsync(communityGuidelines);
+        }
+
+        var premiumPromo = await db.Announcements.FirstOrDefaultAsync(a => a.Title == "Limited Offer: 50% Off Premium for Students!");
+        if (premiumPromo is null)
+        {
+            premiumPromo = new Announcement()
+            {
+                Title = "Limited Offer: 50% Off Premium for Students!",
+                Content = "For a limited time, get 50% off your first month of StudyConnect Premium! Enjoy unlimited access to all features, no ads, unlimited file uploads, and priority support. Use code STUDENT50 at checkout. Offer expires in 2 weeks. Upgrade now!",
+                Type = "Event",
+                Priority = "High",
+                IsActive = true,
+                IsPinned = true,
+                PublishDate = DateTime.Now.AddHours(-6),
+                ExpiryDate = DateTime.Now.AddDays(14),
+                TargetAudience = "Students",
+                ViewCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now.AddHours(-6),
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now.AddHours(-6)
+            };
+            await db.Announcements.AddAsync(premiumPromo);
+        }
+
+        var adminNotice = await db.Announcements.FirstOrDefaultAsync(a => a.Title == "Admin Notice: User Reports Review");
+        if (adminNotice is null)
+        {
+            adminNotice = new Announcement()
+            {
+                Title = "Admin Notice: User Reports Review",
+                Content = "Attention administrators: Please review all pending user reports by the end of this week. Priority should be given to reports marked as urgent. Use the new reporting dashboard to streamline the review process. Contact the development team if you encounter any issues.",
+                Type = "Important",
+                Priority = "High",
+                IsActive = true,
+                IsPinned = false,
+                PublishDate = DateTime.Now.AddHours(-3),
+                ExpiryDate = DateTime.Now.AddDays(5),
+                TargetAudience = "Admins",
+                ViewCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now.AddHours(-3),
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now.AddHours(-3)
+            };
+            await db.Announcements.AddAsync(adminNotice);
+        }
+
+        var resourceSharing = await db.Announcements.FirstOrDefaultAsync(a => a.Title == "Top Contributors This Month");
+        if (resourceSharing is null)
+        {
+            resourceSharing = new Announcement()
+            {
+                Title = "Top Contributors This Month",
+                Content = "Shout out to our top resource contributors this month! Thank you for sharing your notes, study guides, and helping fellow students succeed. Keep up the great work! Want to be featured next month? Share your quality study materials in your groups!",
+                Type = "General",
+                Priority = "Low",
+                IsActive = true,
+                IsPinned = false,
+                PublishDate = DateTime.Now.AddHours(-1),
+                ExpiryDate = DateTime.Now.AddDays(30),
+                TargetAudience = "Students",
+                ViewCount = 0,
+                CreatedBy = admin.Id,
+                CreatedByName = $"{admin.FirstName} {admin.LastName}",
+                CreatedAt = DateTime.Now.AddHours(-1),
+                ModifiedBy = admin.Id,
+                ModifiedByName = $"{admin.FirstName} {admin.LastName}",
+                ModifiedAt = DateTime.Now.AddHours(-1)
+            };
+            await db.Announcements.AddAsync(resourceSharing);
+        }
+
         await db.SaveChangesAsync();
     }
 }
