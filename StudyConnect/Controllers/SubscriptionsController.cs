@@ -13,19 +13,22 @@ namespace StudyConnect.Controllers
     [Authorize(Roles = "Admin")]
     public class SubscriptionsController : Controller
     {
-        private readonly ILogger<SubscriptionsController> _logger;
-        private readonly AppDbContext _context;
-        private readonly IAuditService _auditService;
+    private readonly ILogger<SubscriptionsController> _logger;
+    private readonly AppDbContext _context;
+    private readonly IAuditService _auditService;
+    private readonly IPaymentService _paymentService;
 
-        public SubscriptionsController(
-            ILogger<SubscriptionsController> logger,
-            AppDbContext context,
-            IAuditService auditService)
-        {
-            _logger = logger;
-            _context = context;
-            _auditService = auditService;
-        }
+    public SubscriptionsController(
+        ILogger<SubscriptionsController> logger,
+        AppDbContext context,
+        IAuditService auditService,
+        IPaymentService paymentService)
+    {
+        _logger = logger;
+        _context = context;
+        _auditService = auditService;
+        _paymentService = paymentService;
+    }
 
         public async Task<IActionResult> Index()
         {
@@ -321,6 +324,71 @@ namespace StudyConnect.Controllers
             {
                 _logger.LogError(ex, "Error toggling subscription status");
                 return Json(ResponseHelper.Error("Failed to toggle subscription status"));
+            }
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> CreateCheckoutSession(int subscriptionId)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Json(ResponseHelper.Failed("User not authenticated"));
+                }
+
+                var subscription = await _context.Subscriptions
+                    .FirstOrDefaultAsync(s => s.Id == subscriptionId && s.IsActive && s.DeletedAt == null);
+
+                if (subscription == null)
+                {
+                    return Json(ResponseHelper.Failed("Subscription plan not found"));
+                }
+
+                // Free plans don't need payment
+                if (subscription.Price == 0)
+                {
+                    return Json(ResponseHelper.Failed("This is a free plan and doesn't require payment"));
+                }
+
+                var successUrl = Url.Action("PaymentSuccess", "Subscriptions", new { subscriptionId }, Request.Scheme);
+                var cancelUrl = Url.Action("AvailablePlans", "Subscriptions", null, Request.Scheme);
+
+                var checkoutUrl = await _paymentService.CreateCheckoutSessionAsync(
+                    subscriptionId, 
+                    userId, 
+                    successUrl!, 
+                    cancelUrl!);
+
+                await _auditService.LogCustomActionAsync($"Initiated payment for {subscription.Name}");
+
+                return Json(ResponseHelper.Success("Checkout session created", new { checkoutUrl }));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating checkout session");
+                return Json(ResponseHelper.Error("Failed to create checkout session. Please try again."));
+            }
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> PaymentSuccess(int subscriptionId)
+        {
+            try
+            {
+                await _auditService.LogCustomActionAsync($"Payment success for subscription ID: {subscriptionId}");
+                
+                TempData["SuccessMessage"] = "Payment successful! Your subscription is now active.";
+                return RedirectToAction("AvailablePlans");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing payment success");
+                return RedirectToAction("AvailablePlans");
             }
         }
     }
