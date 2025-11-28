@@ -2384,5 +2384,541 @@ namespace StudyConnect.Controllers
                 return Json(ResponseHelper.Error("An unexpected error occurred while deleting the meeting."));
             }
         }
+
+        // ===== Question Management Actions =====
+
+        [HttpPost]
+        public async Task<IActionResult> CreateQuestion([FromBody] CreateQuestionRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+                    .AnyAsync(m => m.StudyGroupId == request.StudyGroupId &&
+                        m.UserId == currentUserId &&
+                        m.Role == "Owner" &&
+                        m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("Only group owners can create questions."));
+                }
+
+                // Validate question based on type
+                if (request.QuestionType == "MultipleChoice")
+                {
+                    if (string.IsNullOrEmpty(request.OptionA) || string.IsNullOrEmpty(request.OptionB))
+                    {
+                        return Json(ResponseHelper.Failed("Multiple choice questions require at least two options."));
+                    }
+                }
+
+                var question = new StudyGroupQuestion
+                {
+                    StudyGroupId = request.StudyGroupId,
+                    QuestionText = request.QuestionText,
+                    QuestionType = request.QuestionType,
+                    OptionA = request.OptionA,
+                    OptionB = request.OptionB,
+                    OptionC = request.OptionC,
+                    OptionD = request.OptionD,
+                    CorrectAnswer = request.CorrectAnswer,
+                    Points = request.Points,
+                    IsActive = true,
+                    CreatedByUserId = currentUserId ?? "",
+                    CreatedBy = currentUserId ?? "",
+                    CreatedByName = currentUserName,
+                    CreatedAt = DateTime.Now,
+                    ModifiedBy = currentUserId ?? "",
+                    ModifiedByName = currentUserName,
+                    ModifiedAt = DateTime.Now
+                };
+
+                _context.StudyGroupQuestions.Add(question);
+                await _context.SaveChangesAsync();
+
+                await _auditService.LogCreateAsync("StudyGroupQuestion", question.Id.ToString(), new
+                {
+                    question.Id,
+                    question.StudyGroupId,
+                    question.QuestionText,
+                    question.QuestionType
+                });
+
+                return Json(ResponseHelper.Success("Question created successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while creating the question."));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetQuestions(int studyGroupId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Check if user is an approved member
+                var member = await _context.StudyGroupMembers
+                    .FirstOrDefaultAsync(m => m.StudyGroupId == studyGroupId &&
+                        m.UserId == currentUserId &&
+                        m.IsApproved &&
+                        m.DeletedAt == null);
+
+                if (member == null)
+                {
+                    return Json(new { data = new List<object>() });
+                }
+
+                var isOwner = member.Role == "Owner";
+
+                var questions = await _context.StudyGroupQuestions
+                    .Where(q => q.StudyGroupId == studyGroupId && q.DeletedAt == null && q.IsActive)
+                    .Include(q => q.CreatedByUser)
+                    .OrderBy(q => q.CreatedAt)
+                    .Select(q => new
+                    {
+                        id = q.Id,
+                        questionText = q.QuestionText,
+                        questionType = q.QuestionType,
+                        optionA = q.OptionA,
+                        optionB = q.OptionB,
+                        optionC = q.OptionC,
+                        optionD = q.OptionD,
+                        correctAnswer = isOwner ? q.CorrectAnswer : null, // Only show correct answer to owner
+                        points = q.Points,
+                        createdByName = $"{q.CreatedByUser.FirstName} {q.CreatedByUser.LastName}".Trim(),
+                        createdAt = q.CreatedAt.ToString("MMMM dd, yyyy hh:mm tt"),
+                        // Check if current user has answered
+                        hasAnswered = _context.StudyGroupQuestionAnswers.Any(a => a.QuestionId == q.Id && a.UserId == currentUserId && a.DeletedAt == null),
+                        // Get user's answer if exists
+                        userAnswer = _context.StudyGroupQuestionAnswers
+                            .Where(a => a.QuestionId == q.Id && a.UserId == currentUserId && a.DeletedAt == null)
+                            .Select(a => new
+                            {
+                                answer = a.UserAnswer,
+                                isCorrect = a.IsCorrect,
+                                pointsEarned = a.PointsEarned
+                            })
+                            .FirstOrDefault()
+                    })
+                    .ToListAsync();
+
+                return Json(new { data = questions });
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(new { data = new List<object>() });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateQuestion([FromBody] UpdateQuestionRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var question = await _context.StudyGroupQuestions
+                    .Where(q => q.DeletedAt == null)
+                    .FirstOrDefaultAsync(q => q.Id == request.QuestionId);
+
+                if (question == null)
+                {
+                    return Json(ResponseHelper.Failed("Question not found."));
+                }
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+                    .AnyAsync(m => m.StudyGroupId == question.StudyGroupId &&
+                        m.UserId == currentUserId &&
+                        m.Role == "Owner" &&
+                        m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("Only group owners can update questions."));
+                }
+
+                // Store old values for audit
+                var oldValues = new
+                {
+                    question.QuestionText,
+                    question.QuestionType,
+                    question.CorrectAnswer
+                };
+
+                // Update question
+                question.QuestionText = request.QuestionText;
+                question.QuestionType = request.QuestionType;
+                question.OptionA = request.OptionA;
+                question.OptionB = request.OptionB;
+                question.OptionC = request.OptionC;
+                question.OptionD = request.OptionD;
+                question.CorrectAnswer = request.CorrectAnswer;
+                question.Points = request.Points;
+                question.ModifiedBy = currentUserId ?? "";
+                question.ModifiedByName = currentUserName;
+                question.ModifiedAt = DateTime.Now;
+
+                _context.StudyGroupQuestions.Update(question);
+                await _context.SaveChangesAsync();
+
+                // Store new values for audit
+                var newValues = new
+                {
+                    question.QuestionText,
+                    question.QuestionType,
+                    question.CorrectAnswer
+                };
+
+                await _auditService.LogUpdateAsync("StudyGroupQuestion", question.Id.ToString(), oldValues, newValues);
+
+                return Json(ResponseHelper.Success("Question updated successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while updating the question."));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteQuestion([FromBody] int questionId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var question = await _context.StudyGroupQuestions
+                    .Where(q => q.DeletedAt == null)
+                    .FirstOrDefaultAsync(q => q.Id == questionId);
+
+                if (question == null)
+                {
+                    return Json(ResponseHelper.Failed("Question not found."));
+                }
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+                    .AnyAsync(m => m.StudyGroupId == question.StudyGroupId &&
+                        m.UserId == currentUserId &&
+                        m.Role == "Owner" &&
+                        m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("Only group owners can delete questions."));
+                }
+
+                // Soft delete
+                question.DeletedBy = currentUserId;
+                question.DeletedByName = currentUserName;
+                question.DeletedAt = DateTime.Now;
+
+                _context.StudyGroupQuestions.Update(question);
+                await _context.SaveChangesAsync();
+
+                await _auditService.LogDeleteAsync("StudyGroupQuestion", question.Id.ToString(), new
+                {
+                    question.Id,
+                    question.StudyGroupId,
+                    question.QuestionText
+                });
+
+                return Json(ResponseHelper.Success("Question deleted successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while deleting the question."));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitAnswer([FromBody] SubmitAnswerRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var question = await _context.StudyGroupQuestions
+                    .Where(q => q.DeletedAt == null && q.IsActive)
+                    .FirstOrDefaultAsync(q => q.Id == request.QuestionId);
+
+                if (question == null)
+                {
+                    return Json(ResponseHelper.Failed("Question not found."));
+                }
+
+                // Check if user is an approved member
+                var isMember = await _context.StudyGroupMembers
+                    .AnyAsync(m => m.StudyGroupId == question.StudyGroupId &&
+                        m.UserId == currentUserId &&
+                        m.IsApproved &&
+                        m.DeletedAt == null);
+
+                if (!isMember)
+                {
+                    return Json(ResponseHelper.Failed("Only approved members can answer questions."));
+                }
+
+                // Check if user has already answered
+                var existingAnswer = await _context.StudyGroupQuestionAnswers
+                    .FirstOrDefaultAsync(a => a.QuestionId == request.QuestionId &&
+                        a.UserId == currentUserId &&
+                        a.DeletedAt == null);
+
+                if (existingAnswer != null)
+                {
+                    return Json(ResponseHelper.Failed("You have already answered this question."));
+                }
+
+                // Check if answer is correct
+                bool isCorrect = request.UserAnswer.Trim().Equals(question.CorrectAnswer.Trim(), StringComparison.OrdinalIgnoreCase);
+                int pointsEarned = isCorrect ? question.Points : 0;
+
+                var answer = new StudyGroupQuestionAnswer
+                {
+                    QuestionId = request.QuestionId,
+                    UserId = currentUserId ?? "",
+                    UserAnswer = request.UserAnswer,
+                    IsCorrect = isCorrect,
+                    PointsEarned = pointsEarned,
+                    AnsweredAt = DateTime.Now,
+                    CreatedBy = currentUserId ?? "",
+                    CreatedByName = currentUserName,
+                    CreatedAt = DateTime.Now,
+                    ModifiedBy = currentUserId ?? "",
+                    ModifiedByName = currentUserName,
+                    ModifiedAt = DateTime.Now
+                };
+
+                _context.StudyGroupQuestionAnswers.Add(answer);
+                await _context.SaveChangesAsync();
+
+                await _auditService.LogCreateAsync("StudyGroupQuestionAnswer", answer.Id.ToString(), new
+                {
+                    answer.Id,
+                    answer.QuestionId,
+                    answer.UserId,
+                    answer.IsCorrect,
+                    answer.PointsEarned
+                });
+
+                return Json(ResponseHelper.Success("Answer submitted successfully.", new
+                {
+                    isCorrect = isCorrect,
+                    pointsEarned = pointsEarned,
+                    correctAnswer = isCorrect ? null : question.CorrectAnswer // Show correct answer only if wrong
+                }));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while submitting the answer."));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserScore(int studyGroupId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Check if user is an approved member
+                var isMember = await _context.StudyGroupMembers
+                    .AnyAsync(m => m.StudyGroupId == studyGroupId &&
+                        m.UserId == currentUserId &&
+                        m.IsApproved &&
+                        m.DeletedAt == null);
+
+                if (!isMember)
+                {
+                    return Json(ResponseHelper.Failed("You must be an approved member to view scores."));
+                }
+
+                // Get user's total score
+                var totalScore = await _context.StudyGroupQuestionAnswers
+                    .Where(a => a.Question.StudyGroupId == studyGroupId &&
+                        a.UserId == currentUserId &&
+                        a.DeletedAt == null)
+                    .SumAsync(a => a.PointsEarned);
+
+                // Get total possible points
+                var totalPossible = await _context.StudyGroupQuestions
+                    .Where(q => q.StudyGroupId == studyGroupId &&
+                        q.DeletedAt == null &&
+                        q.IsActive)
+                    .SumAsync(q => q.Points);
+
+                // Get number of questions answered
+                var answeredCount = await _context.StudyGroupQuestionAnswers
+                    .Where(a => a.Question.StudyGroupId == studyGroupId &&
+                        a.UserId == currentUserId &&
+                        a.DeletedAt == null)
+                    .CountAsync();
+
+                // Get total questions
+                var totalQuestions = await _context.StudyGroupQuestions
+                    .Where(q => q.StudyGroupId == studyGroupId &&
+                        q.DeletedAt == null &&
+                        q.IsActive)
+                    .CountAsync();
+
+                return Json(ResponseHelper.Success("", new
+                {
+                    totalScore = totalScore,
+                    totalPossible = totalPossible,
+                    answeredCount = answeredCount,
+                    totalQuestions = totalQuestions,
+                    percentage = totalPossible > 0 ? Math.Round((double)totalScore / totalPossible * 100, 2) : 0
+                }));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while retrieving the score."));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetLeaderboard(int studyGroupId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Check if user is an approved member
+                var isMember = await _context.StudyGroupMembers
+                    .AnyAsync(m => m.StudyGroupId == studyGroupId &&
+                        m.UserId == currentUserId &&
+                        m.IsApproved &&
+                        m.DeletedAt == null);
+
+                if (!isMember)
+                {
+                    return Json(new { data = new List<object>() });
+                }
+
+                // Get leaderboard data
+                var leaderboard = await _context.StudyGroupMembers
+                    .Where(m => m.StudyGroupId == studyGroupId &&
+                        m.IsApproved &&
+                        m.DeletedAt == null)
+                    .Include(m => m.User)
+                    .Select(m => new
+                    {
+                        userId = m.UserId,
+                        userName = $"{m.User.FirstName} {m.User.LastName}".Trim(),
+                        totalScore = _context.StudyGroupQuestionAnswers
+                            .Where(a => a.Question.StudyGroupId == studyGroupId &&
+                                a.UserId == m.UserId &&
+                                a.DeletedAt == null)
+                            .Sum(a => a.PointsEarned),
+                        answeredCount = _context.StudyGroupQuestionAnswers
+                            .Where(a => a.Question.StudyGroupId == studyGroupId &&
+                                a.UserId == m.UserId &&
+                                a.DeletedAt == null)
+                            .Count(),
+                        isCurrentUser = m.UserId == currentUserId
+                    })
+                    .OrderByDescending(x => x.totalScore)
+                    .ThenByDescending(x => x.answeredCount)
+                    .ToListAsync();
+
+                // Add rank
+                var rankedLeaderboard = leaderboard.Select((item, index) => new
+                {
+                    rank = index + 1,
+                    item.userId,
+                    item.userName,
+                    item.totalScore,
+                    item.answeredCount,
+                    item.isCurrentUser
+                }).ToList();
+
+                return Json(new { data = rankedLeaderboard });
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(new { data = new List<object>() });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetQuestionAnswers(int questionId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                var question = await _context.StudyGroupQuestions
+                    .Where(q => q.DeletedAt == null)
+                    .FirstOrDefaultAsync(q => q.Id == questionId);
+
+                if (question == null)
+                {
+                    return Json(ResponseHelper.Failed("Question not found."));
+                }
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+                    .AnyAsync(m => m.StudyGroupId == question.StudyGroupId &&
+                        m.UserId == currentUserId &&
+                        m.Role == "Owner" &&
+                        m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("Only group owners can view member answers."));
+                }
+
+                // Get all answers for this question
+                var answers = await _context.StudyGroupQuestionAnswers
+                    .Where(a => a.QuestionId == questionId && a.DeletedAt == null)
+                    .Include(a => a.User)
+                    .OrderByDescending(a => a.IsCorrect)
+                    .ThenBy(a => a.AnsweredAt)
+                    .Select(a => new
+                    {
+                        id = a.Id,
+                        userId = a.UserId,
+                        userName = $"{a.User.FirstName} {a.User.LastName}".Trim(),
+                        userEmail = a.User.Email,
+                        userAnswer = a.UserAnswer,
+                        isCorrect = a.IsCorrect,
+                        pointsEarned = a.PointsEarned,
+                        answeredAt = a.AnsweredAt.ToString("MMMM dd, yyyy hh:mm tt")
+                    })
+                    .ToListAsync();
+
+                return Json(ResponseHelper.Success("", new
+                {
+                    questionText = question.QuestionText,
+                    correctAnswer = question.CorrectAnswer,
+                    totalAnswers = answers.Count,
+                    correctAnswers = answers.Count(a => a.isCorrect),
+                    answers = answers
+                }));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred."));
+            }
+        }
     }
 }

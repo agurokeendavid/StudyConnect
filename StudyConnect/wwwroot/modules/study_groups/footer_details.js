@@ -14,6 +14,12 @@
     //loadMeetingLink();
     loadMeetings();
 
+    if (isMember) {
+        loadQuestions();
+        loadUserScore();
+        loadLeaderboard();
+    }
+
     if (isOwner) {
         loadMembershipRequests();
         loadInviteLink();
@@ -38,6 +44,12 @@
     // Meeting handlers
     $('#btnCreateMeeting').on('click', openCreateMeetingModal);
     $('#btnSubmitMeeting').on('click', submitMeeting);
+
+    // Question handlers
+    $('#btnCreateQuestion').on('click', openCreateQuestionModal);
+    $('#btnSubmitQuestion').on('click', submitQuestion);
+    $('#btnSubmitAnswer').on('click', submitAnswer);
+    $('#questionType').on('change', handleQuestionTypeChange);
 });
 
 // Initialize SignalR Connection

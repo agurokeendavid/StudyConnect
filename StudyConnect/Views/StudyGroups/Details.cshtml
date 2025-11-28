@@ -1,6 +1,4 @@
-﻿@using System.Security.Claims
-
-@{
+﻿@{
     ViewBag.Title = "Details - Study Group";
     Layout = "Dashboard/_Layout";
 }
@@ -55,7 +53,7 @@
                                 <i class="ti ti-users me-1"></i>@ViewBag.CurrentMemberCount @if(ViewBag.MaxMembers != null) {
                                 <text>/ @ViewBag.MaxMembers</text>
                                                                 }
- Members
+                                Members
                             </span>
                             <span class="badge bg-secondary-subtle text-secondary">
                                 <i class="ti ti-calendar me-1"></i>Created: @ViewBag.CreatedAt
@@ -107,6 +105,12 @@
                         <button class="nav-link" id="meetings-tab" data-bs-toggle="pill" data-bs-target="#meetings"
                                 type="button" role="tab">
                             <i class="ti ti-video me-2"></i>Meetings
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="questions-tab" data-bs-toggle="pill" data-bs-target="#questions"
+                                type="button" role="tab">
+                            <i class="ti ti-file-text me-2"></i>Questions
                         </button>
                     </li>
                     @if (ViewBag.IsOwner)
@@ -232,7 +236,7 @@
                                         <p class="text-muted mb-3">Join video meetings with your study group</p>
                                         <input type="text" class="form-control mb-3" id="meetLink"
                                                placeholder="Enter Google Meet link" value="">
-                                       @*  @if (ViewBag.IsOwner)
+                                        @*  @if (ViewBag.IsOwner)
                                         {
                                             <button type="button" class="btn btn-primary w-100 mb-2" id="btnSaveMeetLink">
                                                 <i class="ti ti-device-floppy me-1"></i>Save Meeting Link
@@ -335,6 +339,69 @@
                                         <div class="text-center py-4 text-muted" id="meetingsEmpty">
                                             <i class="ti ti-calendar-off" style="font-size: 48px;"></i>
                                             <p class="mt-2">No upcoming meetings</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Questions Tab -->
+                    <div class="tab-pane fade" id="questions" role="tabpanel">
+                        <div class="row">
+                            <!-- Questions List -->
+                            <div class="col-md-8">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-semibold mb-0">Study Questions</h5>
+                                    @if (ViewBag.IsOwner)
+                                    {
+                                        <button type="button" class="btn btn-primary" id="btnCreateQuestion">
+                                            <i class="ti ti-plus me-1"></i>Add Question
+                                        </button>
+                                    }
+                                </div>
+                                <div id="questionsContainer">
+                                    <div id="questionsList">
+                                        <!-- Questions will be loaded here -->
+                                    </div>
+                                    <div class="text-center py-5" id="questionsEmpty">
+                                        <i class="ti ti-file-text text-muted" style="font-size: 64px;"></i>
+                                        <p class="text-muted mt-3">No questions available yet</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Score Panel -->
+                            <div class="col-md-4">
+                                <div class="card border mb-3">
+                                    <div class="card-body text-center">
+                                        <i class="ti ti-trophy text-warning" style="font-size: 48px;"></i>
+                                        <h3 class="fw-bold mt-3 mb-0" id="userTotalScore">0</h3>
+                                        <p class="text-muted mb-2">Your Score</p>
+                                        <div class="progress mb-2" style="height: 8px;">
+                                            <div class="progress-bar bg-success" role="progressbar" id="scoreProgress" style="width: 0%"></div>
+                                        </div>
+                                        <small class="text-muted">
+                                            <span id="userAnsweredCount">0</span> / <span id="totalQuestionsCount">0</span> Questions Answered
+                                        </small>
+                                        <div class="mt-2">
+                                            <span class="badge bg-success-subtle text-success" id="scorePercentage">0%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Leaderboard -->
+                                <div class="card border">
+                                    <div class="card-body">
+                                        <h6 class="fw-semibold mb-3">
+                                            <i class="ti ti-chart-bar me-2"></i>Leaderboard
+                                        </h6>
+                                        <div id="leaderboardList">
+                                            <!-- Leaderboard will be loaded here -->
+                                        </div>
+                                        <div class="text-center py-3 text-muted" id="leaderboardEmpty">
+                                            <i class="ti ti-chart-bar" style="font-size: 32px;"></i>
+                                            <p class="mt-2 mb-0 small">No scores yet</p>
                                         </div>
                                     </div>
                                 </div>
@@ -445,6 +512,98 @@
     </div>
 </div>
 
+<!-- Create/Edit Question Modal -->
+<div class="modal fade" id="questionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="questionModalTitle">Create Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="questionForm">
+                    <input type="hidden" id="questionId">
+                    <div class="mb-3">
+                        <label for="questionText" class="form-label">Question <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="questionText" rows="3" placeholder="Enter your question here..." required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="questionType" class="form-label">Question Type <span class="text-danger">*</span></label>
+                        <select class="form-select" id="questionType" required>
+                            <option value="MultipleChoice">Multiple Choice</option>
+                            <option value="TrueFalse">True/False</option>
+                            <option value="ShortAnswer">Short Answer</option>
+                        </select>
+                    </div>
+                    <div id="multipleChoiceOptions">
+                        <div class="mb-3">
+                            <label for="optionA" class="form-label">Option A <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="optionA" placeholder="Enter option A">
+                        </div>
+                        <div class="mb-3">
+                            <label for="optionB" class="form-label">Option B <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="optionB" placeholder="Enter option B">
+                        </div>
+                        <div class="mb-3">
+                            <label for="optionC" class="form-label">Option C</label>
+                            <input type="text" class="form-control" id="optionC" placeholder="Enter option C (optional)">
+                        </div>
+                        <div class="mb-3">
+                            <label for="optionD" class="form-label">Option D</label>
+                            <input type="text" class="form-control" id="optionD" placeholder="Enter option D (optional)">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="correctAnswer" class="form-label">Correct Answer <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="correctAnswer" placeholder="Enter the correct answer (e.g., A, B, True, False, or text)" required>
+                        <small class="text-muted" id="correctAnswerHint">For multiple choice: Enter A, B, C, or D. For True/False: Enter True or False. For short answer: Enter the expected text.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="questionPoints" class="form-label">Points <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="questionPoints" min="1" max="100" value="1" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitQuestion">
+                    <i class="ti ti-device-floppy me-1"></i>Save Question
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Answer Question Modal -->
+<div class="modal fade" id="answerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Answer Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="answerQuestionId">
+                <div class="mb-3">
+                    <p class="fw-semibold" id="answerQuestionText"></p>
+                </div>
+                <div id="answerOptionsContainer">
+                    <!-- Options will be rendered here for multiple choice -->
+                </div>
+                <div id="answerTextContainer" style="display: none;">
+                    <textarea class="form-control" id="answerText" rows="3" placeholder="Type your answer here..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="btnSubmitAnswer">
+                    <i class="ti ti-send me-1"></i>Submit Answer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section FooterScripts {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     <script>
@@ -453,5 +612,7 @@
              var isMember = @(ViewBag.IsMember ? "true" : "false");
              var currentUserId = '@User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier)';
     </script>
+    <script src="~/modules/study_groups/questions.js" asp-append-version="true"></script>
     <script src="~/modules/study_groups/footer_details.js" asp-append-version="true"></script>
+
 }
