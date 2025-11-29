@@ -21,19 +21,22 @@ namespace StudyConnect.Controllers
         private readonly IAuditService _auditService;
         private readonly IHubContext<StudyGroupHub> _hubContext;
         private readonly ISubscriptionService _subscriptionService;
+        private readonly INotificationService _notificationService;
 
         public StudyGroupsController(
             ILogger<StudyGroupsController> logger,
             AppDbContext context,
             IAuditService auditService,
             IHubContext<StudyGroupHub> hubContext,
-            ISubscriptionService subscriptionService)
+            ISubscriptionService subscriptionService,
+            INotificationService notificationService)
         {
             _logger = logger;
             _context = context;
             _auditService = auditService;
             _hubContext = hubContext;
             _subscriptionService = subscriptionService;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -740,6 +743,18 @@ namespace StudyConnect.Controllers
 
                 await _auditService.LogCustomActionAsync($"Approved membership request for user {member.UserId} in study group {member.StudyGroupId}");
 
+                // Create notification for the approved member
+                await _notificationService.CreateNotificationAsync(
+                    member.UserId,
+                    StudyConnect.Constants.NotificationTypes.GroupApproved,
+                    "Membership Approved",
+                    $"Your request to join '{member.StudyGroup.Name}' has been approved!",
+                    member.StudyGroupId,
+                    null,
+                    $"/StudyGroups/Details?id={member.StudyGroupId}",
+                    "High"
+                );
+
                 return Json(ResponseHelper.Success("Membership request approved successfully."));
             }
             catch (Exception exception)
@@ -758,6 +773,7 @@ namespace StudyConnect.Controllers
                 var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
 
                 var member = await _context.StudyGroupMembers
+                .Include(m => m.StudyGroup)
                 .Where(m => m.DeletedAt == null)
                   .FirstOrDefaultAsync(m => m.Id == memberId);
 
@@ -775,6 +791,11 @@ namespace StudyConnect.Controllers
                     return Json(ResponseHelper.Failed("You don't have permission to reject requests."));
                 }
 
+                // Store user ID and group name before soft delete
+                var rejectedUserId = member.UserId;
+                var studyGroupId = member.StudyGroupId;
+                var studyGroupName = member.StudyGroup.Name;
+
                 // Soft delete
                 member.DeletedBy = currentUserId;
                 member.DeletedByName = currentUserName;
@@ -783,7 +804,19 @@ namespace StudyConnect.Controllers
                 _context.StudyGroupMembers.Update(member);
                 await _context.SaveChangesAsync();
 
-                await _auditService.LogCustomActionAsync($"Rejected membership request for user {member.UserId} in study group {member.StudyGroupId}");
+                await _auditService.LogCustomActionAsync($"Rejected membership request for user {rejectedUserId} in study group {studyGroupId}");
+
+                // Create notification for the rejected member
+                await _notificationService.CreateNotificationAsync(
+                    rejectedUserId,
+                    StudyConnect.Constants.NotificationTypes.GroupRejected,
+                    "Membership Request Declined",
+                    $"Your request to join '{studyGroupName}' has been declined.",
+                    studyGroupId,
+                    null,
+                    $"/StudyGroups/AvailableStudyGroups",
+                    "Normal"
+                );
 
                 return Json(ResponseHelper.Success("Membership request rejected."));
             }
