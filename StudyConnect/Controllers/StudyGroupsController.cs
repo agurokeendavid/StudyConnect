@@ -168,10 +168,8 @@ namespace StudyConnect.Controllers
                     };
                     return View(viewModel);
                 }
-                else
-                {
-                    await _auditService.LogCustomActionAsync("Viewed Create Study Group Page");
-                }
+
+                await _auditService.LogCustomActionAsync("Viewed Create Study Group Page");
 
                 return View(new UpsertViewModel());
             }
