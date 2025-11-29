@@ -54,6 +54,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddScoped<IPaymentService, StripePaymentService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// ---------- Background Services ----------
+builder.Services.AddHostedService<StudyConnect.BackgroundServices.NotificationBackgroundService>();
 
 var app = builder.Build();
 

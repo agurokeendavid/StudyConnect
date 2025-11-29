@@ -44,6 +44,39 @@
 					<ul
 						class="navbar-nav flex-row ms-auto align-items-center justify-content-center"
 					>
+						<!-- Notifications -->
+						<li class="nav-item dropdown">
+							<a
+								class="nav-link position-relative"
+								href="javascript:void(0)"
+								id="drop-notifications"
+								data-bs-toggle="dropdown"
+								aria-expanded="false"
+							>
+								<i class="ti ti-bell fs-7"></i>
+								<span class="badge bg-danger rounded-circle position-absolute top-0 start-100 translate-middle" 
+									  id="notificationBadge" 
+									  style="display: none; font-size: 0.65rem; padding: 0.25rem 0.4rem;">0</span>
+							</a>
+							<div
+								class="dropdown-menu content-dd dropdown-menu-end dropdown-menu-animate-up"
+								aria-labelledby="drop-notifications"
+								style="width: 380px; max-height: 500px; overflow-y: auto;"
+							>
+								<div class="d-flex align-items-center justify-content-between py-3 px-7">
+									<h5 class="mb-0 fs-5 fw-semibold">Notifications</h5>
+									<span class="badge bg-primary rounded-4 px-3 py-1 lh-sm" id="notificationCount">0 New</span>
+								</div>
+								<div id="notificationsList" class="px-2">
+									<!-- Notifications will be loaded here -->
+								</div>
+								<div class="py-3 text-center border-top">
+									@* <a asp-controller="Notifications" asp-action="Index" class="btn btn-sm btn-primary">View All Notifications</a> *@
+									<button class="btn btn-sm btn-outline-secondary ms-2" onclick="markAllNotificationsAsViewed()">Mark All as Read</button>
+								</div>
+							</div>
+						</li>
+
 						<li class="nav-item dropdown">
 							<a
 								class="nav-link pe-0"

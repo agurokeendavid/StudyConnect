@@ -23,5 +23,6 @@ namespace StudyConnect.Data
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<DirectMessage> DirectMessages { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
     }
 }
