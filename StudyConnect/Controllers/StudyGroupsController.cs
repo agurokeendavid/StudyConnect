@@ -2130,6 +2130,7 @@ namespace StudyConnect.Controllers
                     RecurrencePattern = request.RecurrencePattern,
                     RecurrenceEndDate = request.RecurrenceEndDate,
                     MaxParticipants = request.MaxParticipants,
+                    ReminderTimeInHours = request.ReminderTimeInHours,
                     CreatedByUserId = currentUserId ?? "",
                     CreatedBy = currentUserId ?? "",
                     CreatedByName = currentUserName,
@@ -2202,10 +2203,11 @@ namespace StudyConnect.Controllers
              scheduledEndTime = m.ScheduledEndTime,
              startTimeFormatted = m.ScheduledStartTime.ToString("MMMM dd, yyyy hh:mm tt"),
              endTimeFormatted = m.ScheduledEndTime.ToString("hh:mm tt"),
-             isRecurring = m.IsRecurring,
-             recurrencePattern = m.RecurrencePattern,
-             maxParticipants = m.MaxParticipants,
-             createdByName = $"{m.CreatedByUser.FirstName} {m.CreatedByUser.LastName}".Trim(),
+                isRecurring = m.IsRecurring,
+                recurrencePattern = m.RecurrencePattern,
+                maxParticipants = m.MaxParticipants,
+                reminderTimeInHours = m.ReminderTimeInHours,
+                createdByName = $"{m.CreatedByUser.FirstName} {m.CreatedByUser.LastName}".Trim(),
              createdByUserId = m.CreatedByUserId,
              isPast = m.ScheduledEndTime < DateTime.Now,
              isUpcoming = m.ScheduledStartTime > DateTime.Now,
@@ -2280,6 +2282,7 @@ namespace StudyConnect.Controllers
                 meeting.ScheduledStartTime = request.ScheduledStartTime;
                 meeting.ScheduledEndTime = request.ScheduledEndTime;
                 meeting.MaxParticipants = request.MaxParticipants;
+                meeting.ReminderTimeInHours = request.ReminderTimeInHours;
                 meeting.ModifiedBy = currentUserId ?? "";
                 meeting.ModifiedByName = currentUserName;
                 meeting.ModifiedAt = DateTime.Now;

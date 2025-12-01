@@ -80,48 +80,56 @@ namespace StudyConnect.Services
         {
             try
             {
-                var tomorrow = DateTime.Now.AddDays(1);
-                var startOfTomorrow = new DateTime(tomorrow.Year, tomorrow.Month, tomorrow.Day, 0, 0, 0);
-                var endOfTomorrow = new DateTime(tomorrow.Year, tomorrow.Month, tomorrow.Day, 23, 59, 59);
+                var currentTime = DateTime.Now;
 
-                // Get meetings happening tomorrow
+                // Get all upcoming meetings that haven't been cancelled or deleted
                 var upcomingMeetings = await _context.StudyGroupMeetings
                     .Include(m => m.StudyGroup)
                     .Where(m => m.DeletedAt == null
                         && m.IsActive
                         && !m.IsCancelled
-                        && m.ScheduledStartTime >= startOfTomorrow
-                        && m.ScheduledStartTime <= endOfTomorrow)
+                        && m.ScheduledStartTime > currentTime)
                     .ToListAsync();
 
                 foreach (var meeting in upcomingMeetings)
                 {
-                    // Check if notification already exists for this meeting
-                    var existingNotifications = await _context.Notifications
-                        .Where(n => n.MeetingId == meeting.Id
-                            && n.Type == NotificationTypes.UpcomingEvent
-                            && n.DeletedAt == null
-                            && n.CreatedAt >= DateTime.Now.AddHours(-12)) // Only check last 12 hours
-                        .AnyAsync();
+                    // Calculate when to send notification based on ReminderTimeInHours
+                    var reminderTime = meeting.ScheduledStartTime.AddHours(-meeting.ReminderTimeInHours);
+                    
+                    // Check if it's time to send the notification (within the next hour)
+                    var shouldSendNotification = reminderTime <= currentTime.AddHours(1) && reminderTime >= currentTime.AddHours(-1);
 
-                    if (!existingNotifications)
+                    if (shouldSendNotification)
                     {
-                        var title = $"Upcoming Meeting Tomorrow";
-                        var message = $"'{meeting.Title}' is scheduled for tomorrow at {meeting.ScheduledStartTime:h:mm tt}";
-                        var actionUrl = $"/Meetings/Details?id={meeting.Id}";
+                        // Check if notification already exists for this meeting
+                        var existingNotifications = await _context.Notifications
+                            .Where(n => n.MeetingId == meeting.Id
+                                && n.Type == NotificationTypes.UpcomingEvent
+                                && n.DeletedAt == null
+                                && n.CreatedAt >= currentTime.AddHours(-2)) // Only check last 2 hours
+                            .AnyAsync();
 
-                        await CreateNotificationForGroupMembersAsync(
-                            meeting.StudyGroupId,
-                            NotificationTypes.UpcomingEvent,
-                            title,
-                            message,
-                            meeting.Id,
-                            actionUrl,
-                            "High",
-                            meeting.ScheduledStartTime
-                        );
+                        if (!existingNotifications)
+                        {
+                            var hourWord = meeting.ReminderTimeInHours == 1 ? "hour" : "hours";
+                            var title = $"Upcoming Meeting in {meeting.ReminderTimeInHours} {hourWord}";
+                            var message = $"'{meeting.Title}' is scheduled for {meeting.ScheduledStartTime:MMMM dd, yyyy h:mm tt}";
+                            var actionUrl = $"/StudyGroups/Details/{meeting.StudyGroupId}";
 
-                        _logger.LogInformation("Created upcoming event notifications for meeting {MeetingId}", meeting.Id);
+                            await CreateNotificationForGroupMembersAsync(
+                                meeting.StudyGroupId,
+                                NotificationTypes.UpcomingEvent,
+                                title,
+                                message,
+                                meeting.Id,
+                                actionUrl,
+                                "High",
+                                meeting.ScheduledStartTime
+                            );
+
+                            _logger.LogInformation("Created upcoming event notifications for meeting {MeetingId} with {Hours} hours reminder", 
+                                meeting.Id, meeting.ReminderTimeInHours);
+                        }
                     }
                 }
             }

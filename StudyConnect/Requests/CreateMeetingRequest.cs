@@ -30,6 +30,8 @@ namespace StudyConnect.Requests
 
         public DateTime? RecurrenceEndDate { get; set; }
 
-        public int? MaxParticipants { get; set; }
-    }
+    public int? MaxParticipants { get; set; }
+
+    public int ReminderTimeInHours { get; set; } = 1; // Default to 1 hour before meeting
+}
 }

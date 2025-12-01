@@ -24,6 +24,8 @@ namespace StudyConnect.Requests
         [Required]
         public DateTime ScheduledEndTime { get; set; }
 
-        public int? MaxParticipants { get; set; }
-    }
+    public int? MaxParticipants { get; set; }
+
+    public int ReminderTimeInHours { get; set; } = 1; // Default to 1 hour before meeting
+}
 }

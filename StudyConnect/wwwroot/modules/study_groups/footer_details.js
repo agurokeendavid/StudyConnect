@@ -1152,6 +1152,7 @@ function populateMeetingForm(meeting) {
     $('#meetingStartTime').val(startDate.toISOString().slice(0, 16));
     $('#meetingEndTime').val(endDate.toISOString().slice(0, 16));
     $('#meetingMaxParticipants').val(meeting.maxParticipants || '');
+    $('#reminderTime').val(meeting.reminderTimeInHours || 1);
 
     $('#meetingModalTitle').text('Edit Meeting');
     $('#btnSubmitMeeting').html('<i class="ti ti-device-floppy me-1"></i>Update Meeting');
@@ -1166,6 +1167,7 @@ function submitMeeting() {
     var startTime = $('#meetingStartTime').val();
     var endTime = $('#meetingEndTime').val();
     var maxParticipants = $('#meetingMaxParticipants').val();
+    var reminderTime = $('#reminderTime').val();
 
     // Validation
     if (!title) {
@@ -1208,7 +1210,8 @@ function submitMeeting() {
         meetingLink: meetingLink,
         scheduledStartTime: startDate.toISOString(),
         scheduledEndTime: endDate.toISOString(),
-        maxParticipants: maxParticipants ? parseInt(maxParticipants) : null
+        maxParticipants: maxParticipants ? parseInt(maxParticipants) : null,
+        reminderTimeInHours: reminderTime ? parseInt(reminderTime) : 1
     };
 
     var url = '/StudyGroups/CreateMeeting';

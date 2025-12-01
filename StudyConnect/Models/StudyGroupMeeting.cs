@@ -45,9 +45,11 @@ namespace StudyConnect.Models
         [MaxLength(1000)]
         public string? CancellationReason { get; set; }
 
-        public int? MaxParticipants { get; set; }
+    public int? MaxParticipants { get; set; }
 
-        public string CreatedByUserId { get; set; } = string.Empty;
+    public int ReminderTimeInHours { get; set; } = 1; // Default to 1 hour before meeting
+
+    public string CreatedByUserId { get; set; } = string.Empty;
 
         [ForeignKey(nameof(CreatedByUserId))]
         public ApplicationUser CreatedByUser { get; set; }
