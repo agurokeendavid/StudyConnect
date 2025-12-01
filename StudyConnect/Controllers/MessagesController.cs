@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using StudyConnect.Constants;
 using StudyConnect.Data;
 using StudyConnect.Helpers;
 using StudyConnect.Hubs;
@@ -20,6 +21,7 @@ namespace StudyConnect.Controllers
         private readonly AppDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAuditService _auditService;
+        private readonly INotificationService _notificationService;
         private readonly IHubContext<DirectMessageHub> _hubContext;
 
         public MessagesController(
@@ -27,12 +29,14 @@ namespace StudyConnect.Controllers
             AppDbContext context,
             UserManager<ApplicationUser> userManager,
             IAuditService auditService,
+            INotificationService notificationService,
             IHubContext<DirectMessageHub> hubContext)
         {
             _logger = logger;
             _context = context;
             _userManager = userManager;
             _auditService = auditService;
+            _notificationService = notificationService;
             _hubContext = hubContext;
         }
 
@@ -239,6 +243,22 @@ namespace StudyConnect.Controllers
 
                 // Log the action
                 await _auditService.LogCustomActionAsync($"Sent message to {receiver.FirstName} {receiver.LastName}");
+
+                // Create notification for the receiver
+                var notificationTitle = $"New message from {currentUserName}";
+                var notificationMessage = message.Message.Length > 100 
+                    ? message.Message.Substring(0, 100) + "..." 
+                    : message.Message;
+                var actionUrl = "/Messages/Index";
+
+                await _notificationService.CreateNotificationAsync(
+                    request.ReceiverId,
+                    NotificationTypes.MessageReceived,
+                    notificationTitle,
+                    notificationMessage,
+                    actionUrl: actionUrl,
+                    priority: "Normal"
+                );
 
                 var messageData = new
                 {

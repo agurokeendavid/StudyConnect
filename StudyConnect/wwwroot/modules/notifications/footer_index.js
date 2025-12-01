@@ -111,7 +111,8 @@ function getNotificationIcon(type) {
         'MemberLeft': 'ti ti-user-minus',
         'ResourceUploaded': 'ti ti-file-upload',
         'QuestionPosted': 'ti ti-help',
-        'AnnouncementPosted': 'ti ti-speakerphone'
+        'AnnouncementPosted': 'ti ti-speakerphone',
+        'MessageReceived': 'ti ti-message'
     };
     return icons[type] || 'ti ti-bell';
 }

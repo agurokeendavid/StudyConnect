@@ -14,5 +14,6 @@ namespace StudyConnect.Constants
         public const string ResourceUploaded = "ResourceUploaded";
         public const string QuestionPosted = "QuestionPosted";
         public const string AnnouncementPosted = "AnnouncementPosted";
+        public const string MessageReceived = "MessageReceived";
     }
 }
