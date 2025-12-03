@@ -110,17 +110,17 @@
                 caption: "Address",
                 minWidth: 200
             },
-            {
-                dataField: "emailConfirmed",
-                caption: "Status",
-                width: 100,
-                cellTemplate: function (container, options) {
-                    var statusClass = options.value ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning";
-                    var statusText = options.value ? "Active" : "Pending";
-                    var badge = '<span class="badge ' + statusClass + '">' + statusText + '</span>';
-                    container.append(badge);
-                }
-            },
+            //{
+            //    dataField: "emailConfirmed",
+            //    caption: "Status",
+            //    width: 100,
+            //    cellTemplate: function (container, options) {
+            //        var statusClass = options.value ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning";
+            //        var statusText = options.value ? "Active" : "Pending";
+            //        var badge = '<span class="badge ' + statusClass + '">' + statusText + '</span>';
+            //        container.append(badge);
+            //    }
+            //},
             {
                 dataField: "createdAt",
                 caption: "Created At",
