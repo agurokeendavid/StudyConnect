@@ -85,6 +85,47 @@ namespace StudyConnect.Services
             }
         }
 
+        public async Task<bool> CanCreateUserGroupAsync(string userId)
+        {
+            try
+            {
+                var userSubscription = await GetActiveSubscriptionAsync(userId);
+                if (userSubscription == null) return false;
+
+                // Check if user hasn't exceeded the limit
+                return userSubscription.GroupsCreated < 5;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error checking create user group permission");
+                return false;
+            }
+        }
+
+        public async Task IncrementGroupsCreatedCountAsync(string userId)
+        {
+            try
+            {
+                var user = await _context.Users.FindAsync(userId);
+                if (user != null)
+                {
+                    user.FilesUploadedCount++;
+                    await _context.SaveChangesAsync();
+                }
+
+                var userSubscription = await GetActiveSubscriptionAsync(userId);
+                if (userSubscription != null)
+                {
+                    userSubscription.GroupsCreated++;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error incrementing groups created count for user {userId}");
+            }
+        }
+
         public async Task IncrementFileUploadCountAsync(string userId)
         {
             try

@@ -432,8 +432,8 @@ namespace StudyConnect.Controllers
                             us.maxFileUploads,
                             us.hasUnlimitedAccess,
                             daysRemaining = us.isActive ? (us.endDate - DateTime.Now).Days : 0,
-                            status = us.isActive 
-                                ? (us.endDate < DateTime.Now ? "Expired" : "Active") 
+                            status = us.isActive
+                                ? (us.endDate < DateTime.Now ? "Expired" : "Active")
                                 : "Inactive"
                         })
                     })

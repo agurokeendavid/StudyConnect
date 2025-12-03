@@ -11,6 +11,7 @@ namespace StudyConnect.Models
         public DateTime EndDate { get; set; }
         public bool IsActive { get; set; }
         public int FilesUploaded { get; set; }
+        public int GroupsCreated { get; set; } = 0;
         
         // Navigation properties
         public ApplicationUser? User { get; set; }
