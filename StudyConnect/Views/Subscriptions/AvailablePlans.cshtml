@@ -116,7 +116,7 @@
                 const isPremium = plan.HasUnlimitedAccess;
                 const featuredClass = isPremium ? 'featured' : '';
                 const price = plan.Price === 0 ? 'FREE' : `&#x20B1;${plan.Price.toFixed(2)}`;
-                const duration = plan.DurationInDays === 1 ? '4 hours' : `${plan.DurationInDays} days`;
+                const duration = 'Unlimited';
                 const maxFiles = plan.MaxFileUploads === 0 ? 'Unlimited' : plan.MaxFileUploads;
 
                 html += `
@@ -140,7 +140,7 @@
                                             </li>
                                             <li>
                                                 <i class="ti ti-check fs-5"></i>
-                                                <strong>Study Groups:</strong> ${isPremium ? 'Unlimited access' : 'Limited access'}
+                                                <strong>Study Groups:</strong> ${isPremium ? 'Unlimited access' : 'Can only create or join up to 5 study groups.'}
                                             </li>
                                             <li>
                                                 <i class="ti ti-check fs-5"></i>

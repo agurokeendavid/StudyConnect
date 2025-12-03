@@ -284,6 +284,15 @@ function viewForum(forumId, forumName) {
     $('#viewForumTitle').text(forumName);
     $('#viewForumModal').modal('show');
     
+    // Check if SignalR is connected
+    if (typeof connection === 'undefined' || connection === null) {
+        console.warn('SignalR connection not initialized');
+    } else if (connection.state !== signalR.HubConnectionState.Connected) {
+        console.warn('SignalR not connected. Current state:', connection.state);
+    } else {
+        console.log('SignalR is connected');
+    }
+    
     // Join forum SignalR group
     joinForumSignalR(forumId);
     
@@ -478,7 +487,19 @@ function submitForumPost(e) {
                 $('#forumPostForm')[0].reset();
                 $('#imagePreview').hide();
                 $('#imagePreviewContainer').empty();
-                // Post will be added via SignalR
+                
+                // If SignalR doesn't update in 1 second, reload manually
+                setTimeout(function() {
+                    var currentForumId = parseInt($('#currentForumId').val());
+                    if (currentForumId) {
+                        // Check if the post was added
+                        if ($(`#forumPost-${response.Data.id}`).length === 0) {
+                            // Post wasn't added by SignalR, reload
+                            console.log('Post not found via SignalR, reloading...');
+                            loadForumPosts(currentForumId);
+                        }
+                    }
+                }, 1000);
             } else {
                 Swal.fire('Error', response.Message || 'Failed to create post', 'error');
             }
@@ -706,13 +727,27 @@ function handleForumDeleted(forumId) {
 }
 
 function handleForumPostCreated(data) {
+    console.log('handleForumPostCreated called', data);
     var currentForumId = parseInt($('#currentForumId').val());
-    if (data.forumId === currentForumId) {
+    
+    // Check if the modal is open and it's the right forum
+    if (currentForumId && data.forumId === currentForumId) {
+        // Check if post already exists (prevent duplicates)
+        if ($(`#forumPost-${data.id}`).length > 0) {
+            console.log('Post already exists, skipping...');
+            return;
+        }
+        
         $('#forumPostsEmpty').hide();
         $('#forumPostsList').show();
         
         var postCard = createForumPostCard(data);
         $('#forumPostsList').prepend(postCard);
+        
+        // Animate the new post
+        $(`#forumPost-${data.id}`).hide().fadeIn(500);
+        
+        console.log('Post added successfully via SignalR');
     }
 }
 

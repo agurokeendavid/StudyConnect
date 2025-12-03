@@ -707,6 +707,7 @@ namespace StudyConnect.Controllers
                 var postData = new
                 {
                     id = post.Id,
+                    forumId = post.ForumId,
                     content = post.Content,
                     userId = currentUserId,
                     userName = currentUserName,

@@ -258,6 +258,10 @@ namespace StudyConnect.Controllers
                 }
                 else
                 {
+                    if (!(await _subscriptionService.CanCreateUserGroupAsync(currentUserId)))
+                    {
+                        return Json(ResponseHelper.Error("Please subscribe to Premium to avail Unlimited Access"));
+                    }
                     // Creating new study group
                     var studyGroup = new StudyGroup
                     {
@@ -295,7 +299,7 @@ namespace StudyConnect.Controllers
 
                     _context.StudyGroupMembers.Add(ownerMember);
                     await _context.SaveChangesAsync();
-
+                    await _subscriptionService.IncrementGroupsCreatedCountAsync(currentUserId);
                     // Log the create action
                     var newValues = new
                     {
@@ -1135,18 +1139,23 @@ namespace StudyConnect.Controllers
                 }
 
                 // Validate file size (max 50MB)
-                if (request.File.Length > 50 * 1024 * 1024)
+                if (request.File.Length > 1000 * 1024 * 1024)
                 {
-                    return Json(ResponseHelper.Failed("File size must not exceed 50MB."));
+                    return Json(ResponseHelper.Failed("File size must not exceed 1GB."));
                 }
 
                 // Validate file type
-                var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png", ".gif" };
+                var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".jpg", ".jpeg", ".png", ".gif", ".mp4" };
                 var fileExtension = Path.GetExtension(request.File.FileName).ToLower();
 
                 if (!allowedExtensions.Contains(fileExtension))
                 {
                     return Json(ResponseHelper.Failed("Invalid file type. Supported formats: PDF, Word, PowerPoint, Excel, Images."));
+                }
+
+                if (!(await _subscriptionService.CanUploadFileAsync(currentUserId)))
+                {
+                    return Json(ResponseHelper.Failed("Please subscribe to Premium to avail Unlimited Access."));
                 }
 
                 // Create uploads directory if it doesn't exist
@@ -1188,6 +1197,7 @@ namespace StudyConnect.Controllers
 
                 _context.StudyGroupResources.Add(resource);
                 await _context.SaveChangesAsync();
+                await _subscriptionService.IncrementFileUploadCountAsync(currentUserId);
 
                 // Log the action
                 await _auditService.LogCreateAsync("StudyGroupResource", resource.Id.ToString(), new

@@ -52,6 +52,9 @@
     $('#questionType').on('change', handleQuestionTypeChange);
 });
 
+// Global SignalR connection variable
+var connection = null;
+
 // Initialize SignalR Connection
 function initializeSignalR() {
     connection = new signalR.HubConnectionBuilder()

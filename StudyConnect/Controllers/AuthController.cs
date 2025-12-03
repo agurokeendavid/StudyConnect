@@ -381,6 +381,7 @@ namespace StudyConnect.Controllers
                             EndDate = endDate,
                             IsActive = true,
                             FilesUploaded = 0,
+                            GroupsCreated = 0,
                             CreatedBy = user.Id,
                             CreatedByName = $"{user.FirstName} {user.LastName}",
                             CreatedAt = DateTime.Now,
