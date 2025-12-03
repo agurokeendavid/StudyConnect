@@ -24,5 +24,9 @@ namespace StudyConnect.Data
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<DirectMessage> DirectMessages { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<StudyGroupForum> StudyGroupForums { get; set; }
+        public DbSet<StudyGroupForumMember> StudyGroupForumMembers { get; set; }
+        public DbSet<StudyGroupForumPost> StudyGroupForumPosts { get; set; }
+        public DbSet<StudyGroupForumPostImage> StudyGroupForumPostImages { get; set; }
     }
 }

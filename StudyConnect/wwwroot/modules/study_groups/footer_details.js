@@ -72,6 +72,55 @@ function initializeSignalR() {
         });
     });
 
+    // Forum SignalR Events
+    connection.on("ForumCreated", function (data) {
+        if (typeof handleForumCreated === 'function') {
+            handleForumCreated(data);
+        }
+    });
+
+    connection.on("ForumUpdated", function (data) {
+        if (typeof handleForumUpdated === 'function') {
+            handleForumUpdated(data);
+        }
+    });
+
+    connection.on("ForumDeleted", function (forumId) {
+        if (typeof handleForumDeleted === 'function') {
+            handleForumDeleted(forumId);
+        }
+    });
+
+    connection.on("ForumPostCreated", function (data) {
+        if (typeof handleForumPostCreated === 'function') {
+            handleForumPostCreated(data);
+        }
+    });
+
+    connection.on("ForumPostDeleted", function (postId) {
+        if (typeof handleForumPostDeleted === 'function') {
+            handleForumPostDeleted(postId);
+        }
+    });
+
+    connection.on("ForumJoinRequestCreated", function (data) {
+        if (typeof handleForumJoinRequestCreated === 'function') {
+            handleForumJoinRequestCreated(data);
+        }
+    });
+
+    connection.on("ForumRequestApproved", function (data) {
+        if (typeof handleForumRequestApproved === 'function') {
+            handleForumRequestApproved(data);
+        }
+    });
+
+    connection.on("ForumRequestRejected", function (data) {
+        if (typeof handleForumRequestRejected === 'function') {
+            handleForumRequestRejected(data);
+        }
+    });
+
     // Start the connection
     connection.start()
         .then(function () {

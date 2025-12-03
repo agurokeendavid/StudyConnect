@@ -68,6 +68,56 @@ namespace StudyConnect.Hubs
        }
       }
 
+        public async Task JoinForum(int forumId)
+        {
+            try
+            {
+                var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+                
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return;
+                }
+
+                // Verify user is an approved member of the forum
+                var isForumMember = await _context.StudyGroupForumMembers
+                    .AnyAsync(fm => fm.ForumId == forumId && 
+                        fm.UserId == userId && 
+                        fm.IsApproved && 
+                        fm.DeletedAt == null);
+
+                if (!isForumMember)
+                {
+                    return;
+                }
+
+                var groupName = $"Forum_{forumId}";
+                await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+                
+                _logger.LogInformation($"User {userId} joined forum {groupName}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error joining forum {forumId}");
+            }
+        }
+
+        public async Task LeaveForum(int forumId)
+        {
+            try
+            {
+                var groupName = $"Forum_{forumId}";
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+                
+                var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+                _logger.LogInformation($"User {userId} left forum {groupName}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error leaving forum {forumId}");
+            }
+        }
+
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             _logger.LogInformation($"Client disconnected: {Context.ConnectionId}");
