@@ -161,6 +161,11 @@ function initializeTabs() {
         triggerEl.addEventListener('click', function (event) {
             event.preventDefault()
             tabTrigger.show()
+            
+            // Load meeting statistics when meetings tab is activated
+            if (triggerEl.id === 'meetings-tab' && isMember) {
+                loadMeetingStatistics();
+            }
         })
     })
 }

@@ -74,84 +74,186 @@ function createMeetingCard(meeting, status) {
     var statusClass = '';
     var joinButton = '';
 
-    if (status === 'ongoing') {
-        statusBadge = '<span class="badge bg-success-subtle text-success"><i class="ti ti-live-view me-1"></i>Live Now</span>';
-        statusClass = 'border-success';
-        joinButton = `
-  <a href="${escapeHtml(meeting.meetingLink)}" target="_blank" class="btn btn-success btn-sm">
-    <i class="ti ti-video me-1"></i>Join Now
-         </a>
-   `;
-    } else if (status === 'upcoming') {
-        statusBadge = '<span class="badge bg-primary-subtle text-primary"><i class="ti ti-clock me-1"></i>Upcoming</span>';
-        statusClass = 'border-primary';
-    joinButton = `
-            <a href="${escapeHtml(meeting.meetingLink)}" target="_blank" class="btn btn-outline-primary btn-sm">
-            <i class="ti ti-video me-1"></i>View Link
-            </a>
-   `;
+    // Override status with meeting's actual status if available
+    if (meeting.meetingStatus) {
+        switch (meeting.meetingStatus) {
+            case 'Completed':
+                statusBadge = '<span class="badge bg-success-subtle text-success"><i class="ti ti-check me-1"></i>Completed</span>';
+                statusClass = 'border-success';
+                status = 'past';
+                break;
+            case 'Cancelled':
+                statusBadge = '<span class="badge bg-danger-subtle text-danger"><i class="ti ti-x me-1"></i>Cancelled</span>';
+                statusClass = 'border-danger';
+                status = 'past';
+                break;
+            case 'Postponed':
+                statusBadge = '<span class="badge bg-warning-subtle text-warning"><i class="ti ti-calendar-pause me-1"></i>Postponed</span>';
+                statusClass = 'border-warning';
+                break;
+            case 'NoShow':
+                statusBadge = '<span class="badge bg-secondary-subtle text-secondary"><i class="ti ti-user-off me-1"></i>No Show</span>';
+                statusClass = 'border-secondary';
+                status = 'past';
+                break;
+            case 'Ongoing':
+                statusBadge = '<span class="badge bg-info-subtle text-info"><i class="ti ti-live-view me-1"></i>Ongoing</span>';
+                statusClass = 'border-info';
+                break;
+        }
     } else {
-        statusBadge = '<span class="badge bg-secondary-subtle text-secondary"><i class="ti ti-check me-1"></i>Completed</span>';
-        statusClass = '';
+        // Default status badges
+        if (status === 'ongoing') {
+            statusBadge = '<span class="badge bg-success-subtle text-success"><i class="ti ti-live-view me-1"></i>Live Now</span>';
+            statusClass = 'border-success';
+        } else if (status === 'upcoming') {
+            statusBadge = '<span class="badge bg-primary-subtle text-primary"><i class="ti ti-clock me-1"></i>Upcoming</span>';
+            statusClass = 'border-primary';
+        } else {
+            statusBadge = '<span class="badge bg-secondary-subtle text-secondary"><i class="ti ti-check me-1"></i>Completed</span>';
+            statusClass = '';
+        }
+    }
+
+    // Join button logic
+    if (status === 'ongoing' && meeting.meetingStatus !== 'Cancelled' && meeting.meetingStatus !== 'NoShow') {
         joinButton = `
-        <button class="btn btn-outline-secondary btn-sm" disabled>
-      <i class="ti ti-video-off me-1"></i>Ended
-        </button>
+            <a href="${escapeHtml(meeting.meetingLink)}" target="_blank" class="btn btn-success btn-sm">
+                <i class="ti ti-video me-1"></i>Join Now
+            </a>
+        `;
+    } else if (status === 'upcoming' && meeting.meetingStatus !== 'Cancelled') {
+        joinButton = `
+            <a href="${escapeHtml(meeting.meetingLink)}" target="_blank" class="btn btn-outline-primary btn-sm">
+                <i class="ti ti-video me-1"></i>View Link
+            </a>
+        `;
+    } else {
+        joinButton = `
+            <button class="btn btn-outline-secondary btn-sm" disabled>
+                <i class="ti ti-video-off me-1"></i>Ended
+            </button>
         `;
     }
 
     var actionButtons = '';
     if (isOwner && status !== 'past') {
-   actionButtons = `
-   <div class="btn-group btn-group-sm ms-2">
-          <button type="button" class="btn btn-outline-primary" onclick="editMeeting(${meeting.id})" title="Edit Meeting">
-        <i class="ti ti-edit"></i>
-            </button>
-      <button type="button" class="btn btn-outline-danger" onclick="deleteMeeting(${meeting.id})" title="Delete Meeting">
-       <i class="ti ti-trash"></i>
-         </button>
+        actionButtons = `
+            <div class="btn-group btn-group-sm ms-2">
+                <button type="button" class="btn btn-outline-primary" onclick="editMeeting(${meeting.id})" title="Edit Meeting">
+                    <i class="ti ti-edit"></i>
+                </button>
+                <button type="button" class="btn btn-outline-warning" onclick="postponeMeeting(${meeting.id})" title="Postpone Meeting">
+                    <i class="ti ti-calendar-pause"></i>
+                </button>
+                <button type="button" class="btn btn-outline-danger" onclick="deleteMeeting(${meeting.id})" title="Delete Meeting">
+                    <i class="ti ti-trash"></i>
+                </button>
             </div>
-      `;
+        `;
+    }
+
+    // Status management button (for owner/admin)
+    var statusButton = '';
+    if (isOwner || isMember) {
+        const statusType = status === 'past' ? 'Completed' : status === 'ongoing' ? 'Ongoing' : null;
+        if (statusType) {
+            statusButton = `
+                <button type="button" class="btn btn-outline-info btn-sm ms-2" onclick="recordMeetingStatus(${meeting.id}, '${statusType}')" title="Record Status">
+                    <i class="ti ti-file-text me-1"></i>Record Status
+                </button>
+            `;
+        }
     }
 
     var recurringBadge = meeting.isRecurring
         ? `<span class="badge bg-info-subtle text-info ms-2"><i class="ti ti-repeat me-1"></i>${meeting.recurrencePattern}</span>`
         : '';
 
+    var postponedBadge = meeting.isPostponed
+        ? `<span class="badge bg-warning-subtle text-warning ms-2"><i class="ti ti-alert-triangle me-1"></i>Rescheduled</span>`
+        : '';
+
     var participantsBadge = meeting.maxParticipants
-   ? `<span class="text-muted small ms-3"><i class="ti ti-users me-1"></i>Max: ${meeting.maxParticipants}</span>`
-   : '';
+        ? `<span class="text-muted small ms-3"><i class="ti ti-users me-1"></i>Max: ${meeting.maxParticipants}</span>`
+        : '';
+
+    var attendanceBadge = meeting.attendanceCount > 0
+        ? `<span class="text-muted small ms-3"><i class="ti ti-users-group me-1"></i>Attended: ${meeting.attendanceCount}</span>`
+        : '';
+
+    var postponementInfo = '';
+    if (meeting.isPostponed && meeting.postponementReason) {
+        postponementInfo = `
+            <div class="alert alert-warning alert-dismissible fade show mt-2 mb-0" role="alert">
+                <small>
+                    <i class="ti ti-info-circle me-1"></i>
+                    <strong>Postponed:</strong> ${escapeHtml(meeting.postponementReason)}
+                </small>
+            </div>
+        `;
+    }
+
+    var noShowInfo = '';
+    if (meeting.noShowRecorded && meeting.noShowNotes) {
+        noShowInfo = `
+            <div class="alert alert-secondary alert-dismissible fade show mt-2 mb-0" role="alert">
+                <small>
+                    <i class="ti ti-alert-circle me-1"></i>
+                    <strong>No Show:</strong> ${escapeHtml(meeting.noShowNotes)}
+                </small>
+            </div>
+        `;
+    }
+
+    var meetingNotesInfo = '';
+    if (meeting.meetingNotes) {
+        meetingNotesInfo = `
+            <div class="alert alert-info alert-dismissible fade show mt-2 mb-0" role="alert">
+                <small>
+                    <i class="ti ti-note me-1"></i>
+                    <strong>Notes:</strong> ${escapeHtml(meeting.meetingNotes)}
+                </small>
+            </div>
+        `;
+    }
 
     var card = `
         <div class="card mb-3 ${statusClass}" id="meeting-${meeting.id}">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-        <div class="flex-grow-1">
- <div class="d-flex align-items-center mb-2">
-           <h6 class="mb-0 fw-semibold">${escapeHtml(meeting.title)}</h6>
-      ${statusBadge}
-     ${recurringBadge}
-         </div>
-   ${meeting.description ? `<p class="text-muted small mb-2">${escapeHtml(meeting.description)}</p>` : ''}
-           <div class="d-flex flex-wrap gap-3 text-muted small">
-  <span><i class="ti ti-calendar me-1"></i>${meeting.startTimeFormatted}</span>
-  <span><i class="ti ti-clock-hour-4 me-1"></i>${meeting.endTimeFormatted}</span>
-        <span><i class="ti ti-user me-1"></i>Created by ${escapeHtml(meeting.createdByName)}</span>
-        ${participantsBadge}
-       </div>
-       </div>
-   </div>
-        <div class="d-flex align-items-center justify-content-between mt-3">
-   <div>
-            ${joinButton}
-       ${actionButtons}
-              </div>
-         </div>
-    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-2">
+                            <h6 class="mb-0 fw-semibold">${escapeHtml(meeting.title)}</h6>
+                            ${statusBadge}
+                            ${recurringBadge}
+                            ${postponedBadge}
+                        </div>
+                        ${meeting.description ? `<p class="text-muted small mb-2">${escapeHtml(meeting.description)}</p>` : ''}
+                        <div class="d-flex flex-wrap gap-3 text-muted small">
+                            <span><i class="ti ti-calendar me-1"></i>${meeting.startTimeFormatted}</span>
+                            <span><i class="ti ti-clock-hour-4 me-1"></i>${meeting.endTimeFormatted}</span>
+                            <span><i class="ti ti-user me-1"></i>Created by ${escapeHtml(meeting.createdByName)}</span>
+                            ${participantsBadge}
+                            ${attendanceBadge}
+                        </div>
+                        ${postponementInfo}
+                        ${noShowInfo}
+                        ${meetingNotesInfo}
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mt-3">
+                    <div>
+                        ${joinButton}
+                        ${statusButton}
+                        ${actionButtons}
+                    </div>
+                </div>
+            </div>
         </div>
     `;
 
-return card;
+    return card;
 }
 
 // Open Create Meeting Modal

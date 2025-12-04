@@ -27,5 +27,12 @@ namespace StudyConnect.Requests
     public int? MaxParticipants { get; set; }
 
     public int ReminderTimeInHours { get; set; } = 1; // Default to 1 hour before meeting
+
+    // Optional status update fields
+    public string? MeetingStatus { get; set; }
+    public DateTime? ActualStartTime { get; set; }
+    public DateTime? ActualEndTime { get; set; }
+    public int? AttendanceCount { get; set; }
+    public string? MeetingNotes { get; set; }
 }
 }

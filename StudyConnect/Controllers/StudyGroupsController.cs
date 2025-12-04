@@ -2226,7 +2226,17 @@ namespace StudyConnect.Controllers
              createdByUserId = m.CreatedByUserId,
              isPast = m.ScheduledEndTime < DateTime.Now,
              isUpcoming = m.ScheduledStartTime > DateTime.Now,
-             isOngoing = m.ScheduledStartTime <= DateTime.Now && m.ScheduledEndTime >= DateTime.Now
+             isOngoing = m.ScheduledStartTime <= DateTime.Now && m.ScheduledEndTime >= DateTime.Now,
+             meetingStatus = m.MeetingStatus,
+             isPostponed = m.IsPostponed,
+             postponedToDate = m.PostponedToDate,
+             postponementReason = m.PostponementReason,
+             noShowRecorded = m.NoShowRecorded,
+             noShowNotes = m.NoShowNotes,
+             attendanceCount = m.AttendanceCount,
+             actualStartTime = m.ActualStartTime,
+             actualEndTime = m.ActualEndTime,
+             meetingNotes = m.MeetingNotes
          })
           .ToListAsync();
 
@@ -2302,6 +2312,29 @@ namespace StudyConnect.Controllers
                 meeting.ScheduledEndTime = request.ScheduledEndTime.ToLocalTime();
                 meeting.MaxParticipants = request.MaxParticipants;
                 meeting.ReminderTimeInHours = request.ReminderTimeInHours;
+                
+                // Update optional status fields if provided
+                if (!string.IsNullOrEmpty(request.MeetingStatus))
+                {
+                    meeting.MeetingStatus = request.MeetingStatus;
+                }
+                if (request.ActualStartTime.HasValue)
+                {
+                    meeting.ActualStartTime = request.ActualStartTime;
+                }
+                if (request.ActualEndTime.HasValue)
+                {
+                    meeting.ActualEndTime = request.ActualEndTime;
+                }
+                if (request.AttendanceCount.HasValue)
+                {
+                    meeting.AttendanceCount = request.AttendanceCount.Value;
+                }
+                if (!string.IsNullOrEmpty(request.MeetingNotes))
+                {
+                    meeting.MeetingNotes = request.MeetingNotes;
+                }
+                
                 meeting.ModifiedBy = currentUserId ?? "";
                 meeting.ModifiedByName = currentUserName;
                 meeting.ModifiedAt = DateTime.Now;
@@ -2435,6 +2468,253 @@ namespace StudyConnect.Controllers
             {
                 _logger.LogError(exception, exception.Message);
                 return Json(ResponseHelper.Error("An unexpected error occurred while deleting the meeting."));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostponeMeeting([FromBody] PostponeMeetingRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var meeting = await _context.StudyGroupMeetings
+                    .Where(m => m.DeletedAt == null)
+                    .FirstOrDefaultAsync(m => m.Id == request.MeetingId);
+
+                if (meeting == null)
+                {
+                    return Json(ResponseHelper.Failed("Meeting not found."));
+                }
+
+                // Check if current user is owner
+                var isOwner = await _context.StudyGroupMembers
+                    .AnyAsync(m => m.StudyGroupId == meeting.StudyGroupId &&
+                        m.UserId == currentUserId &&
+                        m.Role == "Owner" &&
+                        m.DeletedAt == null);
+
+                if (!isOwner)
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to postpone meetings."));
+                }
+
+                // Validate new dates
+                if (request.NewEndTime <= request.NewStartTime)
+                {
+                    return Json(ResponseHelper.Failed("New end time must be after start time."));
+                }
+
+                // Store old values for audit
+                var oldValues = new
+                {
+                    meeting.ScheduledStartTime,
+                    meeting.ScheduledEndTime,
+                    meeting.MeetingStatus,
+                    meeting.IsPostponed
+                };
+
+                // Update meeting
+                meeting.ScheduledStartTime = request.NewStartTime.ToLocalTime();
+                meeting.ScheduledEndTime = request.NewEndTime.ToLocalTime();
+                meeting.IsPostponed = true;
+                meeting.PostponedToDate = request.NewStartTime.ToLocalTime();
+                meeting.PostponementReason = request.PostponementReason;
+                meeting.MeetingStatus = "Postponed";
+                meeting.ModifiedBy = currentUserId ?? "";
+                meeting.ModifiedByName = currentUserName;
+                meeting.ModifiedAt = DateTime.Now;
+
+                _context.StudyGroupMeetings.Update(meeting);
+                await _context.SaveChangesAsync();
+
+                // Store new values for audit
+                var newValues = new
+                {
+                    meeting.ScheduledStartTime,
+                    meeting.ScheduledEndTime,
+                    meeting.MeetingStatus,
+                    meeting.IsPostponed,
+                    meeting.PostponementReason
+                };
+
+                // Log the action
+                await _auditService.LogUpdateAsync("StudyGroupMeeting", meeting.Id.ToString(), oldValues, newValues);
+
+                // Notify members about postponement
+                var members = await _context.StudyGroupMembers
+                    .Where(m => m.StudyGroupId == meeting.StudyGroupId &&
+                        m.IsApproved &&
+                        m.DeletedAt == null &&
+                        m.UserId != currentUserId)
+                    .Select(m => m.UserId)
+                    .ToListAsync();
+
+                foreach (var memberId in members)
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        memberId,
+                        StudyConnect.Constants.NotificationTypes.MeetingUpdated,
+                        "Meeting Postponed",
+                        $"The meeting '{meeting.Title}' has been postponed to {meeting.ScheduledStartTime:MMMM dd, yyyy hh:mm tt}. Reason: {request.PostponementReason ?? "Not specified"}",
+                        meeting.StudyGroupId,
+                        meeting.Id,
+                        $"/StudyGroups/Details?id={meeting.StudyGroupId}",
+                        "High"
+                    );
+                }
+
+                return Json(ResponseHelper.Success("Meeting postponed successfully."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while postponing the meeting."));
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RecordMeetingStatus([FromBody] RecordMeetingStatusRequest request)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+                var meeting = await _context.StudyGroupMeetings
+                    .Where(m => m.DeletedAt == null)
+                    .FirstOrDefaultAsync(m => m.Id == request.MeetingId);
+
+                if (meeting == null)
+                {
+                    return Json(ResponseHelper.Failed("Meeting not found."));
+                }
+
+                // Check if current user is owner or admin
+                var member = await _context.StudyGroupMembers
+                    .FirstOrDefaultAsync(m => m.StudyGroupId == meeting.StudyGroupId &&
+                        m.UserId == currentUserId &&
+                        m.DeletedAt == null);
+
+                if (member == null || (member.Role != "Owner" && member.Role != "Admin"))
+                {
+                    return Json(ResponseHelper.Failed("You don't have permission to record meeting status."));
+                }
+
+                // Store old values for audit
+                var oldValues = new
+                {
+                    meeting.MeetingStatus,
+                    meeting.ActualStartTime,
+                    meeting.ActualEndTime,
+                    meeting.AttendanceCount,
+                    meeting.NoShowRecorded
+                };
+
+                // Update meeting status
+                meeting.MeetingStatus = request.MeetingStatus;
+                meeting.ActualStartTime = request.ActualStartTime;
+                meeting.ActualEndTime = request.ActualEndTime;
+                meeting.AttendanceCount = request.AttendanceCount ?? 0;
+                meeting.MeetingNotes = request.MeetingNotes;
+
+                if (request.MeetingStatus == "NoShow")
+                {
+                    meeting.NoShowRecorded = true;
+                    meeting.NoShowNotes = request.NoShowNotes;
+                }
+
+                if (request.MeetingStatus == "Completed")
+                {
+                    meeting.IsActive = false;
+                }
+
+                meeting.ModifiedBy = currentUserId ?? "";
+                meeting.ModifiedByName = currentUserName;
+                meeting.ModifiedAt = DateTime.Now;
+
+                _context.StudyGroupMeetings.Update(meeting);
+                await _context.SaveChangesAsync();
+
+                // Store new values for audit
+                var newValues = new
+                {
+                    meeting.MeetingStatus,
+                    meeting.ActualStartTime,
+                    meeting.ActualEndTime,
+                    meeting.AttendanceCount,
+                    meeting.NoShowRecorded
+                };
+
+                // Log the action
+                await _auditService.LogUpdateAsync("StudyGroupMeeting", meeting.Id.ToString(), oldValues, newValues);
+
+                return Json(ResponseHelper.Success($"Meeting status recorded as {request.MeetingStatus}."));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while recording meeting status."));
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetMeetingStatistics(int studyGroupId)
+        {
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                // Check if user is a member
+                var isMember = await _context.StudyGroupMembers
+                    .AnyAsync(m => m.StudyGroupId == studyGroupId &&
+                        m.UserId == currentUserId &&
+                        m.IsApproved &&
+                        m.DeletedAt == null);
+
+                if (!isMember)
+                {
+                    return Json(ResponseHelper.Failed("You must be a member to view statistics."));
+                }
+
+                var statistics = await _context.StudyGroupMeetings
+                    .Where(m => m.StudyGroupId == studyGroupId && m.DeletedAt == null)
+                    .GroupBy(m => 1)
+                    .Select(g => new
+                    {
+                        totalMeetings = g.Count(),
+                        scheduledMeetings = g.Count(m => m.MeetingStatus == "Scheduled"),
+                        completedMeetings = g.Count(m => m.MeetingStatus == "Completed"),
+                        cancelledMeetings = g.Count(m => m.IsCancelled || m.MeetingStatus == "Cancelled"),
+                        postponedMeetings = g.Count(m => m.IsPostponed || m.MeetingStatus == "Postponed"),
+                        noShowMeetings = g.Count(m => m.NoShowRecorded || m.MeetingStatus == "NoShow"),
+                        totalAttendance = g.Sum(m => m.AttendanceCount),
+                        averageAttendance = g.Where(m => m.AttendanceCount > 0).Average(m => (double?)m.AttendanceCount) ?? 0
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (statistics == null)
+                {
+                    return Json(ResponseHelper.Success("", new
+                    {
+                        totalMeetings = 0,
+                        scheduledMeetings = 0,
+                        completedMeetings = 0,
+                        cancelledMeetings = 0,
+                        postponedMeetings = 0,
+                        noShowMeetings = 0,
+                        totalAttendance = 0,
+                        averageAttendance = 0.0
+                    }));
+                }
+
+                return Json(ResponseHelper.Success("", statistics));
+            }
+            catch (Exception exception)
+            {
+                _logger.LogError(exception, exception.Message);
+                return Json(ResponseHelper.Error("An unexpected error occurred while fetching statistics."));
             }
         }
 

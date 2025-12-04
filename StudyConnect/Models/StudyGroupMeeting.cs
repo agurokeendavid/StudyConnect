@@ -45,6 +45,31 @@ namespace StudyConnect.Models
         [MaxLength(1000)]
         public string? CancellationReason { get; set; }
 
+        // Meeting Status Tracking
+        [MaxLength(50)]
+        public string MeetingStatus { get; set; } = "Scheduled"; // Scheduled, Ongoing, Completed, Cancelled, Postponed, NoShow
+
+        public DateTime? ActualStartTime { get; set; }
+
+        public DateTime? ActualEndTime { get; set; }
+
+        public bool IsPostponed { get; set; } = false;
+
+        public DateTime? PostponedToDate { get; set; }
+
+        [MaxLength(1000)]
+        public string? PostponementReason { get; set; }
+
+        public bool NoShowRecorded { get; set; } = false;
+
+        [MaxLength(1000)]
+        public string? NoShowNotes { get; set; }
+
+        public int AttendanceCount { get; set; } = 0;
+
+        [MaxLength(2000)]
+        public string? MeetingNotes { get; set; } // Notes about what happened in the meeting
+
     public int? MaxParticipants { get; set; }
 
     public int ReminderTimeInHours { get; set; } = 1; // Default to 1 hour before meeting
