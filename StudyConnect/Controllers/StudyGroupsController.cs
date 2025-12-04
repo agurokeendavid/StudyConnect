@@ -2116,26 +2116,31 @@ namespace StudyConnect.Controllers
                     return Json(ResponseHelper.Failed("Please provide a valid Google Meet link."));
                 }
 
-                // Validate dates
-                if (request.ScheduledStartTime < DateTime.Now)
+                // Validate dates - convert to local time for comparison
+                var localStartTime = request.ScheduledStartTime.ToLocalTime();
+                var localEndTime = request.ScheduledEndTime.ToLocalTime();
+                var now = DateTime.Now;
+
+                if (localStartTime < now)
                 {
                     return Json(ResponseHelper.Failed("Start time cannot be in the past."));
                 }
 
-                if (request.ScheduledEndTime <= request.ScheduledStartTime)
+                if (localEndTime <= localStartTime)
                 {
                     return Json(ResponseHelper.Failed("End time must be after start time."));
                 }
 
                 // Create new meeting
+                // Store the datetime as received from client (already in correct timezone)
                 var meeting = new StudyGroupMeeting
                 {
                     StudyGroupId = request.StudyGroupId,
                     Title = request.Title,
                     Description = request.Description,
                     MeetingLink = request.MeetingLink,
-                    ScheduledStartTime = request.ScheduledStartTime,
-                    ScheduledEndTime = request.ScheduledEndTime,
+                    ScheduledStartTime = request.ScheduledStartTime.ToLocalTime(),
+                    ScheduledEndTime = request.ScheduledEndTime.ToLocalTime(),
                     IsRecurring = request.IsRecurring,
                     RecurrencePattern = request.RecurrencePattern,
                     RecurrenceEndDate = request.RecurrenceEndDate,
@@ -2269,8 +2274,11 @@ namespace StudyConnect.Controllers
                     return Json(ResponseHelper.Failed("Please provide a valid Google Meet link."));
                 }
 
-                // Validate dates
-                if (request.ScheduledEndTime <= request.ScheduledStartTime)
+                // Validate dates - convert to local time for comparison
+                var localStartTime = request.ScheduledStartTime.ToLocalTime();
+                var localEndTime = request.ScheduledEndTime.ToLocalTime();
+
+                if (localEndTime <= localStartTime)
                 {
                     return Json(ResponseHelper.Failed("End time must be after start time."));
                 }
@@ -2286,11 +2294,12 @@ namespace StudyConnect.Controllers
                 };
 
                 // Update meeting
+                // Store the datetime as received from client (already in correct timezone)
                 meeting.Title = request.Title;
                 meeting.Description = request.Description;
                 meeting.MeetingLink = request.MeetingLink;
-                meeting.ScheduledStartTime = request.ScheduledStartTime;
-                meeting.ScheduledEndTime = request.ScheduledEndTime;
+                meeting.ScheduledStartTime = request.ScheduledStartTime.ToLocalTime();
+                meeting.ScheduledEndTime = request.ScheduledEndTime.ToLocalTime();
                 meeting.MaxParticipants = request.MaxParticipants;
                 meeting.ReminderTimeInHours = request.ReminderTimeInHours;
                 meeting.ModifiedBy = currentUserId ?? "";

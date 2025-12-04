@@ -1198,11 +1198,12 @@ function populateMeetingForm(meeting) {
     var startDate = new Date(meeting.scheduledStartTime);
     var endDate = new Date(meeting.scheduledEndTime);
 
-    startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
-    endDate.setMinutes(endDate.getMinutes() - endDate.getTimezoneOffset());
+    // Format for datetime-local input (YYYY-MM-DDTHH:mm)
+    var startLocal = new Date(startDate.getTime() - (startDate.getTimezoneOffset() * 60000));
+    var endLocal = new Date(endDate.getTime() - (endDate.getTimezoneOffset() * 60000));
 
-    $('#meetingStartTime').val(startDate.toISOString().slice(0, 16));
-    $('#meetingEndTime').val(endDate.toISOString().slice(0, 16));
+    $('#meetingStartTime').val(startLocal.toISOString().slice(0, 16));
+    $('#meetingEndTime').val(endLocal.toISOString().slice(0, 16));
     $('#meetingMaxParticipants').val(meeting.maxParticipants || '');
     $('#reminderTime').val(meeting.reminderTimeInHours || 1);
 
@@ -1242,6 +1243,8 @@ function submitMeeting() {
         return;
     }
 
+    // Create Date objects from datetime-local input values
+    // The datetime-local value is in format: YYYY-MM-DDTHH:mm
     var startDate = new Date(startTime);
     var endDate = new Date(endTime);
 
@@ -1255,6 +1258,8 @@ function submitMeeting() {
         return;
     }
 
+    // Format dates as ISO strings for sending to server
+    // The server will receive these in the user's local timezone
     var data = {
         studyGroupId: studyGroupId,
         title: title,
