@@ -19,6 +19,15 @@ namespace StudyConnect.Models
         public int FilesUploadedCount { get; set; }
         public bool HasActiveSubscription { get; set; }
         
+        // Account verification fields
+        public string? IdImagePath { get; set; }
+        public string? StudyLoadPdfPath { get; set; }
+        public bool IsAccountActivated { get; set; } = false;
+        public string? ActivatedBy { get; set; }
+        public string? ActivatedByName { get; set; }
+        public DateTime? ActivatedAt { get; set; }
+        public string? RejectionReason { get; set; }
+        
         public string CreatedBy { get; set; } = string.Empty;
         public string CreatedByName { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.Now;

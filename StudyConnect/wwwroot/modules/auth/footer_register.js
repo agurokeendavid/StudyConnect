@@ -164,11 +164,57 @@ var lastName = $("#last_name").dxTextBox("instance").option("value");
   return false;
    }
         
+        // Validate file uploads
+        var idImage = $('#idImage')[0].files[0];
+        var studyLoadPdf = $('#studyLoadPdf')[0].files[0];
+        
+        if (!idImage) {
+            Swal.fire({
+                title: 'Missing ID Image',
+                text: 'Please upload your valid ID image',
+                icon: 'error'
+            });
+            return false;
+        }
+        
+        if (!studyLoadPdf) {
+            Swal.fire({
+                title: 'Missing Study Load',
+                text: 'Please upload your study load PDF',
+                icon: 'error'
+            });
+            return false;
+        }
+        
+        // Validate file sizes
+        if (idImage.size > 5 * 1024 * 1024) {
+            Swal.fire({
+                title: 'File Too Large',
+                text: 'ID image must not exceed 5MB',
+                icon: 'error'
+            });
+            return false;
+        }
+        
+        if (studyLoadPdf.size > 10 * 1024 * 1024) {
+            Swal.fire({
+                title: 'File Too Large',
+                text: 'Study load PDF must not exceed 10MB',
+                icon: 'error'
+            });
+            return false;
+        }
+        
+        // Create FormData to handle file uploads
+        var formData = new FormData(this);
+        
         $.ajax({
             url: `/Auth/Register`,
       type: 'POST',
       async: true,
-   data: $(this).serialize(),
+   data: formData,
+            processData: false,
+            contentType: false,
             dataType: 'json',
         beforeSend: function () {
         AmagiLoader.show();

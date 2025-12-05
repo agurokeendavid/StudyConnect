@@ -265,9 +265,63 @@ namespace StudyConnect.Controllers
                     return Json(ResponseHelper.Failed("Invalid email address/password."));
                 }
 
+                // Check if account is activated
+                if (!user.IsAccountActivated)
+                {
+                    await _auditService.LogLoginAsync(viewModel.Email, false);
+                    
+                    if (!string.IsNullOrEmpty(user.RejectionReason))
+                    {
+                        return Json(ResponseHelper.Failed($"Your account registration was rejected. Reason: {user.RejectionReason}"));
+                    }
+                    
+                    return Json(ResponseHelper.Failed("Your account is pending admin approval. Please wait for verification of your documents."));
+                }
+
                 var result = await _signInManager.PasswordSignInAsync(user, viewModel.Password, viewModel.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    // Check if this is first login and assign free trial
+                    if (!user.HasActiveSubscription)
+                    {
+                        var freeTrialSubscription = await _context.Subscriptions
+                            .FirstOrDefaultAsync(s => s.Name == "Free Trial" && s.IsActive && s.DeletedAt == null);
+
+                        if (freeTrialSubscription != null)
+                        {
+                            var startDate = DateTime.Now;
+                            var endDate = startDate.AddHours(4); // Free trial is 4 hours
+
+                            // Create user subscription
+                            var userSubscription = new UserSubscription
+                            {
+                                UserId = user.Id,
+                                SubscriptionId = freeTrialSubscription.Id,
+                                StartDate = startDate,
+                                EndDate = endDate,
+                                IsActive = true,
+                                FilesUploaded = 0,
+                                GroupsCreated = 0,
+                                CreatedBy = user.Id,
+                                CreatedByName = $"{user.FirstName} {user.LastName}",
+                                CreatedAt = DateTime.Now,
+                                ModifiedBy = user.Id,
+                                ModifiedByName = $"{user.FirstName} {user.LastName}",
+                                ModifiedAt = DateTime.Now
+                            };
+
+                            _context.UserSubscriptions.Add(userSubscription);
+
+                            // Update user's subscription tracking fields
+                            user.SubscriptionStartDate = startDate;
+                            user.SubscriptionEndDate = endDate;
+                            user.HasActiveSubscription = true;
+                            user.FilesUploadedCount = 0;
+
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                    
                     // Get existing claims
                     var existingClaims = await _userManager.GetClaimsAsync(user);
                     
@@ -342,7 +396,64 @@ namespace StudyConnect.Controllers
                     return Json(ResponseHelper.Failed(errorMessages));
                 }
 
+                // Validate file uploads
+                if (viewModel.IdImage == null || viewModel.IdImage.Length == 0)
+                {
+                    return Json(ResponseHelper.Failed("Please upload your ID image"));
+                }
+
+                if (viewModel.StudyLoadPdf == null || viewModel.StudyLoadPdf.Length == 0)
+                {
+                    return Json(ResponseHelper.Failed("Please upload your study load PDF"));
+                }
+
+                // Validate file types
+                var idImageExtension = Path.GetExtension(viewModel.IdImage.FileName).ToLower();
+                var allowedImageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                if (!allowedImageExtensions.Contains(idImageExtension))
+                {
+                    return Json(ResponseHelper.Failed("ID image must be a valid image file (jpg, jpeg, png, gif)"));
+                }
+
+                var studyLoadExtension = Path.GetExtension(viewModel.StudyLoadPdf.FileName).ToLower();
+                if (studyLoadExtension != ".pdf")
+                {
+                    return Json(ResponseHelper.Failed("Study load must be a PDF file"));
+                }
+
+                // Validate file sizes (5MB for image, 10MB for PDF)
+                if (viewModel.IdImage.Length > 5 * 1024 * 1024)
+                {
+                    return Json(ResponseHelper.Failed("ID image size must not exceed 5MB"));
+                }
+
+                if (viewModel.StudyLoadPdf.Length > 10 * 1024 * 1024)
+                {
+                    return Json(ResponseHelper.Failed("Study load PDF size must not exceed 10MB"));
+                }
+
                 string generatedGuid = Guid.NewGuid().ToString();
+                
+                // Save uploaded files
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "verification", generatedGuid);
+                Directory.CreateDirectory(uploadsFolder);
+
+                // Save ID image
+                var idImageFileName = $"id_{DateTime.Now:yyyyMMddHHmmss}{idImageExtension}";
+                var idImagePath = Path.Combine(uploadsFolder, idImageFileName);
+                using (var stream = new FileStream(idImagePath, FileMode.Create))
+                {
+                    await viewModel.IdImage.CopyToAsync(stream);
+                }
+
+                // Save study load PDF
+                var studyLoadFileName = $"studyload_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+                var studyLoadPath = Path.Combine(uploadsFolder, studyLoadFileName);
+                using (var stream = new FileStream(studyLoadPath, FileMode.Create))
+                {
+                    await viewModel.StudyLoadPdf.CopyToAsync(stream);
+                }
+
                 var user = new ApplicationUser
                 {
                     Id = generatedGuid,
@@ -351,6 +462,9 @@ namespace StudyConnect.Controllers
                     FirstName = viewModel.FirstName,
                     MiddleName = viewModel.MiddleName,
                     LastName = viewModel.LastName,
+                    IdImagePath = $"/uploads/verification/{generatedGuid}/{idImageFileName}",
+                    StudyLoadPdfPath = $"/uploads/verification/{generatedGuid}/{studyLoadFileName}",
+                    IsAccountActivated = false,
                     CreatedBy = generatedGuid,
                     CreatedByName = $"{viewModel.FirstName} {viewModel.LastName}",
                     ModifiedBy = generatedGuid,
@@ -363,79 +477,15 @@ namespace StudyConnect.Controllers
                     // Assign default role (Student)
                     await _userManager.AddToRoleAsync(user, AppRoles.Student);
 
-                    // Auto-assign Free Trial subscription
-                    var freeTrialSubscription = await _context.Subscriptions
-                        .FirstOrDefaultAsync(s => s.Name == "Free Trial" && s.IsActive && s.DeletedAt == null);
+                    // Log the registration
+                    await _auditService.LogCreateAsync("User Registration", user.Id, new { user.Email, user.FirstName, user.LastName });
 
-                    if (freeTrialSubscription != null)
-                    {
-                        var startDate = DateTime.Now;
-                        var endDate = startDate.AddHours(4); // Free trial is 4 hours
-
-                        // Create user subscription
-                        var userSubscription = new UserSubscription
-                        {
-                            UserId = user.Id,
-                            SubscriptionId = freeTrialSubscription.Id,
-                            StartDate = startDate,
-                            EndDate = endDate,
-                            IsActive = true,
-                            FilesUploaded = 0,
-                            GroupsCreated = 0,
-                            CreatedBy = user.Id,
-                            CreatedByName = $"{user.FirstName} {user.LastName}",
-                            CreatedAt = DateTime.Now,
-                            ModifiedBy = user.Id,
-                            ModifiedByName = $"{user.FirstName} {user.LastName}",
-                            ModifiedAt = DateTime.Now
-                        };
-
-                        _context.UserSubscriptions.Add(userSubscription);
-
-                        // Update user's subscription tracking fields
-                        user.SubscriptionStartDate = startDate;
-                        user.SubscriptionEndDate = endDate;
-                        user.HasActiveSubscription = true;
-                        user.FilesUploadedCount = 0;
-
-                        await _context.SaveChangesAsync();
-                    }
-
-                    // Get existing claims
-                    var existingClaims = await _userManager.GetClaimsAsync(user);
-
-                    // Add custom claims
-                    var claims = new List<Claim>
-                    {
-                        new Claim("FirstName", user.FirstName),
-                        new Claim("LastName", user.LastName),
-                        new Claim("Gender", user.Sex ?? "Not Specified"),
-                        new Claim("FullName", $"{user.FirstName} {user.LastName}")
-                    };
-
-                    // Add user roles as claims
-                    var roles = await _userManager.GetRolesAsync(user);
-                    foreach (var role in roles)
-                    {
-                        claims.Add(new Claim(ClaimTypes.Role, role));
-                    }
-
-                    // Filter out role claims and claims that already exist
-                    var claimsToAdd = claims.Where(c =>
-                        !c.Type.Equals(ClaimTypes.Role) &&
-                        !existingClaims.Any(existingClaim => existingClaim.Type == c.Type)
-                    ).ToList();
-
-                    // Add claims to the user's identity if there are any new ones
-                    if (claimsToAdd.Any())
-                    {
-                        await _userManager.AddClaimsAsync(user, claimsToAdd);
-                    }
-
-                    // Sign in again to refresh the claims in the cookie
-                    await _signInManager.SignOutAsync();
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return Json(ResponseHelper.Success("Successfully registered. You have been granted a 4-hour Free Trial!", null, redirectUrl: Url.Action("Index", "Dashboard")));
+                    // Return success message without auto-login
+                    return Json(ResponseHelper.Success(
+                        "Registration successful! Your account is pending admin approval. You will be able to login once your documents are verified.", 
+                        null, 
+                        redirectUrl: Url.Action("Index", "Auth")
+                    ));
                 }
 
                 string errors = string.Join("\n", result.Errors.Select(e => e.Description));

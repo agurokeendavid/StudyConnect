@@ -1,0 +1,249 @@
+@{
+    ViewBag.Title = "Account Verification";
+    Layout = "Dashboard/_Layout";
+}
+
+@section Styles {
+    <style>
+        .verification-card {
+            transition: all 0.3s ease;
+        }
+
+            .verification-card:hover {
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            }
+
+        .document-preview {
+            width: 100%;
+            min-height: 450px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+            .document-preview img {
+                max-width: 100%;
+                max-height: 420px;
+                height: auto;
+                border-radius: 4px;
+                object-fit: contain;
+            }
+
+            .document-preview iframe,
+            .document-preview embed {
+                width: 100%;
+                height: 420px;
+                border: none;
+                border-radius: 4px;
+            }
+
+        .document-actions {
+            margin-top: 10px;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Fix SweetAlert2 textarea styling */
+        .swal2-textarea,
+        .swal2-textarea-custom {
+            min-height: 120px !important;
+            padding: 10px !important;
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+            resize: vertical !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Ensure textarea is focusable and editable */
+        .swal2-input:focus,
+        .swal2-textarea:focus {
+            border-color: #5D87FF !important;
+            box-shadow: 0 0 0 0.2rem rgba(93, 135, 255, 0.25) !important;
+        }
+
+        /* Remove any pointer-events that might block input */
+        .swal2-popup {
+            pointer-events: auto !important;
+        }
+
+        .swal2-container {
+            pointer-events: none !important;
+        }
+
+        .swal2-container.swal2-shown {
+            pointer-events: auto !important;
+        }
+    </style>
+}
+
+<div class="body-wrapper">
+    <div class="container-fluid">
+        @Html.AntiForgeryToken()
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div>
+                                <h4 class="card-title mb-1">Account Verification</h4>
+                                <p class="card-subtitle text-muted">Review and approve pending user registrations</p>
+                            </div>
+                            <div>
+                                <span class="badge bg-warning-subtle text-warning fs-4" id="pendingCount">0</span>
+                            </div>
+                        </div>
+
+                        <div id="accountsGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Review Registration Documents</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="mb-3">User Information</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <th width="40%">Full Name:</th>
+                                <td id="userFullName"></td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td id="userEmail"></td>
+                            </tr>
+                            <tr>
+                                <th>Role:</th>
+                                <td id="userRole"></td>
+                            </tr>
+                            <tr>
+                                <th>Registered On:</th>
+                                <td id="userCreatedAt"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <div id="rejectionReasonSection" style="display: none;">
+                            <div class="alert alert-danger">
+                                <strong>Rejection Reason:</strong>
+                                <p id="rejectionReason" class="mb-0"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="mb-3">
+                            <i class="ti ti-id-badge me-2"></i>Valid ID Image
+                        </h6>
+                        <div class="document-preview" id="idImagePreview">
+                            <div class="text-center text-muted">
+                                <i class="ti ti-photo fs-1"></i>
+                                <p>Loading...</p>
+                            </div>
+                        </div>
+                        <div class="document-actions text-center" id="idImageActions" style="display: none;">
+                            <a href="#" target="_blank" class="btn btn-sm btn-outline-primary" id="btnOpenIdImage">
+                                <i class="ti ti-external-link me-1"></i>Open in New Tab
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="mb-3">
+                            <i class="ti ti-file-text me-2"></i>Study Load PDF
+                        </h6>
+                        <div class="document-preview" id="studyLoadPreview">
+                            <div class="text-center text-muted">
+                                <i class="ti ti-file-pdf fs-1"></i>
+                                <p>Loading...</p>
+                            </div>
+                        </div>
+                        <div class="document-actions text-center" id="studyLoadActions" style="display: none;">
+                            <a href="#" target="_blank" class="btn btn-sm btn-outline-primary" id="btnOpenStudyLoad">
+                                <i class="ti ti-external-link me-1"></i>Open in New Tab
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="currentUserId" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" id="btnReject">
+                    <i class="ti ti-x me-1"></i>Reject
+                </button>
+                <button type="button" class="btn btn-success" id="btnApprove">
+                    <i class="ti ti-check me-1"></i>Approve
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rejection Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="rejectModalLabel">
+                    <i class="ti ti-x me-2"></i>Reject Account
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Please provide a reason for rejecting this account:</p>
+                <div class="form-group">
+                    <label for="rejectionReasonInput" class="form-label">Rejection Reason <span class="text-danger">*</span></label>
+                    <textarea 
+                        id="rejectionReasonInput" 
+                        class="form-control" 
+                        rows="5" 
+                        placeholder="Enter rejection reason here..."
+                        required></textarea>
+                    <div class="invalid-feedback" id="rejectionReasonError">
+                        Please enter a rejection reason.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmReject">
+                    <i class="ti ti-x me-1"></i>Reject Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section FooterScripts {
+    <script src="~/modules/account_verification/footer_index.js" asp-append-version="true"></script>
+}

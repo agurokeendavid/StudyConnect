@@ -20,7 +20,7 @@
 								<img src="~/images/studyconnect_logo.png" height="100" width="100" class="dark-logo" alt="Study Connect Logo"/>
 								<img src="~/images/studyconnect_logo.png" height="100" width="100" class="light-logo" alt="Study Connect Logo"/>
 							</a>
-    <form id="form" role="form" method="POST">
+    <form id="form" role="form" method="POST" enctype="multipart/form-data">
            @Html.AntiForgeryToken()
           
    <!-- Hidden inputs for form submission -->
@@ -68,6 +68,30 @@
          <div id="password"></div>
           </div>
          </div>
+
+             <div class="col-sm-12">
+                 <div class="mb-3">
+                     <label for="idImage" class="form-label">Upload Valid ID <code>*</code></label>
+                     <input type="file" class="form-control" id="idImage" name="IdImage" accept="image/*" required />
+                     <small class="text-muted">Accepted formats: JPG, JPEG, PNG, GIF (Max: 5MB)</small>
+                 </div>
+             </div>
+
+             <div class="col-sm-12">
+                 <div class="mb-3">
+                     <label for="studyLoadPdf" class="form-label">Upload Study Load PDF <code>*</code></label>
+                     <input type="file" class="form-control" id="studyLoadPdf" name="StudyLoadPdf" accept=".pdf" required />
+                     <small class="text-muted">Accepted format: PDF (Max: 10MB)</small>
+                 </div>
+             </div>
+
+             <div class="col-sm-12">
+                 <div class="alert alert-info">
+                     <i class="ti ti-info-circle me-2"></i>
+                     <small>Your account will be reviewed by an administrator. You will be able to login once your documents are verified and approved.</small>
+                 </div>
+             </div>
+
    <div class="col-sm-12">
      <div id="btn-register" class="mb-4"></div>
         </div>
