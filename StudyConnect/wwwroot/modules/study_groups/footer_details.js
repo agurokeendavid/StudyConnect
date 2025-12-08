@@ -1078,80 +1078,181 @@ function createMeetingCard(meeting, status) {
     var statusClass = '';
     var joinButton = '';
 
-    if (status === 'ongoing') {
-        statusBadge = '<span class="badge bg-success-subtle text-success"><i class="ti ti-live-view me-1"></i>Live Now</span>';
-        statusClass = 'border-success';
+    // Override status with meeting's actual status if available
+    if (meeting.meetingStatus) {
+        switch (meeting.meetingStatus) {
+            case 'Completed':
+                statusBadge = '<span class="badge bg-success-subtle text-success"><i class="ti ti-check me-1"></i>Completed</span>';
+                statusClass = 'border-success';
+                status = 'past';
+                break;
+            case 'Cancelled':
+                statusBadge = '<span class="badge bg-danger-subtle text-danger"><i class="ti ti-x me-1"></i>Cancelled</span>';
+                statusClass = 'border-danger';
+                status = 'past';
+                break;
+            case 'Postponed':
+                statusBadge = '<span class="badge bg-warning-subtle text-warning"><i class="ti ti-ban me-1"></i>Postponed</span>';
+                statusClass = 'border-warning';
+                break;
+            case 'NoShow':
+                statusBadge = '<span class="badge bg-secondary-subtle text-secondary"><i class="ti ti-user-off me-1"></i>No Show</span>';
+                statusClass = 'border-secondary';
+                status = 'past';
+                break;
+            case 'Ongoing':
+                statusBadge = '<span class="badge bg-info-subtle text-info"><i class="ti ti-live-view me-1"></i>Ongoing</span>';
+                statusClass = 'border-info';
+                break;
+        }
+    } else {
+        // Default status badges
+        if (status === 'ongoing') {
+            statusBadge = '<span class="badge bg-success-subtle text-success"><i class="ti ti-live-view me-1"></i>Live Now</span>';
+            statusClass = 'border-success';
+        } else if (status === 'upcoming') {
+            statusBadge = '<span class="badge bg-primary-subtle text-primary"><i class="ti ti-clock me-1"></i>Upcoming</span>';
+            statusClass = 'border-primary';
+        } else {
+            statusBadge = '<span class="badge bg-secondary-subtle text-secondary"><i class="ti ti-check me-1"></i>Completed</span>';
+            statusClass = '';
+        }
+    }
+
+    // Join button logic
+    if (status === 'ongoing' && meeting.meetingStatus !== 'Cancelled' && meeting.meetingStatus !== 'NoShow') {
         joinButton = `
             <a href="${escapeHtml(meeting.meetingLink)}" target="_blank" class="btn btn-success btn-sm">
-       <i class="ti ti-video me-1"></i>Join Now
-    </a>
- `;
-    } else if (status === 'upcoming') {
-        statusBadge = '<span class="badge bg-primary-subtle text-primary"><i class="ti ti-clock me-1"></i>Upcoming</span>';
-        statusClass = 'border-primary';
+                <i class="ti ti-video me-1"></i>Join Now
+            </a>
+        `;
+    } else if (status === 'upcoming' && meeting.meetingStatus !== 'Cancelled') {
         joinButton = `
             <a href="${escapeHtml(meeting.meetingLink)}" target="_blank" class="btn btn-outline-primary btn-sm">
- <i class="ti ti-video me-1"></i>View Link
+                <i class="ti ti-video me-1"></i>View Link
             </a>
-  `;
+        `;
     } else {
-        statusBadge = '<span class="badge bg-secondary-subtle text-secondary"><i class="ti ti-check me-1"></i>Completed</span>';
-        statusClass = '';
         joinButton = `
-   <button class="btn btn-outline-secondary btn-sm" disabled>
- <i class="ti ti-video-off me-1"></i>Ended
-          </button>
+            <button class="btn btn-outline-secondary btn-sm" disabled>
+                <i class="ti ti-video-off me-1"></i>Ended
+            </button>
         `;
     }
 
     var actionButtons = '';
-    if (isOwner && status !== 'past') {
+    if (isOwner && status !== 'past' && meeting.meetingStatus !== 'Cancelled') {
         actionButtons = `
             <div class="btn-group btn-group-sm ms-2">
-            <button type="button" class="btn btn-outline-primary" onclick="editMeeting(${meeting.id})" title="Edit Meeting">
-            <i class="ti ti-edit"></i>
-        </button>
-          <button type="button" class="btn btn-outline-danger" onclick="deleteMeeting(${meeting.id})" title="Delete Meeting">
-                    <i class="ti ti-trash"></i>
-     </button>
+                <button type="button" class="btn btn-outline-primary" onclick="editMeeting(${meeting.id})" title="Edit Meeting">
+                    <i class="ti ti-edit"></i>
+                </button>
+                <button type="button" class="btn btn-outline-warning" onclick="postponeMeeting(${meeting.id})" title="Postpone Meeting">
+                    <i class="ti ti-ban"></i>
+                </button>
+                <button type="button" class="btn btn-outline-danger" onclick="cancelMeeting(${meeting.id})" title="Cancel Meeting">
+                    <i class="ti ti-x"></i>
+                </button>
             </div>
-      `;
+        `;
+    }
+
+    // Status management button (for owner/admin)
+    var statusButton = '';
+    if (isOwner || isMember) {
+        if (status === 'past' && meeting.meetingStatus !== 'Cancelled' && meeting.meetingStatus !== 'NoShow' && meeting.meetingStatus !== 'Completed') {
+            statusButton = `
+                <button type="button" class="btn btn-outline-info btn-sm ms-2" onclick="recordMeetingStatus(${meeting.id}, 'Completed')" title="Record Status">
+                    <i class="ti ti-file-text me-1"></i>Mark Complete
+                </button>
+            `;
+        }
     }
 
     var recurringBadge = meeting.isRecurring
         ? `<span class="badge bg-info-subtle text-info ms-2"><i class="ti ti-repeat me-1"></i>${meeting.recurrencePattern}</span>`
         : '';
 
+    var postponedBadge = meeting.isPostponed
+        ? `<span class="badge bg-warning-subtle text-warning ms-2"><i class="ti ti-alert-triangle me-1"></i>Rescheduled</span>`
+        : '';
+
     var participantsBadge = meeting.maxParticipants
         ? `<span class="text-muted small ms-3"><i class="ti ti-users me-1"></i>Max: ${meeting.maxParticipants}</span>`
         : '';
 
+    var attendanceBadge = meeting.attendanceCount > 0
+        ? `<span class="text-muted small ms-3"><i class="ti ti-users-group me-1"></i>Attended: ${meeting.attendanceCount}</span>`
+        : '';
+
+    var postponementInfo = '';
+    if (meeting.isPostponed && meeting.postponementReason) {
+        postponementInfo = `
+            <div class="alert alert-warning alert-dismissible fade show mt-2 mb-0" role="alert">
+                <small>
+                    <i class="ti ti-info-circle me-1"></i>
+                    <strong>Postponed:</strong> ${escapeHtml(meeting.postponementReason)}
+                </small>
+            </div>
+        `;
+    }
+
+    var noShowInfo = '';
+    if (meeting.noShowRecorded && meeting.noShowNotes) {
+        noShowInfo = `
+            <div class="alert alert-secondary alert-dismissible fade show mt-2 mb-0" role="alert">
+                <small>
+                    <i class="ti ti-alert-circle me-1"></i>
+                    <strong>No Show:</strong> ${escapeHtml(meeting.noShowNotes)}
+                </small>
+            </div>
+        `;
+    }
+
+    var meetingNotesInfo = '';
+    if (meeting.meetingNotes) {
+        meetingNotesInfo = `
+            <div class="alert alert-info alert-dismissible fade show mt-2 mb-0" role="alert">
+                <small>
+                    <i class="ti ti-note me-1"></i>
+                    <strong>Notes:</strong> ${escapeHtml(meeting.meetingNotes)}
+                </small>
+            </div>
+        `;
+    }
+
     var card = `
         <div class="card mb-3 ${statusClass}" id="meeting-${meeting.id}">
             <div class="card-body">
-    <div class="d-flex justify-content-between align-items-start mb-2">
-          <div class="flex-grow-1">
- <div class="d-flex align-items-center mb-2">
-  <h6 class="mb-0 fw-semibold">${escapeHtml(meeting.title)}</h6>
-    ${statusBadge}
-             ${recurringBadge}
-      </div>
-     ${meeting.description ? `<p class="text-muted small mb-2">${escapeHtml(meeting.description)}</p>` : ''}
-            <div class="d-flex flex-wrap gap-3 text-muted small">
-  <span><i class="ti ti-calendar me-1"></i>${meeting.startTimeFormatted}</span>
-             <span><i class="ti ti-clock-hour-4 me-1"></i>${meeting.endTimeFormatted}</span>
-       <span><i class="ti ti-user me-1"></i>Created by ${escapeHtml(meeting.createdByName)}</span>
-               ${participantsBadge}
-   </div>
-   </div>
-     </div>
-         <div class="d-flex align-items-center justify-content-between mt-3">
-         <div>
-        ${joinButton}
-        ${actionButtons}
-         </div>
-         </div>
-    </div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center mb-2">
+                            <h6 class="mb-0 fw-semibold">${escapeHtml(meeting.title)}</h6>
+                            ${statusBadge}
+                            ${recurringBadge}
+                            ${postponedBadge}
+                        </div>
+                        ${meeting.description ? `<p class="text-muted small mb-2">${escapeHtml(meeting.description)}</p>` : ''}
+                        <div class="d-flex flex-wrap gap-3 text-muted small">
+                            <span><i class="ti ti-calendar me-1"></i>${meeting.startTimeFormatted}</span>
+                            <span><i class="ti ti-clock-hour-4 me-1"></i>${meeting.endTimeFormatted}</span>
+                            <span><i class="ti ti-user me-1"></i>Created by ${escapeHtml(meeting.createdByName)}</span>
+                            ${participantsBadge}
+                            ${attendanceBadge}
+                        </div>
+                        ${postponementInfo}
+                        ${noShowInfo}
+                        ${meetingNotesInfo}
+                    </div>
+                </div>
+                <div class="d-flex align-items-center justify-content-between mt-3">
+                    <div>
+                        ${joinButton}
+                        ${statusButton}
+                        ${actionButtons}
+                    </div>
+                </div>
+            </div>
         </div>
     `;
 
@@ -1352,6 +1453,401 @@ function deleteMeeting(meetingId) {
             });
         }
     });
+}
+
+// Cancel Meeting
+function cancelMeeting(meetingId) {
+    Swal.fire({
+        title: 'Cancel Meeting?',
+        text: 'Please provide a reason for cancellation:',
+        input: 'textarea',
+        inputPlaceholder: 'Reason for cancellation...',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Cancel Meeting',
+        cancelButtonText: 'Close',
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Please provide a reason for cancellation';
+            }
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            AmagiLoader.show();
+
+            $.ajax({
+                url: '/StudyGroups/CancelMeeting',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    meetingId: meetingId,
+                    cancellationReason: result.value
+                }),
+                success: function (response) {
+                    AmagiLoader.hide();
+                    if (response.MessageType === 'Success') {
+                        Swal.fire('Cancelled!', 'Meeting has been cancelled.', 'success');
+                        loadMeetings();
+                    } else {
+                        Swal.fire('Error', response.Message || 'Failed to cancel meeting', 'error');
+                    }
+                },
+                error: function () {
+                    AmagiLoader.hide();
+                    Swal.fire('Error', 'An error occurred while cancelling the meeting', 'error');
+                }
+            });
+        }
+    });
+}
+
+// Postpone Meeting
+function postponeMeeting(meetingId) {
+    // Get meeting data first
+    $.ajax({
+        url: '/StudyGroups/GetMeetings',
+        type: 'GET',
+        data: { studyGroupId: studyGroupId },
+        success: function (response) {
+            var meeting = response.data.find(m => m.id === meetingId);
+            if (meeting) {
+                showPostponeMeetingModal(meeting);
+            }
+        },
+        error: function () {
+            Swal.fire('Error', 'Failed to load meeting details', 'error');
+        }
+    });
+}
+
+function showPostponeMeetingModal(meeting) {
+    Swal.fire({
+        title: 'Postpone Meeting',
+        html: `
+            <div class="text-start">
+                <p class="mb-3"><strong>Current meeting:</strong> ${escapeHtml(meeting.title)}</p>
+                <p class="mb-3"><strong>Scheduled for:</strong> ${meeting.startTimeFormatted}</p>
+                <div class="mb-3">
+                    <label class="form-label">New Start Date & Time</label>
+                    <input type="datetime-local" id="postponeStartTime" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">New End Date & Time</label>
+                    <input type="datetime-local" id="postponeEndTime" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Reason for Postponement</label>
+                    <textarea id="postponeReason" class="form-control" rows="3" placeholder="Explain why the meeting is being postponed..."></textarea>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Postpone Meeting',
+        confirmButtonColor: '#FFA500',
+        cancelButtonText: 'Cancel',
+        preConfirm: () => {
+            const newStartTime = document.getElementById('postponeStartTime').value;
+            const newEndTime = document.getElementById('postponeEndTime').value;
+            const reason = document.getElementById('postponeReason').value.trim();
+
+            if (!newStartTime || !newEndTime) {
+                Swal.showValidationMessage('Please select new start and end times');
+                return false;
+            }
+
+            const startDate = new Date(newStartTime);
+            const endDate = new Date(newEndTime);
+
+            if (endDate <= startDate) {
+                Swal.showValidationMessage('End time must be after start time');
+                return false;
+            }
+
+            if (startDate < new Date()) {
+                Swal.showValidationMessage('New start time cannot be in the past');
+                return false;
+            }
+
+            return {
+                meetingId: meeting.id,
+                newStartTime: startDate.toISOString(),
+                newEndTime: endDate.toISOString(),
+                postponementReason: reason
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            submitPostponeMeeting(result.value);
+        }
+    });
+
+    // Set minimum datetime to now
+    setTimeout(() => {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.getElementById('postponeStartTime').min = now.toISOString().slice(0, 16);
+    }, 100);
+}
+
+function submitPostponeMeeting(data) {
+    AmagiLoader.show();
+
+    $.ajax({
+        url: '/StudyGroups/PostponeMeeting',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function (response) {
+            AmagiLoader.hide();
+            if (response.MessageType === 'Success') {
+                Swal.fire('Success', 'Meeting postponed successfully. Members will be notified.', 'success');
+                loadMeetings();
+            } else {
+                Swal.fire('Error', response.Message || 'Failed to postpone meeting', 'error');
+            }
+        },
+        error: function () {
+            AmagiLoader.hide();
+            Swal.fire('Error', 'An error occurred while postponing the meeting', 'error');
+        }
+    });
+}
+
+// Record Meeting Status
+function recordMeetingStatus(meetingId, suggestedStatus = null) {
+    // Get meeting data first
+    $.ajax({
+        url: '/StudyGroups/GetMeetings',
+        type: 'GET',
+        data: { studyGroupId: studyGroupId },
+        success: function (response) {
+            var meeting = response.data.find(m => m.id === meetingId);
+            if (meeting) {
+                showRecordStatusModal(meeting, suggestedStatus);
+            }
+        },
+        error: function () {
+            Swal.fire('Error', 'Failed to load meeting details', 'error');
+        }
+    });
+}
+
+function showRecordStatusModal(meeting, suggestedStatus) {
+    const statusOptions = [
+        { value: 'Scheduled', label: 'Scheduled' },
+        { value: 'Ongoing', label: 'Ongoing' },
+        { value: 'Completed', label: 'Completed' },
+        { value: 'NoShow', label: 'No One Showed Up' },
+        { value: 'Cancelled', label: 'Cancelled' }
+    ];
+
+    const optionsHtml = statusOptions.map(opt => 
+        `<option value="${opt.value}" ${opt.value === suggestedStatus ? 'selected' : ''}>${opt.label}</option>`
+    ).join('');
+
+    Swal.fire({
+        title: 'Record Meeting Status',
+        html: `
+            <div class="text-start">
+                <p class="mb-3"><strong>Meeting:</strong> ${escapeHtml(meeting.title)}</p>
+                <p class="mb-3"><strong>Scheduled:</strong> ${meeting.startTimeFormatted}</p>
+                
+                <div class="mb-3">
+                    <label class="form-label">Meeting Status <span class="text-danger">*</span></label>
+                    <select id="recordStatus" class="form-select">
+                        ${optionsHtml}
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Actual Start Time</label>
+                    <input type="datetime-local" id="actualStartTime" class="form-control">
+                    <small class="text-muted">Leave empty if meeting didn't start</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Actual End Time</label>
+                    <input type="datetime-local" id="actualEndTime" class="form-control">
+                    <small class="text-muted">Leave empty if meeting didn't end</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Attendance Count</label>
+                    <input type="number" id="attendanceCount" class="form-control" min="0" placeholder="Number of attendees">
+                </div>
+                
+                <div class="mb-3" id="noShowNotesContainer" style="display: none;">
+                    <label class="form-label">Notes (No Show)</label>
+                    <textarea id="noShowNotes" class="form-control" rows="2" placeholder="Why did no one show up?"></textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Meeting Notes</label>
+                    <textarea id="meetingNotes" class="form-control" rows="3" placeholder="What happened during the meeting? Key discussion points?"></textarea>
+                </div>
+            </div>
+        `,
+        width: '600px',
+        showCancelButton: true,
+        confirmButtonText: 'Save Status',
+        confirmButtonColor: '#5D87FF',
+        cancelButtonText: 'Cancel',
+        didOpen: () => {
+            // Show/hide no show notes based on status
+            document.getElementById('recordStatus').addEventListener('change', function() {
+                const noShowContainer = document.getElementById('noShowNotesContainer');
+                if (this.value === 'NoShow') {
+                    noShowContainer.style.display = 'block';
+                } else {
+                    noShowContainer.style.display = 'none';
+                }
+            });
+
+            // Trigger initial state
+            document.getElementById('recordStatus').dispatchEvent(new Event('change'));
+        },
+        preConfirm: () => {
+            const status = document.getElementById('recordStatus').value;
+            const actualStartTime = document.getElementById('actualStartTime').value;
+            const actualEndTime = document.getElementById('actualEndTime').value;
+            const attendanceCount = document.getElementById('attendanceCount').value;
+            const noShowNotes = document.getElementById('noShowNotes').value.trim();
+            const meetingNotes = document.getElementById('meetingNotes').value.trim();
+
+            if (!status) {
+                Swal.showValidationMessage('Please select a meeting status');
+                return false;
+            }
+
+            if (actualStartTime && actualEndTime) {
+                const startDate = new Date(actualStartTime);
+                const endDate = new Date(actualEndTime);
+                if (endDate <= startDate) {
+                    Swal.showValidationMessage('Actual end time must be after start time');
+                    return false;
+                }
+            }
+
+            return {
+                meetingId: meeting.id,
+                meetingStatus: status,
+                actualStartTime: actualStartTime ? new Date(actualStartTime).toISOString() : null,
+                actualEndTime: actualEndTime ? new Date(actualEndTime).toISOString() : null,
+                attendanceCount: attendanceCount ? parseInt(attendanceCount) : null,
+                noShowNotes: noShowNotes,
+                meetingNotes: meetingNotes
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            submitMeetingStatus(result.value);
+        }
+    });
+}
+
+function submitMeetingStatus(data) {
+    AmagiLoader.show();
+
+    $.ajax({
+        url: '/StudyGroups/RecordMeetingStatus',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function (response) {
+            AmagiLoader.hide();
+            if (response.MessageType === 'Success') {
+                Swal.fire('Success', 'Meeting status recorded successfully.', 'success');
+                loadMeetings();
+            } else {
+                Swal.fire('Error', response.Message || 'Failed to record meeting status', 'error');
+            }
+        },
+        error: function () {
+            AmagiLoader.hide();
+            Swal.fire('Error', 'An error occurred while recording meeting status', 'error');
+        }
+    });
+}
+
+// Load Meeting Statistics
+function loadMeetingStatistics() {
+    $.ajax({
+        url: '/StudyGroups/GetMeetingStatistics',
+        type: 'GET',
+        data: { studyGroupId: studyGroupId },
+        success: function (response) {
+            if (response.MessageType === 'Success' && response.Data) {
+                renderMeetingStatistics(response.Data);
+            }
+        },
+        error: function () {
+            console.error('Error loading meeting statistics');
+        }
+    });
+}
+
+function renderMeetingStatistics(stats) {
+    const statsHtml = `
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card border-0 bg-primary-subtle">
+                    <div class="card-body text-center">
+                        <i class="ti ti-calendar-event text-primary" style="font-size: 32px;"></i>
+                        <h4 class="fw-bold mt-2 mb-0">${stats.totalMeetings}</h4>
+                        <p class="text-muted mb-0 small">Total Meetings</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 bg-success-subtle">
+                    <div class="card-body text-center">
+                        <i class="ti ti-check text-success" style="font-size: 32px;"></i>
+                        <h4 class="fw-bold mt-2 mb-0">${stats.completedMeetings}</h4>
+                        <p class="text-muted mb-0 small">Completed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 bg-warning-subtle">
+                    <div class="card-body text-center">
+                        <i class="ti ti-ban text-warning" style="font-size: 32px;"></i>
+                        <h4 class="fw-bold mt-2 mb-0">${stats.postponedMeetings}</h4>
+                        <p class="text-muted mb-0 small">Postponed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 bg-danger-subtle">
+                    <div class="card-body text-center">
+                        <i class="ti ti-x text-danger" style="font-size: 32px;"></i>
+                        <h4 class="fw-bold mt-2 mb-0">${stats.cancelledMeetings}</h4>
+                        <p class="text-muted mb-0 small">Cancelled</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 bg-secondary-subtle">
+                    <div class="card-body text-center">
+                        <i class="ti ti-user-off text-secondary" style="font-size: 32px;"></i>
+                        <h4 class="fw-bold mt-2 mb-0">${stats.noShowMeetings}</h4>
+                        <p class="text-muted mb-0 small">No Shows</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 bg-info-subtle">
+                    <div class="card-body text-center">
+                        <i class="ti ti-users text-info" style="font-size: 32px;"></i>
+                        <h4 class="fw-bold mt-2 mb-0">${stats.averageAttendance.toFixed(1)}</h4>
+                        <p class="text-muted mb-0 small">Avg Attendance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    $('#meetingStatistics').html(statsHtml);
 }
 
 // Auto-refresh meetings every 5 minutes

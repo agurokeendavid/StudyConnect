@@ -2203,9 +2203,7 @@ namespace StudyConnect.Controllers
 
                 var meetings = await _context.StudyGroupMeetings
    .Where(m => m.StudyGroupId == studyGroupId &&
-   m.DeletedAt == null &&
-       !m.IsCancelled &&
-       m.IsActive)
+   m.DeletedAt == null)
      .Include(m => m.CreatedByUser)
           .OrderBy(m => m.ScheduledStartTime)
          .Select(m => new
@@ -2397,6 +2395,7 @@ namespace StudyConnect.Controllers
                 meeting.IsCancelled = true;
                 meeting.IsActive = false;
                 meeting.CancellationReason = request.CancellationReason;
+                meeting.MeetingStatus = "Cancelled";
                 meeting.ModifiedBy = currentUserId ?? "";
                 meeting.ModifiedByName = currentUserName;
                 meeting.ModifiedAt = DateTime.Now;
