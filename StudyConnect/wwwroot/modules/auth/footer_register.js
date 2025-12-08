@@ -155,6 +155,20 @@ var lastName = $("#last_name").dxTextBox("instance").option("value");
   // Initialize DevExtreme ValidationGroup
     var validationGroup = $("#form").dxValidationGroup({}).dxValidationGroup("instance");
 
+    // Handle document type radio button change
+    $('input[name="DocumentType"]').on('change', function() {
+        var selectedType = $(this).val();
+        if (selectedType === 'id') {
+            $('#idImageSection').show();
+            $('#studyLoadSection').hide();
+            $('#studyLoadDocument').val('');
+        } else {
+            $('#idImageSection').hide();
+            $('#studyLoadSection').show();
+            $('#idImage').val('');
+        }
+    });
+
   formEl.on('submit', function (e) {
         e.preventDefault();
         
@@ -164,45 +178,76 @@ var lastName = $("#last_name").dxTextBox("instance").option("value");
   return false;
    }
         
-        // Validate file uploads
+        // Validate file uploads based on selected document type
+        var documentType = $('input[name="DocumentType"]:checked').val();
         var idImage = $('#idImage')[0].files[0];
-        var studyLoadPdf = $('#studyLoadPdf')[0].files[0];
+        var studyLoadDocument = $('#studyLoadDocument')[0].files[0];
         
-        if (!idImage) {
-            Swal.fire({
-                title: 'Missing ID Image',
-                text: 'Please upload your valid ID image',
-                icon: 'error'
+        if (documentType === 'id') {
+            if (!idImage) {
+                Swal.fire({
+                    title: 'Missing Valid ID',
+                    text: 'Please upload your valid ID image',
+                    icon: 'error'
+                });
+                return false;
+            }
+            
+            // Validate file size (5MB for image)
+            if (idImage.size > 5 * 1024 * 1024) {
+                Swal.fire({
+                    title: 'File Too Large',
+                    text: 'ID image must not exceed 5MB',
+                    icon: 'error'
+                });
+                return false;
+            }
+            
+            // Validate file type
+            var allowedImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!allowedImageTypes.includes(idImage.type)) {
+                Swal.fire({
+                    title: 'Invalid File Type',
+                    text: 'Please upload a valid image file (JPG, JPEG, PNG, GIF)',
+                    icon: 'error'
+                });
+                return false;
+            }
+        } else {
+            if (!studyLoadDocument) {
+                Swal.fire({
+                    title: 'Missing Study Load Document',
+                    text: 'Please upload your study load document',
+                    icon: 'error'
+                });
+                return false;
+            }
+            
+            // Validate file size (10MB for document)
+            if (studyLoadDocument.size > 10 * 1024 * 1024) {
+                Swal.fire({
+                    title: 'File Too Large',
+                    text: 'Study load document must not exceed 10MB',
+                    icon: 'error'
+                });
+                return false;
+            }
+            
+            // Validate file type
+            var fileName = studyLoadDocument.name.toLowerCase();
+            var validExtensions = ['.pdf', '.doc', '.docx'];
+            var hasValidExtension = validExtensions.some(function(ext) {
+                return fileName.endsWith(ext);
             });
-            return false;
-        }
-        
-        if (!studyLoadPdf) {
-            Swal.fire({
-                title: 'Missing Study Load',
-                text: 'Please upload your study load PDF',
-                icon: 'error'
-            });
-            return false;
-        }
-        
-        // Validate file sizes
-        if (idImage.size > 5 * 1024 * 1024) {
-            Swal.fire({
-                title: 'File Too Large',
-                text: 'ID image must not exceed 5MB',
-                icon: 'error'
-            });
-            return false;
-        }
-        
-        if (studyLoadPdf.size > 10 * 1024 * 1024) {
-            Swal.fire({
-                title: 'File Too Large',
-                text: 'Study load PDF must not exceed 10MB',
-                icon: 'error'
-            });
-            return false;
+            
+            if (!hasValidExtension) {
+                Swal.fire({
+                    title: 'Invalid File Type',
+                    text: 'Please upload a PDF, DOC, or DOCX file',
+                    icon: 'error'
+                });
+                return false;
+            }
         }
         
         // Create FormData to handle file uploads

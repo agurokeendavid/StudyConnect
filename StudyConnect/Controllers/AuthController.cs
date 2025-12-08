@@ -396,40 +396,43 @@ namespace StudyConnect.Controllers
                     return Json(ResponseHelper.Failed(errorMessages));
                 }
 
-                // Validate file uploads
-                if (viewModel.IdImage == null || viewModel.IdImage.Length == 0)
+                // Validate that at least one document is uploaded
+                if ((viewModel.IdImage == null || viewModel.IdImage.Length == 0) && 
+                    (viewModel.StudyLoadDocument == null || viewModel.StudyLoadDocument.Length == 0))
                 {
-                    return Json(ResponseHelper.Failed("Please upload your ID image"));
+                    return Json(ResponseHelper.Failed("Please upload either your Valid ID or Study Load document"));
                 }
 
-                if (viewModel.StudyLoadPdf == null || viewModel.StudyLoadPdf.Length == 0)
+                // Validate ID image if uploaded
+                if (viewModel.IdImage != null && viewModel.IdImage.Length > 0)
                 {
-                    return Json(ResponseHelper.Failed("Please upload your study load PDF"));
+                    var idImageExtension = Path.GetExtension(viewModel.IdImage.FileName).ToLower();
+                    var allowedImageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+                    if (!allowedImageExtensions.Contains(idImageExtension))
+                    {
+                        return Json(ResponseHelper.Failed("ID image must be a valid image file (jpg, jpeg, png, gif)"));
+                    }
+
+                    if (viewModel.IdImage.Length > 5 * 1024 * 1024)
+                    {
+                        return Json(ResponseHelper.Failed("ID image size must not exceed 5MB"));
+                    }
                 }
 
-                // Validate file types
-                var idImageExtension = Path.GetExtension(viewModel.IdImage.FileName).ToLower();
-                var allowedImageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-                if (!allowedImageExtensions.Contains(idImageExtension))
+                // Validate study load document if uploaded
+                if (viewModel.StudyLoadDocument != null && viewModel.StudyLoadDocument.Length > 0)
                 {
-                    return Json(ResponseHelper.Failed("ID image must be a valid image file (jpg, jpeg, png, gif)"));
-                }
+                    var studyLoadExtension = Path.GetExtension(viewModel.StudyLoadDocument.FileName).ToLower();
+                    var allowedDocExtensions = new[] { ".pdf", ".doc", ".docx" };
+                    if (!allowedDocExtensions.Contains(studyLoadExtension))
+                    {
+                        return Json(ResponseHelper.Failed("Study load document must be a PDF, DOC, or DOCX file"));
+                    }
 
-                var studyLoadExtension = Path.GetExtension(viewModel.StudyLoadPdf.FileName).ToLower();
-                if (studyLoadExtension != ".pdf")
-                {
-                    return Json(ResponseHelper.Failed("Study load must be a PDF file"));
-                }
-
-                // Validate file sizes (5MB for image, 10MB for PDF)
-                if (viewModel.IdImage.Length > 5 * 1024 * 1024)
-                {
-                    return Json(ResponseHelper.Failed("ID image size must not exceed 5MB"));
-                }
-
-                if (viewModel.StudyLoadPdf.Length > 10 * 1024 * 1024)
-                {
-                    return Json(ResponseHelper.Failed("Study load PDF size must not exceed 10MB"));
+                    if (viewModel.StudyLoadDocument.Length > 10 * 1024 * 1024)
+                    {
+                        return Json(ResponseHelper.Failed("Study load document size must not exceed 10MB"));
+                    }
                 }
 
                 string generatedGuid = Guid.NewGuid().ToString();
@@ -438,20 +441,33 @@ namespace StudyConnect.Controllers
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "verification", generatedGuid);
                 Directory.CreateDirectory(uploadsFolder);
 
-                // Save ID image
-                var idImageFileName = $"id_{DateTime.Now:yyyyMMddHHmmss}{idImageExtension}";
-                var idImagePath = Path.Combine(uploadsFolder, idImageFileName);
-                using (var stream = new FileStream(idImagePath, FileMode.Create))
+                string? idImageRelativePath = null;
+                string? studyLoadRelativePath = null;
+
+                // Save ID image if uploaded
+                if (viewModel.IdImage != null && viewModel.IdImage.Length > 0)
                 {
-                    await viewModel.IdImage.CopyToAsync(stream);
+                    var idImageExtension = Path.GetExtension(viewModel.IdImage.FileName).ToLower();
+                    var idImageFileName = $"id_{DateTime.Now:yyyyMMddHHmmss}{idImageExtension}";
+                    var idImagePath = Path.Combine(uploadsFolder, idImageFileName);
+                    using (var stream = new FileStream(idImagePath, FileMode.Create))
+                    {
+                        await viewModel.IdImage.CopyToAsync(stream);
+                    }
+                    idImageRelativePath = $"/uploads/verification/{generatedGuid}/{idImageFileName}";
                 }
 
-                // Save study load PDF
-                var studyLoadFileName = $"studyload_{DateTime.Now:yyyyMMddHHmmss}.pdf";
-                var studyLoadPath = Path.Combine(uploadsFolder, studyLoadFileName);
-                using (var stream = new FileStream(studyLoadPath, FileMode.Create))
+                // Save study load document if uploaded
+                if (viewModel.StudyLoadDocument != null && viewModel.StudyLoadDocument.Length > 0)
                 {
-                    await viewModel.StudyLoadPdf.CopyToAsync(stream);
+                    var studyLoadExtension = Path.GetExtension(viewModel.StudyLoadDocument.FileName).ToLower();
+                    var studyLoadFileName = $"studyload_{DateTime.Now:yyyyMMddHHmmss}{studyLoadExtension}";
+                    var studyLoadPath = Path.Combine(uploadsFolder, studyLoadFileName);
+                    using (var stream = new FileStream(studyLoadPath, FileMode.Create))
+                    {
+                        await viewModel.StudyLoadDocument.CopyToAsync(stream);
+                    }
+                    studyLoadRelativePath = $"/uploads/verification/{generatedGuid}/{studyLoadFileName}";
                 }
 
                 var user = new ApplicationUser
@@ -462,8 +478,8 @@ namespace StudyConnect.Controllers
                     FirstName = viewModel.FirstName,
                     MiddleName = viewModel.MiddleName,
                     LastName = viewModel.LastName,
-                    IdImagePath = $"/uploads/verification/{generatedGuid}/{idImageFileName}",
-                    StudyLoadPdfPath = $"/uploads/verification/{generatedGuid}/{studyLoadFileName}",
+                    IdImagePath = idImageRelativePath,
+                    StudyLoadPdfPath = studyLoadRelativePath,
                     IsAccountActivated = false,
                     CreatedBy = generatedGuid,
                     CreatedByName = $"{viewModel.FirstName} {viewModel.LastName}",
@@ -482,7 +498,7 @@ namespace StudyConnect.Controllers
 
                     // Return success message without auto-login
                     return Json(ResponseHelper.Success(
-                        "Registration successful! Your account is pending admin approval. You will be able to login once your documents are verified.", 
+                        "Registration successful! Your account is pending admin approval. You will be able to login once your document is verified.", 
                         null, 
                         redirectUrl: Url.Action("Index", "Auth")
                     ));

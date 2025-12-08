@@ -71,24 +71,44 @@
 
              <div class="col-sm-12">
                  <div class="mb-3">
+                     <label class="form-label">Choose Document to Upload <code>*</code></label>
+                     <div class="d-flex gap-4 mb-3">
+                         <div class="form-check">
+                             <input class="form-check-input" type="radio" name="DocumentType" id="docTypeId" value="id" checked>
+                             <label class="form-check-label" for="docTypeId">
+                                 <i class="ti ti-id-badge me-1"></i>Valid ID
+                             </label>
+                         </div>
+                         <div class="form-check">
+                             <input class="form-check-input" type="radio" name="DocumentType" id="docTypeStudyLoad" value="studyload">
+                             <label class="form-check-label" for="docTypeStudyLoad">
+                                 <i class="ti ti-file-text me-1"></i>Study Load Document
+                             </label>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+
+             <div class="col-sm-12" id="idImageSection">
+                 <div class="mb-3">
                      <label for="idImage" class="form-label">Upload Valid ID <code>*</code></label>
-                     <input type="file" class="form-control" id="idImage" name="IdImage" accept="image/*" required />
+                     <input type="file" class="form-control" id="idImage" name="IdImage" accept="image/*" />
                      <small class="text-muted">Accepted formats: JPG, JPEG, PNG, GIF (Max: 5MB)</small>
                  </div>
              </div>
 
-             <div class="col-sm-12">
+             <div class="col-sm-12" id="studyLoadSection" style="display: none;">
                  <div class="mb-3">
-                     <label for="studyLoadPdf" class="form-label">Upload Study Load PDF <code>*</code></label>
-                     <input type="file" class="form-control" id="studyLoadPdf" name="StudyLoadPdf" accept=".pdf" required />
-                     <small class="text-muted">Accepted format: PDF (Max: 10MB)</small>
+                     <label for="studyLoadDocument" class="form-label">Upload Study Load Document <code>*</code></label>
+                     <input type="file" class="form-control" id="studyLoadDocument" name="StudyLoadDocument" accept=".pdf,.doc,.docx" />
+                     <small class="text-muted">Accepted formats: PDF, DOC, DOCX (Max: 10MB)</small>
                  </div>
              </div>
 
              <div class="col-sm-12">
                  <div class="alert alert-info">
                      <i class="ti ti-info-circle me-2"></i>
-                     <small>Your account will be reviewed by an administrator. You will be able to login once your documents are verified and approved.</small>
+                     <small>Upload either your Valid ID or Study Load document for verification. Your account will be reviewed by an administrator and you will be able to login once your document is verified and approved.</small>
                  </div>
              </div>
 

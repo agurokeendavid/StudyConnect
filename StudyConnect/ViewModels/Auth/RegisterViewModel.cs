@@ -19,9 +19,9 @@ public class RegisterViewModel
     [Required]
     public string LastName { get; set; } = string.Empty;
     
-    [Required(ErrorMessage = "ID image is required")]
+    public string DocumentType { get; set; } = "id"; // "id" or "studyload"
+    
     public IFormFile? IdImage { get; set; }
     
-    [Required(ErrorMessage = "Study load PDF is required")]
-    public IFormFile? StudyLoadPdf { get; set; }
+    public IFormFile? StudyLoadDocument { get; set; }
 }

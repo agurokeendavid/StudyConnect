@@ -72,15 +72,18 @@ function loadPendingAccounts() {
                 caption: 'Documents',
                 width: 120,
                 cellTemplate: function (container, options) {
-                    if (options.value) {
-                        $('<span>').addClass('badge bg-success-subtle text-success')
-                            .html('<i class="ti ti-check me-1"></i>Uploaded')
-                            .appendTo(container);
-                    } else {
-                        $('<span>').addClass('badge bg-danger-subtle text-danger')
-                            .html('<i class="ti ti-x me-1"></i>Missing')
-                            .appendTo(container);
-                    }
+                    $('<span>').addClass('badge bg-success-subtle text-success')
+                        .html('<i class="ti ti-check me-1"></i>Uploaded')
+                        .appendTo(container);
+                    //if (options.value) {
+                    //    $('<span>').addClass('badge bg-success-subtle text-success')
+                    //        .html('<i class="ti ti-check me-1"></i>Uploaded')
+                    //        .appendTo(container);
+                    //} else {
+                    //    $('<span>').addClass('badge bg-danger-subtle text-danger')
+                    //        .html('<i class="ti ti-x me-1"></i>Missing')
+                    //        .appendTo(container);
+                    //}
                 }
             },
             {
@@ -94,9 +97,9 @@ function loadPendingAccounts() {
                             reviewAccount(options.data.id);
                         });
                     
-                    if (!options.data.hasDocuments) {
-                        btn.prop('disabled', true);
-                    }
+                    //if (!options.data.hasDocuments) {
+                    //    btn.prop('disabled', true);
+                    //}
                     
                     container.append(btn);
                 }
