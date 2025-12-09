@@ -10,6 +10,7 @@ using System.Security.Claims;
 using StudyConnect.Requests;
 using Microsoft.AspNetCore.SignalR;
 using StudyConnect.Hubs;
+using StudyConnect.Constants;
 
 namespace StudyConnect.Controllers
 {
@@ -2160,7 +2161,7 @@ namespace StudyConnect.Controllers
                 _context.StudyGroupMeetings.Add(meeting);
                 await _context.SaveChangesAsync();
 
-                // Log the action
+              // Log the action
                 await _auditService.LogCreateAsync("StudyGroupMeeting", meeting.Id.ToString(), new
                 {
                     meeting.Id,
@@ -2169,6 +2170,23 @@ namespace StudyConnect.Controllers
                     meeting.ScheduledStartTime,
                     meeting.ScheduledEndTime
                 });
+
+                // Send notifications to all group members
+                var notificationTitle = "New Meeting Scheduled";
+                var notificationMessage = $"'{meeting.Title}' scheduled for {meeting.ScheduledStartTime:MMMM dd, yyyy h:mm tt}";
+                var actionUrl = $"/StudyGroups/Details/{meeting.StudyGroupId}";
+
+                await _notificationService.CreateNotificationForGroupMembersAsync(
+                    meeting.StudyGroupId,
+                    Constants.NotificationTypes.MeetingScheduled,
+                    notificationTitle,
+                    notificationMessage,
+                    meeting.Id,
+                    actionUrl,
+                    "Normal",
+                    meeting.ScheduledStartTime,
+                    currentUserId
+                );
 
                 return Json(ResponseHelper.Success("Meeting created successfully.", new
                 {
@@ -2403,8 +2421,29 @@ namespace StudyConnect.Controllers
                 _context.StudyGroupMeetings.Update(meeting);
                 await _context.SaveChangesAsync();
 
-                // Log the action
+              // Log the action
                 await _auditService.LogCustomActionAsync($"Cancelled meeting {meeting.Id} for study group {meeting.StudyGroupId}. Reason: {request.CancellationReason ?? "No reason provided"}");
+
+                // Send notifications to all group members
+                var notificationTitle = "Meeting Cancelled";
+                var notificationMessage = $"'{meeting.Title}' scheduled for {meeting.ScheduledStartTime:MMMM dd, yyyy h:mm tt} has been cancelled";
+                if (!string.IsNullOrEmpty(request.CancellationReason))
+                {
+                    notificationMessage += $". Reason: {request.CancellationReason}";
+                }
+                var actionUrl = $"/StudyGroups/Details/{meeting.StudyGroupId}";
+
+                await _notificationService.CreateNotificationForGroupMembersAsync(
+                    meeting.StudyGroupId,
+                    Constants.NotificationTypes.MeetingCancelled,
+                    notificationTitle,
+                    notificationMessage,
+                    meeting.Id,
+                    actionUrl,
+                    "High",
+                    null,
+                    currentUserId
+                );
 
                 return Json(ResponseHelper.Success("Meeting cancelled successfully."));
             }
@@ -2538,10 +2577,31 @@ namespace StudyConnect.Controllers
                     meeting.PostponementReason
                 };
 
-                // Log the action
+              // Log the action
                 await _auditService.LogUpdateAsync("StudyGroupMeeting", meeting.Id.ToString(), oldValues, newValues);
 
-                // Notify members about postponement
+                // Send notifications to all group members about postponement
+                var notificationTitle = "Meeting Postponed";
+                var notificationMessage = $"'{meeting.Title}' has been rescheduled to {meeting.ScheduledStartTime:MMMM dd, yyyy h:mm tt}";
+                if (!string.IsNullOrEmpty(request.PostponementReason))
+                {
+                    notificationMessage += $". Reason: {request.PostponementReason}";
+                }
+                var actionUrl = $"/StudyGroups/Details/{meeting.StudyGroupId}";
+
+                await _notificationService.CreateNotificationForGroupMembersAsync(
+                    meeting.StudyGroupId,
+                    Constants.NotificationTypes.MeetingUpdated,
+                    notificationTitle,
+                    notificationMessage,
+                    meeting.Id,
+                    actionUrl,
+                    "High",
+                    meeting.ScheduledStartTime,
+                    currentUserId
+                );
+
+                // Continue with existing notification code
                 var members = await _context.StudyGroupMembers
                     .Where(m => m.StudyGroupId == meeting.StudyGroupId &&
                         m.IsApproved &&
@@ -2646,8 +2706,36 @@ namespace StudyConnect.Controllers
                     meeting.NoShowRecorded
                 };
 
-                // Log the action
+              // Log the action
                 await _auditService.LogUpdateAsync("StudyGroupMeeting", meeting.Id.ToString(), oldValues, newValues);
+
+                // Send notifications to all group members about status update
+                if (request.MeetingStatus == "Completed" || request.MeetingStatus == "NoShow")
+                {
+                    var notificationTitle = request.MeetingStatus == "Completed" ? "Meeting Completed" : "Meeting - No Show Recorded";
+                    var notificationMessage = request.MeetingStatus == "Completed"
+                        ? $"'{meeting.Title}' has been completed"
+                        : $"'{meeting.Title}' - No attendees showed up";
+                    
+                    if (request.MeetingStatus == "Completed" && request.AttendanceCount.HasValue)
+                    {
+                        notificationMessage += $" with {request.AttendanceCount.Value} attendees";
+                    }
+                    
+                    var actionUrl = $"/StudyGroups/Details/{meeting.StudyGroupId}";
+
+                    await _notificationService.CreateNotificationForGroupMembersAsync(
+                        meeting.StudyGroupId,
+                        Constants.NotificationTypes.MeetingUpdated,
+                        notificationTitle,
+                        notificationMessage,
+                        meeting.Id,
+                        actionUrl,
+                        "Normal",
+                        null,
+                        currentUserId
+                    );
+                }
 
                 return Json(ResponseHelper.Success($"Meeting status recorded as {request.MeetingStatus}."));
             }
