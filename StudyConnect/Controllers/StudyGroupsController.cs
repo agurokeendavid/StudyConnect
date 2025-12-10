@@ -2500,14 +2500,93 @@ namespace StudyConnect.Controllers
                     meeting.ScheduledStartTime
                 });
 
-                return Json(ResponseHelper.Success("Meeting deleted successfully."));
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(exception, exception.Message);
-                return Json(ResponseHelper.Error("An unexpected error occurred while deleting the meeting."));
-            }
-        }
+              return Json(ResponseHelper.Success("Meeting deleted successfully."));
+          }
+          catch (Exception exception)
+          {
+              _logger.LogError(exception, exception.Message);
+              return Json(ResponseHelper.Error("An unexpected error occurred while deleting the meeting."));
+          }
+      }
+
+      [HttpPost]
+      public async Task<IActionResult> NotifyMeetingStarted([FromBody] int meetingId)
+      {
+          try
+          {
+              var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+              var currentUserName = $"{User.FindFirstValue("FirstName")} {User.FindFirstValue("LastName")}".Trim();
+
+              var meeting = await _context.StudyGroupMeetings
+                  .Include(m => m.StudyGroup)
+                  .Where(m => m.DeletedAt == null)
+                  .FirstOrDefaultAsync(m => m.Id == meetingId);
+
+              if (meeting == null)
+              {
+                  return Json(ResponseHelper.Failed("Meeting not found."));
+              }
+
+              // Check if user is a member
+              var isMember = await _context.StudyGroupMembers
+                  .AnyAsync(m => m.StudyGroupId == meeting.StudyGroupId &&
+                      m.UserId == currentUserId &&
+                      m.IsApproved &&
+                      m.DeletedAt == null);
+
+              if (!isMember)
+              {
+                  return Json(ResponseHelper.Failed("You don't have permission."));
+              }
+
+              // Check if this is an upcoming meeting
+              if (meeting.ScheduledStartTime > DateTime.Now)
+              {
+                  // Send notification to all members that someone has started the meeting early
+                  var notificationTitle = "Meeting Started Early";
+                  var notificationMessage = $"{currentUserName} has joined '{meeting.Title}' early. Meeting scheduled for {meeting.ScheduledStartTime:MMMM dd, yyyy h:mm tt}";
+                  var actionUrl = $"/StudyGroups/Details/{meeting.StudyGroupId}";
+
+                  await _notificationService.CreateNotificationForGroupMembersAsync(
+                      meeting.StudyGroupId,
+                      Constants.NotificationTypes.MeetingUpdated,
+                      notificationTitle,
+                      notificationMessage,
+                      meeting.Id,
+                      actionUrl,
+                      "High",
+                      meeting.ScheduledStartTime,
+                      currentUserId
+                  );
+              }
+              else
+              {
+                  // Send notification that meeting is ongoing
+                  var notificationTitle = "Meeting in Progress";
+                  var notificationMessage = $"{currentUserName} has joined '{meeting.Title}'. Join now!";
+                  var actionUrl = $"/StudyGroups/Details/{meeting.StudyGroupId}";
+
+                  await _notificationService.CreateNotificationForGroupMembersAsync(
+                      meeting.StudyGroupId,
+                      Constants.NotificationTypes.MeetingUpdated,
+                      notificationTitle,
+                      notificationMessage,
+                      meeting.Id,
+                      actionUrl,
+                      "High",
+                      null,
+                      currentUserId
+                  );
+              }
+
+              return Json(ResponseHelper.Success("Notification sent to group members."));
+          }
+          catch (Exception exception)
+          {
+              _logger.LogError(exception, exception.Message);
+              return Json(ResponseHelper.Error("An unexpected error occurred."));
+          }
+      }
 
         [HttpPost]
         public async Task<IActionResult> PostponeMeeting([FromBody] PostponeMeetingRequest request)

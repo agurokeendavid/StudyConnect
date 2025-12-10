@@ -6,7 +6,7 @@ namespace StudyConnect.BackgroundServices
     {
         private readonly ILogger<NotificationBackgroundService> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromHours(1); // Check every 1 hours
+        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(10); // Check every 1 hours
 
         public NotificationBackgroundService(
             ILogger<NotificationBackgroundService> logger,
