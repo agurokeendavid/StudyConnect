@@ -1121,16 +1121,26 @@ function createMeetingCard(meeting, status) {
 
     // Join button logic
     if (status === 'ongoing' && meeting.meetingStatus !== 'Cancelled' && meeting.meetingStatus !== 'NoShow') {
+        //joinButton = `
+        //    <a href="${escapeHtml(meeting.meetingLink)}" target="_blank" class="btn btn-success btn-sm">
+        //        <i class="ti ti-video me-1"></i>Join Now
+        //    </a>
+        //`;
         joinButton = `
-            <a href="${escapeHtml(meeting.meetingLink)}" target="_blank" class="btn btn-success btn-sm">
+            <button class="btn btn-success btn-sm" onclick="joinMeetingNow(${meeting.id}, '${escapeHtml(meeting.meetingLink)}', true)">
                 <i class="ti ti-video me-1"></i>Join Now
-            </a>
+            </button>
         `;
     } else if (status === 'upcoming' && meeting.meetingStatus !== 'Cancelled') {
+        //joinButton = `
+        //    <a href="${escapeHtml(meeting.meetingLink)}" target="_blank" class="btn btn-outline-primary btn-sm">
+        //        <i class="ti ti-video me-1"></i>View Link
+        //    </a>
+        //`;
         joinButton = `
-            <a href="${escapeHtml(meeting.meetingLink)}" target="_blank" class="btn btn-outline-primary btn-sm">
+            <button class="btn btn-outline-primary btn-sm" onclick="joinMeetingNow(${meeting.id}, '${escapeHtml(meeting.meetingLink)}', false)">
                 <i class="ti ti-video me-1"></i>View Link
-            </a>
+            </button>
         `;
     } else {
         joinButton = `
@@ -1257,6 +1267,52 @@ function createMeetingCard(meeting, status) {
     `;
 
     return card;
+}
+
+// Track which meetings have been notified to avoid duplicate notifications
+var notifiedMeetings = new Set();
+
+function joinMeetingNow(meetingId, meetingLink, isOngoing) {
+    // Check if we've already notified for this meeting in this session
+    if (!notifiedMeetings.has(meetingId)) {
+        // Mark as notified
+        notifiedMeetings.add(meetingId);
+
+        // Send notification to backend (no loader, happens in background)
+        $.ajax({
+            url: '/StudyGroups/NotifyMeetingStarted',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(meetingId),
+            success: function (response) {
+                if (response.MessageType === 'Success') {
+                    console.log('Meeting start notification sent to group members');
+                }
+            },
+            error: function () {
+                console.error('Failed to send meeting start notification');
+            }
+        });
+    }
+
+    // Send notification to backend (no loader, happens in background)
+    $.ajax({
+        url: '/StudyGroups/AddMeetingAttendanceCount',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(meetingId),
+        success: function (response) {
+            if (response.MessageType === 'Success') {
+                console.log('Meeting incremented. ');
+            }
+        },
+        error: function () {
+            console.error('Failed to increment meeting');
+        }
+    });
+
+    // Open the meeting link in a new tab
+    window.open(meetingLink, '_blank');
 }
 
 // Open Create Meeting Modal
